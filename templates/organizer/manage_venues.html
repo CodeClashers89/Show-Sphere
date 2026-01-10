@@ -4,7 +4,7 @@
 <div class="container my-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Manage Venues</h2>
-        <a href="{% url 'booking:add_venue' %}" class="btn btn-primary"><i class="fas fa-plus me-2"></i> Add New
+        <a href="{% url 'booking:create_venue' %}" class="btn btn-primary"><i class="fas fa-plus me-2"></i> Add New
             Venue</a>
     </div>
 
@@ -18,8 +18,7 @@
                     <p class="card-text small">Capacity: {{ venue.capacity }}</p>
                 </div>
                 <div class="card-footer bg-white border-top-0 d-flex justify-content-between">
-                    <a href="{% url 'booking:update_venue' venue.id %}"
-                        class="btn btn-sm btn-outline-secondary">Edit</a>
+                    <a href="{% url 'booking:edit_venue' venue.id %}" class="btn btn-sm btn-outline-secondary">Edit</a>
                     <a href="{% url 'booking:delete_venue' venue.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
                 </div>
             </div>

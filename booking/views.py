@@ -564,7 +564,7 @@ def create_event(request):
     else:
         form = EventForm()
     
-    return render(request, 'organizer/create_event.html', {'form': form})
+    return render(request, 'organizer/event_form.html', {'form': form, 'title': 'Create Event'})
 
 
 @approved_organizer_required
@@ -581,7 +581,7 @@ def edit_event(request, event_id):
     else:
         form = EventForm(instance=event)
     
-    return render(request, 'organizer/edit_event.html', {'form': form, 'event': event})
+    return render(request, 'organizer/event_form.html', {'form': form, 'event': event, 'title': 'Edit Event'})
 
 
 @approved_organizer_required
@@ -619,7 +619,7 @@ def create_venue(request):
     else:
         form = VenueForm()
     
-    return render(request, 'organizer/create_venue.html', {'form': form})
+    return render(request, 'organizer/venue_form.html', {'form': form, 'title': 'Create Venue'})
 
 
 @approved_organizer_required
@@ -636,7 +636,20 @@ def edit_venue(request, venue_id):
     else:
         form = VenueForm(instance=venue)
     
-    return render(request, 'organizer/edit_venue.html', {'form': form, 'venue': venue})
+    return render(request, 'organizer/venue_form.html', {'form': form, 'venue': venue, 'title': 'Edit Venue'})
+
+
+@approved_organizer_required
+def delete_venue(request, venue_id):
+    """Delete venue"""
+    venue = get_object_or_404(Venue, id=venue_id, organizer=request.user.organizer_profile)
+    
+    if request.method == 'POST':
+        venue.delete()
+        messages.success(request, 'Venue deleted successfully!')
+        return redirect('booking:manage_venues')
+        
+    return render(request, 'organizer/confirm_delete_venue.html', {'object': venue})
 
 
 @approved_organizer_required
@@ -793,7 +806,7 @@ def create_movie(request):
     else:
         form = MovieForm()
     
-    return render(request, 'theatre/create_movie.html', {'form': form})
+    return render(request, 'theatre/movie_form.html', {'form': form, 'title': 'Add Movie'})
 
 
 @approved_theatre_owner_required
@@ -810,7 +823,7 @@ def edit_movie(request, movie_id):
     else:
         form = MovieForm(instance=movie)
     
-    return render(request, 'theatre/edit_movie.html', {'form': form, 'movie': movie})
+    return render(request, 'theatre/movie_form.html', {'form': form, 'movie': movie, 'title': 'Edit Movie'})
 
 
 @approved_theatre_owner_required
@@ -848,7 +861,7 @@ def create_theatre(request):
     else:
         form = TheatreForm()
     
-    return render(request, 'theatre/create_theatre.html', {'form': form})
+    return render(request, 'theatre/theatre_form.html', {'form': form, 'title': 'Add Theatre'})
 
 
 @approved_theatre_owner_required
@@ -865,7 +878,7 @@ def edit_theatre(request, theatre_id):
     else:
         form = TheatreForm(instance=theatre)
     
-    return render(request, 'theatre/edit_theatre.html', {'form': form, 'theatre': theatre})
+    return render(request, 'theatre/theatre_form.html', {'form': form, 'theatre': theatre, 'title': 'Edit Theatre'})
 
 
 @approved_theatre_owner_required
@@ -901,7 +914,30 @@ def create_screen(request, theatre_id):
         'form': form,
         'theatre': theatre,
     }
-    return render(request, 'theatre/create_screen.html', context)
+    return render(request, 'theatre/screen_form.html', context)
+
+
+@approved_theatre_owner_required
+def edit_screen(request, screen_id):
+    """Edit screen"""
+    screen = get_object_or_404(Screen, id=screen_id, theatre__owner=request.user.theatre_profile)
+    
+    if request.method == 'POST':
+        form = ScreenForm(request.POST, instance=screen)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Screen updated successfully!')
+            return redirect('booking:manage_theatres')
+    else:
+        form = ScreenForm(instance=screen)
+    
+    context = {
+        'form': form,
+        'theatre': screen.theatre,
+        'screen': screen,
+        'title': 'Edit Screen'
+    }
+    return render(request, 'theatre/screen_form.html', context)
 
 
 @approved_theatre_owner_required
@@ -1008,10 +1044,17 @@ def theatre_analytics(request):
 @admin_required
 def admin_dashboard(request):
     """Admin dashboard"""
-    pending_organizers = OrganizerProfile.objects.filter(status='pending').count()
-    pending_theatres = TheatreOwnerProfile.objects.filter(status='pending').count()
-    pending_events = Event.objects.filter(status='pending').count()
-    pending_movies = Movie.objects.filter(status='pending').count()
+    # Get QuerySets for tables
+    pending_organizers_qs = OrganizerProfile.objects.filter(status='pending')
+    pending_theatres_qs = TheatreOwnerProfile.objects.filter(status='pending')
+    
+    # Get counts for statistics
+    pending_organizers_count = pending_organizers_qs.count()
+    pending_theatres_count = pending_theatres_qs.count()
+    pending_events_count = Event.objects.filter(status='pending').count()
+    pending_movies_count = Movie.objects.filter(status='pending').count()
+    
+    pending_approvals = pending_organizers_count + pending_theatres_count + pending_events_count + pending_movies_count
     
     total_users = CustomUser.objects.filter(role='customer').count()
     total_bookings = Booking.objects.filter(payment_status='completed').count()
@@ -1019,14 +1062,19 @@ def admin_dashboard(request):
         total=Sum('total_amount')
     )['total'] or 0
     
+    # Get recent users
+    recent_users = CustomUser.objects.order_by('-date_joined')[:5]
+    
     context = {
-        'pending_organizers': pending_organizers,
-        'pending_theatres': pending_theatres,
-        'pending_events': pending_events,
-        'pending_movies': pending_movies,
+        'pending_organizers': pending_organizers_qs,
+        'pending_theatres': pending_theatres_qs,
+        'pending_events': pending_events_count,
+        'pending_movies': pending_movies_count,
+        'pending_approvals': pending_approvals,
         'total_users': total_users,
         'total_bookings': total_bookings,
         'total_revenue': total_revenue,
+        'recent_users': recent_users,
     }
     return render(request, 'admin_panel/dashboard.html', context)
 

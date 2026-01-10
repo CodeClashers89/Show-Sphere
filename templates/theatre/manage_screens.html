@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>Manage Screens</h2>
+            <p class="text-muted">Screens for <strong>{{ theatre.name }}</strong></p>
+        </div>
+        <div>
+            <a href="{% url 'booking:manage_theatres' %}" class="btn btn-outline-secondary me-2">Back to Theatres</a>
+            <a href="{% url 'booking:create_screen' theatre.id %}" class="btn btn-primary"><i
+                    class="fas fa-plus me-2"></i> Add New Screen</a>
+        </div>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for screen in screens %}
+        <div class="col">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ screen.name }}</h5>
+                    <p class="card-text text-muted mb-2">{{ screen.screen_type }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-light text-dark border">{{ screen.total_seats }} Seats</span>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-top-0 d-flex justify-content-end">
+                    <a href="{% url 'booking:edit_screen' screen.id %}"
+                        class="btn btn-sm btn-outline-secondary">Edit</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                No screens found for this theatre. <a href="{% url 'booking:create_screen' theatre.id %}"
+                    class="alert-link">Add a screen</a> to get started.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

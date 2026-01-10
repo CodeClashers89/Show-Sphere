@@ -8,7 +8,8 @@
                 class="list-group-item list-group-item-action active">Dashboard</a>
             <a href="{% url 'booking:manage_events' %}" class="list-group-item list-group-item-action">Manage Events</a>
             <a href="{% url 'booking:manage_venues' %}" class="list-group-item list-group-item-action">Manage Venues</a>
-            <a href="#" class="list-group-item list-group-item-action disabled">Analytics</a>
+            <a href="{% url 'booking:organizer_analytics' %}"
+                class="list-group-item list-group-item-action">Analytics</a>
         </div>
     </div>
 

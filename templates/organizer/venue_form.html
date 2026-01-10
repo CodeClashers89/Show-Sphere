@@ -5,7 +5,7 @@
     <div class="col-md-8">
         <div class="card shadow">
             <div class="card-body p-5">
-                <h3 class="mb-4">{% if form.instance.pk %}Update{% else %}Add New{% endif %} Venue</h3>
+                <h3 class="mb-4">{{ title }}</h3>
 
                 <form method="post">
                     {% csrf_token %}

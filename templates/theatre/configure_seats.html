@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Configure Seats for {{ show.movie.title }}</h4>
+                    <span class="badge bg-light text-dark">{{ show.show_date }} {{ show.show_time }}</span>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="rows" class="form-label">Row Labels (comma separated)</label>
+                                <input type="text" class="form-control" id="rows" name="rows"
+                                    placeholder="A, B, C, D, E" required>
+                                <div class="form-text">Enter row letters separated by commas.</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="seats_per_row" class="form-label">Seats per Row</label>
+                                <input type="number" class="form-control" id="seats_per_row" name="seats_per_row"
+                                    value="10" required>
+                            </div>
+                        </div>
+
+                        <h5 class="mt-4 mb-3">Seat Categories & Pricing</h5>
+                        <p class="text-muted small">rows are split into 3 sections (front, middle, back) automatically.
+                        </p>
+
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <div class="card h-100 border-secondary">
+                                    <div class="card-header">Front Section</div>
+                                    <div class="card-body">
+                                        <label class="form-label">Type</label>
+                                        <select name="seat_types" class="form-select mb-2">
+                                            <option value="silver">Silver</option>
+                                            <option value="gold">Gold</option>
+                                            <option value="premium">Premium</option>
+                                        </select>
+                                        <label class="form-label">Price</label>
+                                        <input type="number" name="prices" class="form-control" placeholder="Price"
+                                            step="0.01" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card h-100 border-primary">
+                                    <div class="card-header">Middle Section</div>
+                                    <div class="card-body">
+                                        <label class="form-label">Type</label>
+                                        <select name="seat_types" class="form-select mb-2">
+                                            <option value="gold" selected>Gold</option>
+                                            <option value="premium">Premium</option>
+                                            <option value="vip">VIP</option>
+                                        </select>
+                                        <label class="form-label">Price</label>
+                                        <input type="number" name="prices" class="form-control" placeholder="Price"
+                                            step="0.01" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card h-100 border-warning">
+                                    <div class="card-header">Back Section</div>
+                                    <div class="card-body">
+                                        <label class="form-label">Type</label>
+                                        <select name="seat_types" class="form-select mb-2">
+                                            <option value="premium">Premium</option>
+                                            <option value="vip">VIP</option>
+                                            <option value="recliner">Recliner</option>
+                                        </select>
+                                        <label class="form-label">Price</label>
+                                        <input type="number" name="prices" class="form-control" placeholder="Price"
+                                            step="0.01" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-success btn-lg">Generate Seats</button>
+                            <a href="{% url 'booking:manage_movies' %}" class="btn btn-outline-secondary">Skip /
+                                Done</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <h5>Existing Seats: {{ show.seats.count }}</h5>
+                {% if show.seats.count > 0 %}
+                <div class="alert alert-warning">
+                    Generating seats again will add more seats. Duplicate (Row + Number) might fail or error depending
+                    on constraints.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

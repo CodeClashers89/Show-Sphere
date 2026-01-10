@@ -9,8 +9,7 @@
                 <h1 class="display-4 fw-bold">{{ event.title }}</h1>
                 <div class="mb-3">
                     <span class="badge bg-primary fs-6 me-2">{{ event.category.name }}</span>
-                    {% if event.genre %}<span class="badge bg-info text-dark fs-6 me-2">{{ event.genre.name }}</span>{%
-                    endif %}
+                    {% if event.genre %}<span class="badge bg-info text-dark fs-6 me-2">{{ event.genre.name }}</span>{%endif %}
                     <span class="badge bg-light text-dark fs-6">{{ event.language.name }}</span>
                 </div>
                 <p class="lead mb-4"><i class="fas fa-microphone-alt me-2"></i> {{ event.artist_name }}</p>

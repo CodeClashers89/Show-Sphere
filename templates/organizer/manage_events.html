@@ -4,7 +4,7 @@
 <div class="container my-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Manage Events</h2>
-        <a href="{% url 'booking:add_event' %}" class="btn btn-primary"><i class="fas fa-plus me-2"></i> Add New
+        <a href="{% url 'booking:create_event' %}" class="btn btn-primary"><i class="fas fa-plus me-2"></i> Add New
             Event</a>
     </div>
 
@@ -24,10 +24,10 @@
                     </span>
                 </div>
                 <div class="card-footer bg-white border-top-0 d-flex justify-content-between">
-                    <a href="{% url 'booking:update_event' event.id %}"
-                        class="btn btn-sm btn-outline-secondary">Edit</a>
-                    <a href="{% url 'booking:manage_shows' event.id %}" class="btn btn-sm btn-outline-primary">Manage
-                        Shows</a>
+                    <a href="{% url 'booking:edit_event' event.id %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                    <a href="{% url 'booking:schedule_event_show' event.id %}"
+                        class="btn btn-sm btn-outline-primary">Schedule
+                        Show</a>
                     <a href="{% url 'booking:delete_event' event.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
                 </div>
             </div>
