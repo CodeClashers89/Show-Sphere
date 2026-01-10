@@ -1288,3 +1288,78 @@ def lock_seats_api(request, show_id):
         return JsonResponse({'success': True, 'message': 'Seats locked successfully'})
     
     return JsonResponse({'success': False, 'message': 'Invalid request'})
+
+
+@login_required
+def scan_ticket_page(request):
+    """Render the QR scanner page for authorized users"""
+    is_authorized = False
+    
+    if hasattr(request.user, 'theatre_profile') and request.user.theatre_profile.status == 'approved':
+        is_authorized = True
+    elif hasattr(request.user, 'organizer_profile') and request.user.organizer_profile.status == 'approved':
+        is_authorized = True
+        
+    if not is_authorized:
+        messages.error(request, "You are not authorized to access the scanner.")
+        return redirect('booking:home')
+        
+    return render(request, 'common/scan_ticket.html')
+
+
+@login_required
+def api_verify_ticket(request):
+    """Verify ticket from QR code"""
+    ticket_id = request.GET.get('ticket_id')
+    if not ticket_id:
+        return JsonResponse({'valid': False, 'error': 'No Ticket ID provided'})
+    
+    try:
+        if 'TKT' not in ticket_id:
+             return JsonResponse({'valid': False, 'error': 'Invalid Ticket ID format'})
+
+        ticket = Ticket.objects.get(ticket_id=ticket_id)
+        booking = ticket.booking
+        show = booking.show
+        
+        # Authorization check
+        is_authorized = False
+        
+        print(f"DEBUG: Verify Ticket {ticket_id}")
+        print(f"DEBUG: Show Type: {show.show_type}")
+        print(f"DEBUG: User: {request.user}")
+        
+        # Check if Theatre Owner owns this movie show
+        if show.show_type == 'movie':
+            if hasattr(request.user, 'theatre_profile'):
+                print(f"DEBUG: T-Owner: {show.movie.theatre_owner.id} vs {request.user.theatre_profile.id}")
+                if request.user.theatre_profile.id == show.movie.theatre_owner.id:
+                    is_authorized = True
+        
+        # Check if Organizer owns this event show
+        elif show.show_type == 'event':
+            if hasattr(request.user, 'organizer_profile'):
+                 print(f"DEBUG: Organizer: {show.event.organizer.id} vs {request.user.organizer_profile.id}")
+                 if request.user.organizer_profile.id == show.event.organizer.id:
+                    is_authorized = True
+                
+        if not is_authorized:
+            print("DEBUG: Authorization Failed")
+            return JsonResponse({'valid': False, 'error': f'You are not authorized to verify this ticket. (User: {request.user.username})'})
+            
+        data = {
+            'valid': True,
+            'ticket_id': ticket.ticket_id,
+            'booking_id': booking.booking_id,
+            'user': booking.user.username,
+            'seat': str(ticket.seat),
+            'show': str(show),
+            'is_used': ticket.is_used,
+            'used_at': ticket.used_at.strftime('%Y-%m-%d %H:%M') if ticket.used_at else None
+        }
+        return JsonResponse(data)
+        
+    except Ticket.DoesNotExist:
+        return JsonResponse({'valid': False, 'error': 'Ticket not found.'})
+    except Exception as e:
+        return JsonResponse({'valid': False, 'error': str(e)})

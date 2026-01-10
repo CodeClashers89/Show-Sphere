@@ -80,4 +80,8 @@ urlpatterns = [
     # AJAX endpoints
     path('api/check-seat-availability/<int:show_id>/', views.check_seat_availability, name='check_seat_availability'),
     path('api/lock-seats/<int:show_id>/', views.lock_seats_api, name='lock_seats_api'),
+    path('api/verify-ticket/', views.api_verify_ticket, name='api_verify_ticket'),
+    
+    # Common
+    path('ticket/scan/', views.scan_ticket_page, name='scan_ticket'),
 ]

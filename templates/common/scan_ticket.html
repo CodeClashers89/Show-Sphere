@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row justify-content-center my-5">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="fas fa-qrcode me-2"></i>Scan Ticket</h4>
+            </div>
+            <div class="card-body text-center">
+                <div id="reader" style="width: 100%;"></div>
+                <div id="result" class="mt-4" style="display: none;">
+                    <div class="alert" id="scan-status-alert"></div>
+                    <div class="card border-0 bg-light p-3 text-start">
+                        <h5 class="card-title mb-3 border-bottom pb-2">Ticket Details</h5>
+                        <p><strong>Status:</strong> <span id="ticket-status" class="badge"></span></p>
+                        <p><strong>Ticket ID:</strong> <span id="ticket-id"></span></p>
+                        <p><strong>Event/Movie:</strong> <span id="ticket-event"></span></p>
+                        <p><strong>Seat:</strong> <span id="ticket-seat"></span></p>
+                        <p><strong>Booking ID:</strong> <span id="booking-id"></span></p>
+                        <p><strong>User:</strong> <span id="ticket-user"></span></p>
+                    </div>
+                    <button class="btn btn-primary mt-3" onclick="resetScanner()">Scan Another</button>
+                </div>
+                <div id="scanner-controls" class="mt-3">
+                    <p class="text-muted">Point your camera at the ticket QR code.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include html5-qrcode library -->
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+<script>
+    let html5QrcodeScanner;
+    let isScanning = true;
+
+    function onScanSuccess(decodedText, decodedResult) {
+        if (!isScanning) return;
+
+        // Stop scanning temporarily
+        isScanning = false;
+        try {
+            html5QrcodeScanner.pause();
+        } catch (e) {
+            // Scanner might not be in a state to pause (e.g. file scan), ignore
+            console.log("Could not pause scanner:", e);
+        }
+
+        // Extract Ticket ID from the scanned text
+        // Expected format: "ShowSphere Ticket\nTicket ID: TKT...\n..."
+        let ticketId = null;
+        const lines = decodedText.split('\n');
+        for (const line of lines) {
+            if (line.startsWith('Ticket ID: ')) {
+                ticketId = line.replace('Ticket ID: ', '').trim();
+                break;
+            }
+        }
+
+        if (!ticketId) {
+            // Fallback: try to see if the whole text is the ID (if we change QR format later)
+            if (decodedText.startsWith('TKT')) {
+                ticketId = decodedText;
+            }
+        }
+
+        if (ticketId) {
+            verifyTicket(ticketId);
+        } else {
+            showError("Invalid QR Code format.");
+        }
+    }
+
+    function onScanFailure(error) {
+        // handle scan failure, usually better to ignore and keep scanning.
+        // console.warn(`Code scan error = ${error}`);
+    }
+
+    function verifyTicket(ticketId) {
+        console.log("Verifying ticket:", ticketId);
+        fetch(`{% url 'booking:api_verify_ticket' %}?ticket_id=${encodeURIComponent(ticketId)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Network response was not ok");
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("API Response:", data);
+                const resultDiv = document.getElementById('result');
+                const readerDiv = document.getElementById('reader');
+                const statusAlert = document.getElementById('scan-status-alert');
+                const scannerControls = document.getElementById('scanner-controls');
+
+                readerDiv.style.display = 'none';
+                scannerControls.style.display = 'none';
+                resultDiv.style.display = 'block';
+
+                document.getElementById('ticket-id').textContent = data.ticket_id || ticketId;
+                document.getElementById('ticket-event').textContent = data.show || 'N/A';
+                document.getElementById('ticket-seat').textContent = data.seat || 'N/A';
+                document.getElementById('booking-id').textContent = data.booking_id || 'N/A';
+                document.getElementById('ticket-user').textContent = data.user || 'N/A';
+
+                const statusBadge = document.getElementById('ticket-status');
+
+                if (data.valid) {
+                    statusAlert.className = 'alert alert-success';
+                    statusAlert.textContent = 'Ticket Verified Successfully!';
+                    statusBadge.className = 'badge bg-success';
+                    statusBadge.textContent = 'Valid';
+                } else {
+                    console.error("Ticket Invalid:", data.error);
+                    statusAlert.className = 'alert alert-danger';
+                    statusAlert.textContent = data.error || 'Invalid Ticket';
+                    statusBadge.className = 'badge bg-danger';
+                    statusBadge.textContent = 'Invalid / Error';
+                }
+            })
+            .catch(error => {
+                console.error("Verify Error:", error);
+                showError("Error verifying ticket: " + error.message);
+            });
+    }
+
+    function showError(msg) {
+        const resultDiv = document.getElementById('result');
+        const readerDiv = document.getElementById('reader');
+        const statusAlert = document.getElementById('scan-status-alert');
+        const scannerControls = document.getElementById('scanner-controls');
+
+        readerDiv.style.display = 'none';
+        scannerControls.style.display = 'none';
+        resultDiv.style.display = 'block';
+
+        statusAlert.className = 'alert alert-danger';
+        statusAlert.textContent = msg;
+    }
+
+    function resetScanner() {
+        document.getElementById('result').style.display = 'none';
+        document.getElementById('reader').style.display = 'block';
+        document.getElementById('scanner-controls').style.display = 'block';
+        isScanning = true;
+        html5QrcodeScanner.resume();
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        html5QrcodeScanner = new Html5QrcodeScanner(
+            "reader",
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            /* verbose= */ false);
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+    });
+</script>
+{% endblock %}
