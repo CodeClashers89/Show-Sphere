@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow border-0">
+                <div class="card-header bg-dark text-white text-center py-3">
+                    <h5 class="mb-0">E-Ticket</h5>
+                </div>
+                <div class="card-body text-center p-4">
+                    {% if ticket.booking.show.show_type == 'movie' %}
+                    <h3 class="fw-bold">{{ ticket.booking.show.movie.title }}</h3>
+                    <p class="text-muted">{{ ticket.booking.show.screen.theatre.name }}</p>
+                    {% else %}
+                    <h3 class="fw-bold">{{ ticket.booking.show.event.title }}</h3>
+                    <p class="text-muted">{{ ticket.booking.show.venue.name }}</p>
+                    {% endif %}
+
+                    <div class="my-4">
+                        <div class="row">
+                            <div class="col-6 border-end">
+                                <small class="text-muted d-block uppercase">Date</small>
+                                <span class="fs-5 fw-bold">{{ ticket.booking.show.show_date|date:"D, d M Y" }}</span>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block uppercase">Time</small>
+                                <span class="fs-5 fw-bold">{{ ticket.booking.show.show_time|time:"H:i" }}</span>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-6 border-end">
+                                <small class="text-muted d-block uppercase">Screen/Venue</small>
+                                <span class="fw-bold">
+                                    {% if ticket.booking.show.screen %}
+                                    {{ ticket.booking.show.screen.name }}
+                                    {% else %}
+                                    {{ ticket.booking.show.venue.venue_type }}
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block uppercase">Seat</small>
+                                <span class="fs-4 fw-bold text-primary">{{ ticket.seat.row }}{{ ticket.seat.seat_number
+                                    }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="border-dashed my-4">
+
+                    <div class="qr-code-container mb-3">
+                        {% if ticket.qr_code %}
+                        <img src="{{ ticket.qr_code.url }}" alt="QR Code" class="img-fluid" style="max-width: 200px;">
+                        {% else %}
+                        <div class="alert alert-warning">QR Code Generating...</div>
+                        {% endif %}
+                    </div>
+                    <small class="text-muted d-block">Ticket ID: {{ ticket.ticket_id }}</small>
+
+                    <div class="mt-4 d-print-none">
+                        <button onclick="window.print()" class="btn btn-outline-secondary me-2"><i
+                                class="fas fa-print"></i> Print</button>
+                        <a href="{{ ticket.qr_code.url }}" download class="btn btn-primary"><i
+                                class="fas fa-download"></i> Download</a>
+                    </div>
+                </div>
+                <div class="card-footer bg-light text-center small text-muted">
+                    Show this QR code at the entrance
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row my-5">
+    <div class="col-md-3">
+        <div class="list-group">
+            <a href="{% url 'booking:admin_dashboard' %}"
+                class="list-group-item list-group-item-action active">Dashboard</a>
+            <a href="#users" class="list-group-item list-group-item-action">User Management</a>
+            <a href="#approvals" class="list-group-item list-group-item-action">Pending Approvals</a>
+            <a href="#" class="list-group-item list-group-item-action disabled">Reports & Analytics</a>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        <h2>Admin Dashboard</h2>
+
+        <!-- Stats -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Total Users</h6>
+                        <h3 class="fw-bold">{{ total_users }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Bookings</h6>
+                        <h3 class="fw-bold">{{ total_bookings }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-dark h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Revenue</h6>
+                        <h3 class="fw-bold">₹{{ total_revenue|floatformat:0 }}</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-danger text-white h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Pending Items</h6>
+                        <h3 class="fw-bold">{{ pending_approvals }}</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Approvals -->
+        <h4 id="approvals" class="mb-3">Pending Approvals</h4>
+
+        <ul class="nav nav-tabs mb-3" id="approvalTabs" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" id="organizers-tab" data-bs-toggle="tab" data-bs-target="#organizers"
+                    type="button">Organizers</button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" id="theatres-tab" data-bs-toggle="tab" data-bs-target="#theatres"
+                    type="button">Theatres</button>
+            </li>
+        </ul>
+
+        <div class="tab-content mb-5" id="approvalTabsContent">
+            <!-- Organizers Tab -->
+            <div class="tab-pane fade show active" id="organizers" role="tabpanel">
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Organization</th>
+                                <th>Contact</th>
+                                <th>Email</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for organizer in pending_organizers %}
+                            <tr>
+                                <td>{{ organizer.organization_name }}</td>
+                                <td>{{ organizer.contact_person }}</td>
+                                <td>{{ organizer.user.email }}</td>
+                                <td>
+                                    <a href="{% url 'booking:approve_organizer' organizer.id %}"
+                                        class="btn btn-sm btn-success">Approve</a>
+                                    <a href="{% url 'booking:reject_organizer' organizer.id %}"
+                                        class="btn btn-sm btn-outline-danger">Reject</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">No pending organizer requests.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Theatres Tab -->
+            <div class="tab-pane fade" id="theatres" role="tabpanel">
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Theatre Chain</th>
+                                <th>Owner</th>
+                                <th>Email</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for theatre in pending_theatres %}
+                            <tr>
+                                <td>{{ theatre.theatre_chain_name }}</td>
+                                <td>{{ theatre.owner_name }}</td>
+                                <td>{{ theatre.user.email }}</td>
+                                <td>
+                                    <a href="{% url 'booking:approve_theatre' theatre.id %}"
+                                        class="btn btn-sm btn-success">Approve</a>
+                                    <a href="{% url 'booking:reject_theatre' theatre.id %}"
+                                        class="btn btn-sm btn-outline-danger">Reject</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">No pending theatre requests.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Users -->
+        <h4 id="users" class="mb-3">Recent Users</h4>
+        <div class="table-responsive">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Role</th>
+                        <th>Email</th>
+                        <th>Date Joined</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in recent_users %}
+                    <tr>
+                        <td>{{ user.username }}</td>
+                        <td><span class="badge bg-secondary">{{ user.get_role_display }}</span></td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.date_joined|date:"d M Y" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

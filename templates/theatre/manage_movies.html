@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Manage Movies</h2>
+        <a href="{% url 'booking:add_movie' %}" class="btn btn-primary"><i class="fas fa-plus me-2"></i> Add New
+            Movie</a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-4 g-4">
+        {% for movie in movies %}
+        <div class="col">
+            <div class="card h-100">
+                {% if movie.poster %}
+                <img src="{{ movie.poster.url }}" class="card-img-top" alt="{{ movie.title }}"
+                    style="height: 250px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title text-truncate">{{ movie.title }}</h5>
+                    <p class="card-text text-muted small">{{ movie.language.name }} | {{ movie.genre.name }}</p>
+                    <span class="badge {% if movie.is_approved %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                        {% if movie.is_approved %}Approved{% else %}Pending Approval{% endif %}
+                    </span>
+                </div>
+                <div class="card-footer bg-white border-top-0 d-flex justify-content-between">
+                    <a href="{% url 'booking:update_movie' movie.id %}"
+                        class="btn btn-sm btn-outline-secondary">Edit</a>
+                    <a href="{% url 'booking:manage_movie_shows' movie.id %}"
+                        class="btn btn-sm btn-outline-primary">Shows</a>
+                    <a href="{% url 'booking:delete_movie' movie.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">You haven't added any movies yet.</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

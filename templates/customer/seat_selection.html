@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block extra_css %}
+<style>
+    .screen-container {
+        perspective: 1000px;
+        margin-bottom: 30px;
+    }
+
+    .screen {
+        background-color: #fff;
+        height: 70px;
+        width: 100%;
+        margin: 15px 0;
+        transform: rotateX(-45deg);
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.7);
+    }
+
+    .seat-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+
+    .seat-row-label {
+        width: 30px;
+        text-align: center;
+        line-height: 30px;
+        font-weight: bold;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        margin-right: 15px;
+        font-size: 0.9rem;
+    }
+
+    .legend-box {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        margin-right: 5px;
+        border: 1px solid #ccc;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            {% if show.show_type == 'movie' %}
+            <h2 class="mb-1">{{ show.movie.title }}</h2>
+            <p class="text-muted mb-0">{{ show.screen.theatre.name }} | {{ show.show_date|date:"D, d M" }} {{
+                show.show_time|time:"H:i" }}</p>
+            {% else %}
+            <h2 class="mb-1">{{ show.event.title }}</h2>
+            <p class="text-muted mb-0">{{ show.venue.name }} | {{ show.show_date|date:"D, d M" }} {{
+                show.show_time|time:"H:i" }}</p>
+            {% endif %}
+        </div>
+        <div class="text-end">
+            <div class="fs-5" id="totalDisplay">Total: ₹0</div>
+            <button id="bookButton" class="btn btn-primary mt-2" disabled>Proceed to Pay</button>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="d-flex justify-content-center mb-4">
+        <div class="legend-item">
+            <div class="legend-box" style="background-color: white;"></div> Available
+        </div>
+        <div class="legend-item">
+            <div class="legend-box" style="background-color: var(--success-color);"></div> Selected
+        </div>
+        <div class="legend-item">
+            <div class="legend-box" style="background-color: #ccc;"></div> Sold
+        </div>
+        <div class="legend-item">
+            <div class="legend-box" style="background-color: var(--warning-color);"></div> Locked
+        </div>
+    </div>
+
+    <!-- Screen -->
+    <div class="screen-container text-center">
+        <div class="screen"></div>
+        <small class="text-muted">SCREEN THIS WAY</small>
+    </div>
+
+    <!-- Seat Layout -->
+    <form id="bookingForm" action="{% url 'booking:payment' show.id %}" method="get">
+        <div class="seat-grid">
+            {% regroup seats by row as row_list %}
+
+            {% for row in row_list %}
+            <div class="seat-row">
+                <div class="seat-row-label">{{ row.grouper }}</div>
+                {% for seat in row.list %}
+                {% with status=seat_status|get_item:seat.id %}
+                <div class="seat 
+                            {% if status == 'booked' %}booked{% elif status == 'locked' %}locked{% elif status == 'my_lock' %}selected{% else %}available{% endif %}"
+                    data-seat-id="{{ seat.id }}" data-price="{{ seat.price }}"
+                    title="{{ seat.row }}{{ seat.seat_number }} - ₹{{ seat.price }}" data-bs-toggle="tooltip">
+                    {{ seat.seat_number }}
+                </div>
+                {% if status == 'my_lock' %}
+                <input type="hidden" name="seats" value="{{ seat.id }}">
+                {% endif %}
+                {% endwith %}
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const seats = document.querySelectorAll('.seat.available');
+        const bookButton = document.getElementById('bookButton');
+        const totalDisplay = document.getElementById('totalDisplay');
+        const form = document.getElementById('bookingForm');
+        let selectedSeats = new Set();
+        let totalAmount = 0;
+
+        // Initialize already selected (my_lock) seats
+        document.querySelectorAll('.seat.selected').forEach(seat => {
+            const id = seat.dataset.seatId;
+            const price = parseFloat(seat.dataset.price);
+            selectedSeats.add(id);
+            totalAmount += price;
+        });
+        updateUI();
+
+        seats.forEach(seat => {
+            seat.addEventListener('click', function () {
+                if (this.classList.contains('booked') || this.classList.contains('locked')) return;
+
+                const id = this.dataset.seatId;
+                const price = parseFloat(this.dataset.price);
+
+                this.classList.toggle('selected');
+
+                if (this.classList.contains('selected')) {
+                    selectedSeats.add(id);
+                    totalAmount += price;
+                } else {
+                    selectedSeats.delete(id);
+                    totalAmount -= price;
+                }
+
+                updateUI();
+                updateFormInputs();
+            });
+        });
+
+        function updateUI() {
+            totalDisplay.textContent = 'Total: ₹' + totalAmount.toFixed(2);
+            bookButton.disabled = selectedSeats.size === 0;
+        }
+
+        function updateFormInputs() {
+            // Clear existing inputs
+            form.querySelectorAll('input[name="seats"]').forEach(el => el.remove());
+
+            // Add new inputs
+            selectedSeats.forEach(id => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'seats';
+                input.value = id;
+                form.appendChild(input);
+            });
+        }
+
+        bookButton.addEventListener('click', function () {
+            if (selectedSeats.size > 0) {
+                form.submit();
+            }
+        });
+
+        // Polling to check availability periodically (basic real-time)
+        setInterval(checkAvailability, 10000); // Check every 10 seconds
+
+        function checkAvailability() {
+            fetch("{% url 'booking:check_seat_availability' show.id %}")
+                .then(response => response.json())
+                .then(data => {
+                    const availableIds = data.available_seats;
+
+                    document.querySelectorAll('.seat').forEach(seat => {
+                        const id = parseInt(seat.dataset.seatId);
+
+                        // If I haven't selected it, update its stats
+                        if (!selectedSeats.has(String(id))) {
+                            if (availableIds.includes(id)) {
+                                seat.classList.remove('booked', 'locked');
+                                seat.classList.add('available');
+                            } else {
+                                if (!seat.classList.contains('booked')) { // If not already booked
+                                    seat.classList.remove('available');
+                                    seat.classList.add('locked'); // Assume locked if not available
+                                }
+                            }
+                        }
+                    });
+                });
+        }
+    });
+</script>
+{% endblock %}

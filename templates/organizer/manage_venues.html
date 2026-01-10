@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Manage Venues</h2>
+        <a href="{% url 'booking:add_venue' %}" class="btn btn-primary"><i class="fas fa-plus me-2"></i> Add New
+            Venue</a>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for venue in venues %}
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ venue.name }}</h5>
+                    <p class="card-text text-muted mb-1">{{ venue.address }}, {{ venue.city.name }}</p>
+                    <p class="card-text small">Capacity: {{ venue.capacity }}</p>
+                </div>
+                <div class="card-footer bg-white border-top-0 d-flex justify-content-between">
+                    <a href="{% url 'booking:update_venue' venue.id %}"
+                        class="btn btn-sm btn-outline-secondary">Edit</a>
+                    <a href="{% url 'booking:delete_venue' venue.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">You haven't added any venues yet.</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

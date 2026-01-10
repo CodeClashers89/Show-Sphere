@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row my-5">
+    <div class="col-md-3">
+        <div class="list-group">
+            <a href="{% url 'booking:organizer_dashboard' %}"
+                class="list-group-item list-group-item-action active">Dashboard</a>
+            <a href="{% url 'booking:manage_events' %}" class="list-group-item list-group-item-action">Manage Events</a>
+            <a href="{% url 'booking:manage_venues' %}" class="list-group-item list-group-item-action">Manage Venues</a>
+            <a href="#" class="list-group-item list-group-item-action disabled">Analytics</a>
+        </div>
+    </div>
+
+    <div class="col-md-9">
+        <h2>Organizer Dashboard</h2>
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card bg-primary text-white h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Events</h5>
+                        <h2 class="fw-bold">{{ total_events }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-success text-white h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Active Shows</h5>
+                        <h2 class="fw-bold">{{ active_shows }}</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-info text-dark h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Bookings</h5>
+                        <h2 class="fw-bold">{{ total_bookings }}</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h4>Recent Bookings</h4>
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Booking ID</th>
+                        <th>Event</th>
+                        <th>Venue</th>
+                        <th>Seats</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in recent_bookings %}
+                    <tr>
+                        <td>{{ booking.booking_id }}</td>
+                        <td>{{ booking.show.event.title }}</td>
+                        <td>{{ booking.show.venue.name }}</td>
+                        <td>{{ booking.seats.count }}</td>
+                        <td>₹{{ booking.grand_total }}</td>
+                        <td>{{ booking.booking_date|date:"d M Y" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center">No recent bookings.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

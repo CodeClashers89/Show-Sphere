@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center my-5">
+    <div class="col-md-8">
+        <h2 class="mb-4">Confirm Booking</h2>
+
+        <div class="row">
+            <div class="col-md-8">
+                <!-- Booking Summary -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0">Booking Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if show.show_type == 'movie' %}
+                        <h4>{{ show.movie.title }}</h4>
+                        <p class="text-muted"><i class="fas fa-map-marker-alt me-2"></i> {{ show.screen.theatre.name }}
+                            | {{ show.screen.name }}</p>
+                        {% else %}
+                        <h4>{{ show.event.title }}</h4>
+                        <p class="text-muted"><i class="fas fa-map-marker-alt me-2"></i> {{ show.venue.name }}</p>
+                        {% endif %}
+
+                        <p class="mb-4">
+                            <span class="badge bg-light text-dark fs-6">{{ show.show_date|date:"D, d M Y" }}</span>
+                            <span class="badge bg-light text-dark fs-6 ms-2">{{ show.show_time|time:"H:i" }}</span>
+                        </p>
+
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Seat</th>
+                                        <th>Type</th>
+                                        <th class="text-end">Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for seat in seats %}
+                                    <tr>
+                                        <td>{{ seat.row }}{{ seat.seat_number }}</td>
+                                        <td>{{ seat.get_seat_type_display }}</td>
+                                        <td class="text-end">₹{{ seat.price }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    <tr>
+                                        <td colspan="2" class="text-end fw-bold">Subtotal</td>
+                                        <td class="text-end fw-bold">₹{{ total_amount|floatformat:2 }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" class="text-end text-muted">Convenience Fee (2%)</td>
+                                        <td class="text-end text-muted">₹{{ convenience_fee|floatformat:2 }}</td>
+                                    </tr>
+                                    <tr class="table-active">
+                                        <td colspan="2" class="text-end fw-bold fs-5">Amount Payable</td>
+                                        <td class="text-end fw-bold fs-5">₹{{ grand_total|floatformat:2 }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <!-- Payment Options -->
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">Payment</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            {% for seat in seats %}
+                            <input type="hidden" name="seats" value="{{ seat.id }}">
+                            {% endfor %}
+
+                            <h6 class="mb-3">Select Payment Method</h6>
+
+                            <div class="form-check mb-3 p-3 border rounded">
+                                <input class="form-check-input" type="radio" name="payment_method" id="pay_upi"
+                                    value="upi" checked>
+                                <label class="form-check-label w-100" for="pay_upi">
+                                    <i class="fas fa-mobile-alt me-2 text-primary"></i> UPI
+                                </label>
+                            </div>
+
+                            <div class="form-check mb-3 p-3 border rounded">
+                                <input class="form-check-input" type="radio" name="payment_method" id="pay_card"
+                                    value="card">
+                                <label class="form-check-label w-100" for="pay_card">
+                                    <i class="fas fa-credit-card me-2 text-success"></i> Credit/Debit Card
+                                </label>
+                            </div>
+
+                            <div class="form-check mb-3 p-3 border rounded">
+                                <input class="form-check-input" type="radio" name="payment_method" id="pay_wallet"
+                                    value="wallet">
+                                <label class="form-check-label w-100" for="pay_wallet">
+                                    <i class="fas fa-wallet me-2 text-warning"></i> Wallet
+                                </label>
+                            </div>
+
+                            <div class="d-grid mt-4">
+                                <button type="submit" class="btn btn-primary btn-lg">Pay ₹{{ grand_total|floatformat:2
+                                    }}</button>
+                            </div>
+                            <p class="text-center mt-3 text-muted small"><i class="fas fa-lock me-1"></i> Secure Payment
+                                Simulation</p>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="alert alert-warning mt-3 small">
+                    <i class="fas fa-hourglass-half me-1"></i> Seats are locked for 10 minutes. Please complete payment.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

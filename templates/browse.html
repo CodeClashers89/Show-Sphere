@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">Browse Events & Movies</h2>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Category</label>
+                    <select name="category" class="form-select">
+                        <option value="">All Categories</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat.slug }}" {% if request.GET.category|default:'' == cat.slug %}selected{%endif %}>
+                            {{ cat.name }}
+                        </option>
+
+
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">City</label>
+                    <select name="city" class="form-select">
+                        <option value="">All Cities</option>
+                        {% for city in cities %}
+                        <option value="{{ city.id }}" {% if request.GET.city == city.id|stringformat:"i"%}selected{%endif%}>{{ city.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Language</label>
+                    <select name="language" class="form-select">
+                        <option value="">All Languages</option>
+                        {% for lang in languages %}
+                        <option value="{{ lang.id }}" {% if request.GET.language == lang.id|stringformat:"i" %}selected{%endif %}>{{ lang.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Genre</label>
+                    <select name="genre" class="form-select">
+                        <option value="">All Genres</option>
+                        {% for gen in genres %}
+                        <option value="{{ gen.id }}" {% if request.GET.genre == gen.id|stringformat:"i" %}selected{% endif%}>{{ gen.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Apply Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results -->
+    <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="movies-tab" data-bs-toggle="tab" data-bs-target="#movies" type="button"
+                role="tab">Movies ({{ movies.count }})</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button"
+                role="tab">Events ({{ events.count }})</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="myTabContent">
+        <!-- Movies Tab -->
+        <div class="tab-pane fade show active" id="movies" role="tabpanel">
+            <div class="row row-cols-1 row-cols-md-4 g-4">
+                {% for movie in movies %}
+                <div class="col">
+                    <div class="card h-100">
+                        {% if movie.poster %}
+                        <img src="{{ movie.poster.url }}" class="card-img-top" alt="{{ movie.title }}">
+                        {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center">
+                            <i class="fas fa-film fa-3x text-muted"></i>
+                        </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title text-truncate">{{ movie.title }}</h5>
+                            <p class="card-text text-muted small">{{ movie.language.name }} | {{ movie.genre.name }}</p>
+                            <p class="card-text small"><i class="fas fa-star text-warning"></i> {{movie.rating|default:"--" }}/10</p>
+                        </div>
+                        <div class="card-footer bg-white border-top-0">
+                            <a href="{% url 'booking:movie_detail' movie.id %}" class="btn btn-outline-primary w-100">Book Tickets</a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info">No movies found matching your filters.</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Events Tab -->
+        <div class="tab-pane fade" id="events" role="tabpanel">
+            <div class="row row-cols-1 row-cols-md-3 g-4">
+                {% for event in events %}
+                <div class="col">
+                    <div class="card h-100">
+                        {% if event.poster %}
+                        <img src="{{ event.poster.url }}" class="card-img-top" alt="{{ event.title }}"
+                            style="height: 250px;">
+                        {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                            style="height: 250px;">
+                            <i class="fas fa-calendar-alt fa-3x text-muted"></i>
+                        </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ event.title }}</h5>
+                            <p class="card-text text-muted mb-1"><i class="fas fa-map-marker-alt me-1"></i> {{event.shows.first.venue.name|default:"Various Venues" }}</p>
+                            <p class="card-text text-muted small">{{ event.category.name }} | {{ event.language.name }}
+                            </p>
+                        </div>
+                        <div class="card-footer bg-white border-top-0">
+                            <a href="{% url 'booking:event_detail' event.id %}"
+                                class="btn btn-outline-primary w-100">Book Tickets</a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info">No events found matching your filters.</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

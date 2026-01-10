@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Hero Carousel -->
+<div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
+    <div class="carousel-inner">
+        {% if trending_movies %}
+        {% for movie in trending_movies %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            <div class="d-block w-100"
+                style="height: 400px; background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('{{ movie.poster.url }}'); background-size: cover; background-position: center;">
+                <div class="carousel-caption d-none d-md-block text-start">
+                    <h2 class="display-4 fw-bold">{{ movie.title }}</h2>
+                    <p class="lead">{{ movie.description|truncatewords:20 }}</p>
+                    <a href="{% url 'booking:movie_detail' movie.id %}" class="btn btn-primary btn-lg">Book Tickets</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <!-- Default banner if no movies/events yet -->
+        <div class="carousel-item active">
+            <div class="d-block w-100 bg-secondary text-white d-flex align-items-center justify-content-center"
+                style="height: 400px;">
+                <div class="text-center">
+                    <h1 class="display-4">Welcome to ShowSphere</h1>
+                    <p class="lead">Book tickets for your favorite movies and events</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>
+
+<!-- Recommended Movies -->
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Recommended Movies</h2>
+        <a href="{% url 'booking:browse' %}" class="btn btn-outlie-primary text-primary">See All <i
+                class="fas fa-chevron-right small"></i></a>
+    </div>
+    <div class="row row-cols-1 row-cols-md-4 g-4">
+        {% for movie in new_movies %}
+        <div class="col">
+            <div class="card h-100">
+                {% if movie.poster %}
+                <img src="{{ movie.poster.url }}" class="card-img-top" alt="{{ movie.title }}">
+                {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center">
+                    <i class="fas fa-film fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title text-truncate">{{ movie.title }}</h5>
+                    <p class="card-text text-muted small">{{ movie.genre.name }}</p>
+                </div>
+                <div class="card-footer bg-white border-top-0">
+                    <a href="{% url 'booking:movie_detail' movie.id %}" class="btn btn-primary w-100">Book Now</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">No movies available right now. Check back soon!</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Events Near You -->
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Events Near You</h2>
+        <a href="{% url 'booking:browse' %}?category=events" class="btn btn-outlie-primary text-primary">See All <i
+                class="fas fa-chevron-right small"></i></a>
+    </div>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for event in trending_events %}
+        <div class="col">
+            <div class="card h-100">
+                {% if event.poster %}
+                <img src="{{ event.poster.url }}" class="card-img-top" alt="{{ event.title }}" style="height: 250px;">
+                {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                    style="height: 250px;">
+                    <i class="fas fa-calendar-alt fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ event.title }}</h5>
+                    <p class="card-text text-muted mb-1"><i class="fas fa-map-marker-alt me-1"></i> {{
+                        event.shows.first.venue.name|default:"Various Venues" }}</p>
+                    <p class="card-text text-muted small">{{ event.category.name }} | {{ event.language.name }}</p>
+                </div>
+                <div class="card-footer bg-white border-top-0">
+                    <a href="{% url 'booking:event_detail' event.id %}" class="btn btn-primary w-100">Book Now</a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">No upcoming events found.</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Best of Entertainment -->
+<div class="container my-5 p-5 bg-light rounded-3 text-center">
+    <h2 class="mb-4">The Best of Entertainment</h2>
+    <div class="row justify-content-center g-4">
+        {% for category in categories %}
+        <div class="col-6 col-md-2">
+            <a href="{% url 'booking:browse' %}?category={{ category.slug }}" class="text-decoration-none text-dark">
+                <div class="p-3 bg-white rounded shadow-sm hover-effect">
+                    <i class="{{ category.icon }} fa-2x mb-2 text-primary"></i>
+                    <h6 class="mb-0">{{ category.name }}</h6>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

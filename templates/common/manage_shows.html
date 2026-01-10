@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center my-5">
+    <div class="col-md-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            {% if is_movie %}
+            <h2>Manage Shows: {{ object.title }}</h2>
+            <a href="{% url 'booking:add_movie_show' object.id %}" class="btn btn-primary"><i
+                    class="fas fa-plus me-2"></i> Schedule Show</a>
+            {% else %}
+            <h2>Manage Shows: {{ object.title }}</h2>
+            <a href="{% url 'booking:add_event_show' object.id %}" class="btn btn-primary"><i
+                    class="fas fa-plus me-2"></i> Schedule Show</a>
+            {% endif %}
+        </div>
+
+        <div class="card shadow">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">Date</th>
+                                <th>Time</th>
+                                <th>{% if is_movie %}Screen{% else %}Venue{% endif %}</th>
+                                <th>Base Price</th>
+                                <th>Seats Config</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for show in shows %}
+                            <tr>
+                                <td class="ps-4">{{ show.show_date|date:"D, d M Y" }}</td>
+                                <td>{{ show.show_time|time:"H:i" }}</td>
+                                <td>
+                                    {% if is_movie %}
+                                    {{ show.screen.name }}
+                                    <small class="text-muted d-block">{{ show.screen.theatre.name }}</small>
+                                    {% else %}
+                                    {{ show.venue.name }}
+                                    <small class="text-muted d-block">{{ show.venue.city.name }}</small>
+                                    {% endif %}
+                                </td>
+                                <td>₹{{ show.base_price }}</td>
+                                <td>
+                                    <a href="{% url 'booking:configure_seats' show.id %}"
+                                        class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-couch me-1"></i> Configure
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="{% url 'booking:update_show' show.id %}"
+                                        class="btn btn-sm btn-outline-secondary">Edit</a>
+                                    <a href="{% url 'booking:delete_show' show.id %}"
+                                        class="btn btn-sm btn-outline-danger">Delete</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-5">
+                                    <p class="text-muted">No shows scheduled for this {% if is_movie %}movie{% else
+                                        %}event{% endif %} yet.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

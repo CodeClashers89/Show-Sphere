@@ -1,0 +1,284 @@
+from django import forms
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from .models import (
+    CustomUser, OrganizerProfile, TheatreOwnerProfile,
+    Event, Movie, Venue, Theatre, Screen, Show, Seat, City
+)
+
+
+class CustomerRegistrationForm(UserCreationForm):
+    """Customer registration form"""
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Email Address'
+    }))
+    first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'First Name'
+    }))
+    last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Last Name'
+    }))
+    phone = forms.CharField(required=False, widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Phone Number'
+    }))
+    city = forms.ModelChoiceField(
+        queryset=City.objects.filter(is_active=True),
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    class Meta:
+        model = CustomUser
+        fields = ['username', 'email', 'first_name', 'last_name', 'phone', 'city', 'password1', 'password2']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['password1'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Password'})
+        self.fields['password2'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Confirm Password'})
+    
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.role = 'customer'
+        if commit:
+            user.save()
+        return user
+
+
+class OrganizerRegistrationForm(forms.ModelForm):
+    """Event Organizer registration form"""
+    username = forms.CharField(required=True, widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Username'
+    }))
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Email Address'
+    }))
+    password1 = forms.CharField(widget=forms.PasswordInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Password'
+    }))
+    password2 = forms.CharField(widget=forms.PasswordInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Confirm Password'
+    }))
+    
+    class Meta:
+        model = OrganizerProfile
+        fields = ['organization_name', 'contact_person', 'contact_email', 'contact_phone', 'city', 'address']
+        widgets = {
+            'organization_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Organization Name'}),
+            'contact_person': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact Person Name'}),
+            'contact_email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Contact Email'}),
+            'contact_phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact Phone'}),
+            'city': forms.Select(attrs={'class': 'form-control'}),
+            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Full Address'}),
+        }
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get('password1')
+        password2 = cleaned_data.get('password2')
+        
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("Passwords don't match")
+        
+        return cleaned_data
+
+
+class TheatreOwnerRegistrationForm(forms.ModelForm):
+    """Theatre Owner registration form"""
+    username = forms.CharField(required=True, widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Username'
+    }))
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Email Address'
+    }))
+    password1 = forms.CharField(widget=forms.PasswordInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Password'
+    }))
+    password2 = forms.CharField(widget=forms.PasswordInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Confirm Password'
+    }))
+    
+    class Meta:
+        model = TheatreOwnerProfile
+        fields = ['theatre_chain_name', 'owner_name', 'contact_email', 'contact_phone', 'city', 'address']
+        widgets = {
+            'theatre_chain_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Theatre Chain Name'}),
+            'owner_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Owner Name'}),
+            'contact_email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Contact Email'}),
+            'contact_phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact Phone'}),
+            'city': forms.Select(attrs={'class': 'form-control'}),
+            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Head Office Address'}),
+        }
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get('password1')
+        password2 = cleaned_data.get('password2')
+        
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("Passwords don't match")
+        
+        return cleaned_data
+
+
+class LoginForm(AuthenticationForm):
+    """Custom login form"""
+    username = forms.CharField(widget=forms.TextInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Username'
+    }))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Password'
+    }))
+
+
+class PasswordResetRequestForm(forms.Form):
+    """Password reset request form"""
+    email = forms.EmailField(widget=forms.EmailInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Enter your email address'
+    }))
+
+
+class PasswordResetConfirmForm(forms.Form):
+    """Password reset confirmation form"""
+    password1 = forms.CharField(widget=forms.PasswordInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'New Password'
+    }))
+    password2 = forms.CharField(widget=forms.PasswordInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Confirm New Password'
+    }))
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get('password1')
+        password2 = cleaned_data.get('password2')
+        
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("Passwords don't match")
+        
+        return cleaned_data
+
+
+class EventForm(forms.ModelForm):
+    """Event creation/edit form"""
+    class Meta:
+        model = Event
+        fields = ['title', 'description', 'category', 'genre', 'language', 'duration', 
+                  'artist_name', 'poster', 'trailer_url']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Event Title'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Event Description'}),
+            'category': forms.Select(attrs={'class': 'form-control'}),
+            'genre': forms.Select(attrs={'class': 'form-control'}),
+            'language': forms.Select(attrs={'class': 'form-control'}),
+            'duration': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Duration in minutes'}),
+            'artist_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Main Artist/Performer'}),
+            'poster': forms.FileInput(attrs={'class': 'form-control'}),
+            'trailer_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'YouTube URL'}),
+        }
+
+
+class MovieForm(forms.ModelForm):
+    """Movie creation/edit form"""
+    class Meta:
+        model = Movie
+        fields = ['title', 'description', 'genre', 'language', 'duration', 'release_date',
+                  'director', 'cast', 'certification', 'poster', 'trailer_url', 'rating']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Movie Title'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Movie Description'}),
+            'genre': forms.Select(attrs={'class': 'form-control'}),
+            'language': forms.Select(attrs={'class': 'form-control'}),
+            'duration': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Duration in minutes'}),
+            'release_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'director': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Director Name'}),
+            'cast': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Main Cast (comma separated)'}),
+            'certification': forms.Select(attrs={'class': 'form-control'}),
+            'poster': forms.FileInput(attrs={'class': 'form-control'}),
+            'trailer_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'YouTube URL'}),
+            'rating': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1', 'min': '0', 'max': '10'}),
+        }
+
+
+class VenueForm(forms.ModelForm):
+    """Venue creation/edit form"""
+    class Meta:
+        model = Venue
+        fields = ['name', 'city', 'address', 'capacity', 'venue_type', 'facilities']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Venue Name'}),
+            'city': forms.Select(attrs={'class': 'form-control'}),
+            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Full Address'}),
+            'capacity': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Total Capacity'}),
+            'venue_type': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Stadium, Arena, Hall'}),
+            'facilities': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Parking, Food Court, etc.'}),
+        }
+
+
+class TheatreForm(forms.ModelForm):
+    """Theatre creation/edit form"""
+    class Meta:
+        model = Theatre
+        fields = ['name', 'city', 'address', 'total_screens', 'facilities']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Theatre Name with Location'}),
+            'city': forms.Select(attrs={'class': 'form-control'}),
+            'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Full Address'}),
+            'total_screens': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Number of Screens'}),
+            'facilities': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Parking, 3D, IMAX, etc.'}),
+        }
+
+
+class ScreenForm(forms.ModelForm):
+    """Screen creation/edit form"""
+    class Meta:
+        model = Screen
+        fields = ['name', 'total_seats', 'screen_type']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Screen Name (e.g., Screen 1)'}),
+            'total_seats': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Total Seats'}),
+            'screen_type': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '2D, 3D, IMAX, 4DX, etc.'}),
+        }
+
+
+class ShowForm(forms.ModelForm):
+    """Show scheduling form"""
+    class Meta:
+        model = Show
+        fields = ['show_date', 'show_time', 'end_time', 'base_price']
+        widgets = {
+            'show_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'show_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+            'end_time': forms.TimeInput(attrs={'class': 'form-control', 'type': 'time'}),
+            'base_price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Base Price', 'step': '0.01'}),
+        }
+
+
+class SeatForm(forms.ModelForm):
+    """Seat configuration form"""
+    class Meta:
+        model = Seat
+        fields = ['row', 'seat_number', 'seat_type', 'price']
+        widgets = {
+            'row': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Row (e.g., A, B, C)'}),
+            'seat_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Seat Number'}),
+            'seat_type': forms.Select(attrs={'class': 'form-control'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Price', 'step': '0.01'}),
+        }

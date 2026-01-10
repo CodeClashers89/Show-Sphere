@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="row justify-content-center my-5">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-body p-5">
+                <h3 class="text-center mb-4">Create Account</h3>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}
+                        <div class="form-text text-muted">{{ field.help_text }}</div>
+                        {% endif %}
+                        {% if field.errors %}
+                        <div class="text-danger small">{{ field.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">Sign Up</button>
+                    </div>
+                </form>
+
+                <div class="text-center mt-3">
+                    <p>Already have an account? <a href="{% url 'booking:login' %}" class="text-decoration-none">Sign
+                            In</a></p>
+                </div>
+
+                <hr>
+                <div class="text-center small">
+                    <p class="text-muted">Parteners:</p>
+                    <a href="{% url 'booking:organizer_register' %}" class="btn btn-sm btn-outline-dark me-2">Event
+                        Organizer</a>
+                    <a href="{% url 'booking:theatre_register' %}" class="btn btn-sm btn-outline-dark">Theatre Owner</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

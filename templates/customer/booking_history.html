@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Booking History</h2>
+        <a href="{% url 'booking:customer_dashboard' %}" class="btn btn-outline-secondary">Back to Dashboard</a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">Date</th>
+                            <th>Event/Movie</th>
+                            <th>Location</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr>
+                            <td class="ps-4">{{ booking.booking_date|date:"d M Y" }}</td>
+                            <td>
+                                {% if booking.show.show_type == 'movie' %}
+                                <strong>{{ booking.show.movie.title }}</strong>
+                                {% else %}
+                                <strong>{{ booking.show.event.title }}</strong>
+                                {% endif %}
+                                <br>
+                                <small class="text-muted">{{ booking.show.show_date|date:"D, d M" }}</small>
+                            </td>
+                            <td>
+                                {% if booking.show.venue %}
+                                {{ booking.show.venue.name }}
+                                {% else %}
+                                {{ booking.show.screen.theatre.name }}
+                                {% endif %}
+                            </td>
+                            <td>₹{{ booking.grand_total }}</td>
+                            <td>
+                                {% if booking.payment_status == 'completed' %}
+                                <span class="badge bg-success">Confirmed</span>
+                                {% elif booking.payment_status == 'pending' %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                                {% else %}
+                                <span class="badge bg-danger">{{ booking.payment_status|title }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if booking.payment_status == 'completed' %}
+                                <a href="{% url 'booking:ticket_detail' booking.tickets.first.id %}"
+                                    class="btn btn-sm btn-outline-primary">View Ticket</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <p class="text-muted mb-0">No booking history found.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

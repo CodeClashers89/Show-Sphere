@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row align-items-center mb-4">
+        <div class="col">
+            <h2><i class="fas fa-ticket-alt me-2 text-primary"></i>My Tickets</h2>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'booking:customer_dashboard' %}" class="btn btn-outline-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+
+    {% if tickets %}
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for ticket in tickets %}
+        <div class="col">
+            <div class="card h-100 shadow-sm ticket-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <span class="badge bg-success mb-2">Confirmed</span>
+                            {% if ticket.booking.show.show_type == 'movie' %}
+                            <h5 class="card-title mb-1">{{ ticket.booking.show.movie.title|truncatechars:20 }}</h5>
+                            <small class="text-muted">{{ ticket.booking.show.screen.theatre.name }}</small>
+                            {% else %}
+                            <h5 class="card-title mb-1">{{ ticket.booking.show.event.title|truncatechars:20 }}</h5>
+                            <small class="text-muted">{{ ticket.booking.show.venue.name }}</small>
+                            {% endif %}
+                        </div>
+                        <div class="text-end">
+                            <div class="fw-bold fs-4">{{ ticket.seat.row }}{{ ticket.seat.seat_number }}</div>
+                            <small class="text-muted">{{ ticket.seat.get_seat_type_display }}</small>
+                        </div>
+                    </div>
+
+                    <hr class="border-dashed">
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <small class="text-muted d-block">Date</small>
+                            <strong>{{ ticket.booking.show.show_date|date:"d M" }}</strong>
+                        </div>
+                        <div class="col-6 text-end">
+                            <small class="text-muted d-block">Time</small>
+                            <strong>{{ ticket.booking.show.show_time|time:"H:i" }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <a href="{% url 'booking:ticket_detail' ticket.id %}"
+                            class="btn btn-outline-primary btn-sm w-100">View QR Code</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info text-center py-5">
+        <i class="fas fa-ticket-alt fa-3x mb-3"></i>
+        <h4>No tickets found</h4>
+        <p>You haven't booked any tickets yet.</p>
+        <a href="{% url 'booking:home' %}" class="btn btn-primary mt-2">Book Now</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

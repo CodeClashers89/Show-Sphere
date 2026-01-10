@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Movie Header -->
+<div class="event-header">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-3">
+                <div class="poster-container">
+                    {% if movie.poster %}
+                    <img src="{{ movie.poster.url }}" class="img-fluid w-100" alt="{{ movie.title }}">
+                    {% else %}
+                    <div class="bg-secondary text-white d-flex align-items-center justify-content-center"
+                        style="height: 400px; border-radius: 8px;">
+                        <i class="fas fa-film fa-5x"></i>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-9 text-white">
+                <h1 class="display-4 fw-bold">{{ movie.title }}</h1>
+                <div class="mb-3">
+                    <span class="badge bg-light text-dark fs-6 me-2">{{ movie.certification }}</span>
+                    <span class="badge bg-primary fs-6 me-2">{{ movie.language.name }}</span>
+                    <span class="badge bg-info text-dark fs-6">{{ movie.genre.name }}</span>
+                </div>
+
+                <div class="mb-4">
+                    <p class="mb-1"><i class="far fa-clock me-2"></i> {{ movie.duration }} Minutes &bull; <i
+                            class="far fa-calendar-alt mx-2"></i> {{ movie.release_date }}</p>
+                    <p class="mb-0"><i class="fas fa-star text-warning me-2"></i> <strong>{{ movie.rating|default:"--"
+                            }}/10</strong> Rating</p>
+                </div>
+
+                {% if movie.trailer_url %}
+                <a href="{{ movie.trailer_url }}" target="_blank" class="btn btn-outline-light"><i
+                        class="fab fa-youtube me-2"></i> Watch Trailer</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container my-5">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- About Section -->
+            <div class="mb-5">
+                <h3>About the Movie</h3>
+                <p class="lead text-muted">{{ movie.description }}</p>
+            </div>
+
+            <hr>
+
+            <!-- Cast & Crew -->
+            <div class="mb-5">
+                <h4>Cast & Crew</h4>
+                <div class="row mt-3">
+                    <div class="col-md-6 mb-3">
+                        <strong class="d-block text-muted small">Director</strong>
+                        <span>{{ movie.director }}</span>
+                    </div>
+                    <div class="col-md-6">
+                        <strong class="d-block text-muted small">Cast</strong>
+                        <span>{{ movie.cast }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <!-- Booking Section -->
+            <div class="card shadow-sm sticky-top" style="top: 100px;">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0">Book Tickets</h4>
+                </div>
+                <div class="card-body">
+                    {% if shows %}
+                    <div class="list-group list-group-flush">
+                        {% regroup shows by show_date as date_list %}
+
+                        {% for show_date in date_list %}
+                        <div class="list-group-item bg-light fw-bold">{{ show_date.grouper|date:"D, d M" }}</div>
+
+                        {% for show in show_date.list %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">{{ show.screen.theatre.name }}</h6>
+                                    <small class="text-muted">{{ show.screen.name }}</small>
+                                </div>
+                                <a href="{% url 'booking:seat_selection' show.id %}"
+                                    class="btn btn-outline-success btn-sm">
+                                    {{ show.show_time|time:"H:i" }}
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning m-3">
+                        No shows available currently.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">Search Results for "{{ query }}"</h2>
+
+    {% if not events and not movies %}
+    <div class="alert alert-warning">
+        No results found for your search. Try different keywords.
+    </div>
+    {% endif %}
+
+    {% if movies %}
+    <h4 class="mb-3">Movies</h4>
+    <div class="row row-cols-1 row-cols-md-5 g-4 mb-5">
+        {% for movie in movies %}
+        <div class="col">
+            <div class="card h-100">
+                {% if movie.poster %}
+                <img src="{{ movie.poster.url }}" class="card-img-top" alt="{{ movie.title }}" style="height: 300px;">
+                {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                    style="height: 300px;">
+                    <i class="fas fa-film fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="card-body p-2">
+                    <h6 class="card-title text-truncate mb-0">{{ movie.title }}</h6>
+                    <small class="text-muted">{{ movie.language.name }}</small>
+                </div>
+                <a href="{% url 'booking:movie_detail' movie.id %}" class="stretched-link"></a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if events %}
+    <h4 class="mb-3">Events</h4>
+    <div class="row row-cols-1 row-cols-md-4 g-4">
+        {% for event in events %}
+        <div class="col">
+            <div class="card h-100">
+                {% if event.poster %}
+                <img src="{{ event.poster.url }}" class="card-img-top" alt="{{ event.title }}" style="height: 200px;">
+                {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
+                    style="height: 200px;">
+                    <i class="fas fa-calendar-alt fa-3x text-muted"></i>
+                </div>
+                {% endif %}
+                <div class="card-body p-3">
+                    <h6 class="card-title mb-1">{{ event.title }}</h6>
+                    <small class="text-muted d-block">{{ event.category.name }}</small>
+                </div>
+                <a href="{% url 'booking:event_detail' event.id %}" class="stretched-link"></a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
