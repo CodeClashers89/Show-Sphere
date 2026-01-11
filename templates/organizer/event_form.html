@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }} | ShowSphere</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
 
@@ -213,49 +214,59 @@
         .footer {
             background-color: #1f2533;
             color: #abb2bf;
-            padding: 4rem 2rem 3rem;
-            text-align: center;
+            padding: 5rem 2rem 3rem;
             margin-top: auto;
+        }
+
+        .footer-content {
+            max-width: 1240px;
+            margin: 0 auto;
         }
 
         .footer-logo {
             color: white;
             font-size: 1.8rem;
             font-weight: 700;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         .social-links {
             display: flex;
-            justify-content: center;
             gap: 1.5rem;
-            margin-bottom: 2rem;
+            margin-bottom: 3rem;
+            justify-content: center;
         }
 
         .social-circle {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             background: #2d3139;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-weight: 700;
+            text-decoration: none;
             transition: all 0.3s;
         }
 
         .social-circle:hover {
             background: var(--primary-color);
+            transform: translateY(-3px);
+            color: white;
+            box-shadow: 0 5px 15px rgba(140, 82, 255, 0.4);
         }
 
         .footer-text {
+            text-align: center;
             font-size: 0.9rem;
             line-height: 1.8;
             border-top: 1px solid #2d3139;
-            padding-top: 2rem;
-            max-width: 1000px;
-            margin: 0 auto;
+            padding-top: 3rem;
         }
 
         @media (max-width: 768px) {
@@ -409,22 +420,31 @@
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="footer-logo">ShowSphere</div>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="{% static 'css/showspere.png' %}" alt="ShowSphere Logo" width="50" height="50"
+                    fetchpriority="high" loading="eager">
+                ShowSphere
+            </div>
 
-        <div class="social-links">
-            <div class="social-circle">fb</div>
-            <div class="social-circle">in</div>
-            <div class="social-circle">tw</div>
-            <div class="social-circle">ig</div>
+            <div class="social-links">
+                <a href="https://www.facebook.com" target="_blank" class="social-circle"><i
+                        class="fab fa-facebook-f"></i></a>
+                <a href="https://www.linkedin.com" target="_blank" class="social-circle"><i
+                        class="fab fa-linkedin-in"></i></a>
+                <a href="https://www.twitter.com" target="_blank" class="social-circle"><i
+                        class="fab fa-twitter"></i></a>
+                <a href="https://www.instagram.com" target="_blank" class="social-circle"><i
+                        class="fab fa-instagram"></i></a>
+            </div>
+
+            <p class="footer-text">
+                Copyright 2026 @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
+                <br><br>
+                The content and images used on this site are copyright protected and copyrights vests with the
+                respective owners. Unauthorized use is prohibited.
+            </p>
         </div>
-
-        <p class="footer-text">
-            Copyright 2026 @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
-            <br><br>
-            The content and images used on this site are copyright protected and copyrights vests with the respective
-            owners. The usage of the content and images on this website is intended to promote the works and endorsement
-            of the artist shall be implied. Unauthorized use is prohibited and punishable by law.
-        </p>
     </footer>
 
 </body>
