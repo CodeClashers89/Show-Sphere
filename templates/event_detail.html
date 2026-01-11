@@ -1,83 +1,487 @@
-{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+    :root {
+        --primary-color: #8C52FF;
+        --primary-hover: #7b40f2;
+        --text-color: #2D2042;
+        --text-light: #666666;
+        --bg-color: #F9F7FF;
+        --white: #FFFFFF;
+        --border-radius: 12px;
+        --shadow: 0 5px 15px rgba(140, 82, 255, 0.1);
+        --pink-action: #F84464;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Roboto', sans-serif;
+    }
+
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    ul {
+        list-style: none;
+    }
+
+    /* Header Styles */
+    .header {
+        background-color: var(--white);
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .logo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .logo span {
+        color: var(--primary-color);
+    }
+
+    .auth-buttons {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .btn-custom {
+        padding: 0.5rem 1.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 0.9rem;
+        border: none;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-custom-outline {
+        background-color: transparent;
+        border: 1px solid #ddd;
+        color: var(--text-color);
+    }
+
+    .btn-custom-outline:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+
+    .btn-custom-primary {
+        background-color: var(--primary-color);
+        color: var(--white);
+    }
+
+    .btn-custom-primary:hover {
+        background-color: var(--primary-hover);
+        color: white;
+    }
+
+    /* Navbar */
+    .nav-bar {
+        background: linear-gradient(135deg, #8C52FF 0%, #00BFB2 100%);
+        color: var(--white);
+        padding: 1rem 2rem;
+    }
+
+    .nav-links {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+    }
+
+    .nav-links li a {
+        color: white;
+        opacity: 0.8;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: opacity 0.3s;
+    }
+
+    .nav-links li a:hover {
+        opacity: 1;
+        color: var(--white);
+    }
+
+
+    /* Event Page Layout */
+    .container-content {
+        max-width: 1100px;
+        margin: 2rem auto;
+        padding: 0 2rem;
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        /* Main + Sidebar */
+        gap: 3rem;
+        flex: 1;
+    }
+
+    /* Banner */
+    .event-banner {
+        width: 100%;
+        height: 400px;
+        background: #e0f7fa;
+        border-radius: var(--border-radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: #006064;
+        font-weight: 700;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .event-banner img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .event-banner-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #2b3147 0%, #4b5563 100%);
+        color: white;
+        text-align: center;
+        padding: 2rem;
+    }
+
+    /* Main Content */
+    .event-info h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-color);
+    }
+
+    .event-meta {
+        font-size: 1.1rem;
+        color: var(--text-light);
+        margin-bottom: 2rem;
+    }
+
+    .about-section h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: var(--text-color);
+    }
+
+    .about-section p {
+        color: var(--text-light);
+        line-height: 1.8;
+        margin-bottom: 1rem;
+    }
+
+    /* Right Sidebar */
+    .sidebar {
+        background: var(--white);
+        padding: 2rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        height: fit-content;
+        position: sticky;
+        /* Make it sticky like wireframe implication */
+        top: 100px;
+    }
+
+    .booking-details {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 0.5rem;
+    }
+
+    .detail-label {
+        color: var(--text-light);
+        font-size: 0.9rem;
+    }
+
+    .detail-value {
+        font-weight: 500;
+        text-align: right;
+        color: var(--text-color);
+    }
+
+    .price-tag {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-color);
+        margin: 1.5rem 0;
+        text-align: center;
+    }
+
+    .btn-book {
+        background: var(--primary-color);
+        color: white;
+        padding: 1rem;
+        width: 100%;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.2s;
+        text-align: center;
+        display: block;
+    }
+
+    .btn-book:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+        color: white;
+    }
+
+    .show-list {
+        margin-top: 1rem;
+    }
+
+    .show-item {
+        margin-bottom: 1rem;
+        border: 1px solid #eee;
+        padding: 1rem;
+        border-radius: 8px;
+    }
+
+    .show-item h5 {
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    /* Footer Area */
+    .footer {
+        background-color: #1f2533;
+        color: #abb2bf;
+        padding: 4rem 2rem 3rem;
+        text-align: center;
+        margin-top: auto;
+    }
+
+    .footer-logo {
+        color: white;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+
+    .social-links {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .social-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #2d3139;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        transition: all 0.3s;
+    }
+
+    .social-circle:hover {
+        background: var(--primary-color);
+    }
+
+    .footer-text {
+        font-size: 0.9rem;
+        line-height: 1.8;
+        border-top: 1px solid #2d3139;
+        padding-top: 2rem;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+        .container-content {
+            grid-template-columns: 1fr;
+            padding: 1rem;
+        }
+
+        .header {
+            padding: 0.8rem 1rem;
+        }
+    }
+</style>
+<style>
+    /* Hide base footer if consistent with other standalone pages */
+    body>footer {
+        display: none !important;
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+<!-- Reuse Header for consistency -->
+<header class="header">
+    <a href="{% url 'booking:home' %}" class="logo">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
+                fill="#8C52FF" />
+        </svg>
+        <span>ShowSphere</span>
+    </a>
+
+    <div class="auth-buttons">
+        {% if user.is_authenticated %}
+        <span style="font-weight: 700; color: var(--primary-color);">Hi, {{ user.first_name|default:user.username
+            }}</span>
+        <a href="{% url 'booking:customer_dashboard' %}" class="btn-custom btn-custom-outline">Dashboard</a>
+        <a href="{% url 'booking:logout' %}" class="btn-custom btn-custom-primary">Logout</a>
+        {% else %}
+        <a href="{% url 'booking:organizer_register' %}" class="btn-custom btn-custom-outline">New Partner</a>
+        <a href="{% url 'booking:login' %}" class="btn-custom btn-custom-primary">Sign In</a>
+        {% endif %}
+    </div>
+</header>
+<nav class="nav-bar">
+    <ul class="nav-links">
+        <li><a href="{% url 'booking:browse' %}">Movies</a></li>
+        <li><a href="{% url 'booking:browse' %}?category=events">Events</a></li>
+        <li><a href="{% url 'booking:browse' %}?category=sports">Sports</a></li>
+    </ul>
+</nav>
+{% endblock %}
+
 
 {% block content %}
-<!-- Event Header -->
-<div class="event-header" style="background-color: #2b3147;">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-8 text-white">
-                <h1 class="display-4 fw-bold">{{ event.title }}</h1>
-                <div class="mb-3">
-                    <span class="badge bg-primary fs-6 me-2">{{ event.category.name }}</span>
-                    {% if event.genre %}<span class="badge bg-info text-dark fs-6 me-2">{{ event.genre.name }}</span>{%endif %}
-                    <span class="badge bg-light text-dark fs-6">{{ event.language.name }}</span>
-                </div>
-                <p class="lead mb-4"><i class="fas fa-microphone-alt me-2"></i> {{ event.artist_name }}</p>
+<main class="container-content">
 
-                <div class="d-flex gap-2">
-                    {% if event.trailer_url %}
-                    <a href="{{ event.trailer_url }}" target="_blank" class="btn btn-outline-light"><i
-                            class="fab fa-youtube me-2"></i> Watch Trailer</a>
-                    {% endif %}
-                </div>
+    <!-- Left Content -->
+    <div class="main-content">
+        <div class="event-banner">
+            {% if event.poster %}
+            <img src="{{ event.poster.url }}" alt="{{ event.title }}">
+            {% else %}
+            <div class="event-banner-placeholder">
+                {{ event.title }}
             </div>
-            <div class="col-md-4">
-                <div class="poster-container text-center">
-                    {% if event.poster %}
-                    <img src="{{ event.poster.url }}" class="img-fluid rounded shadow" alt="{{ event.title }}"
-                        style="max-height: 400px;">
-                    {% endif %}
-                </div>
+            {% endif %}
+        </div>
+
+        <div class="event-info">
+            <h1>{{ event.title }}</h1>
+            <p class="event-meta">
+                {{ event.category.name }}
+                {% if event.genre %} • {{ event.genre.name }}{% endif %}
+                {% if event.language %} • {{ event.language.name }}{% endif %}
+                • {{ event.duration }} Mins
+                {% if event.artist_name %} • <i class="fas fa-microphone-alt"></i> {{ event.artist_name }}{% endif %}
+            </p>
+
+            <div class="about-section">
+                <h3>About Event</h3>
+                <p>{{ event.description|linebreaksbr }}</p>
             </div>
+
+            {% if event.trailer_url %}
+            <div class="mt-4">
+                <a href="{{ event.trailer_url }}" target="_blank" class="btn-custom btn-custom-outline"><i
+                        class="fab fa-youtube me-2"></i> Watch Trailer</a>
+            </div>
+            {% endif %}
         </div>
     </div>
-</div>
 
-<div class="container my-5">
-    <div class="row">
-        <div class="col-md-8">
-            <!-- About Section -->
-            <div class="mb-5">
-                <h3>About the Event</h3>
-                <p class="lead text-muted">{{ event.description }}</p>
-            </div>
+    <!-- Right Sidebar (Booking) -->
+    <div class="sidebar">
+        <h3 style="margin-bottom: 1.5rem; color: var(--text-color);">Event Details</h3>
 
-            <div class="mb-4">
-                <p><i class="far fa-clock me-2"></i> Duration: {{ event.duration }} Minutes</p>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <!-- Booking Section -->
-            <div class="card shadow-sm sticky-top" style="top: 100px;">
-                <div class="card-header bg-white">
-                    <h4 class="mb-0">Get Tickets</h4>
-                </div>
-                <div class="card-body">
-                    {% if shows %}
-                    <div class="list-group list-group-flush">
-                        {% for show in shows %}
-                        <div class="list-group-item">
-                            <div class="mb-2">
-                                <strong class="d-block">{{ show.show_date|date:"D, d M Y" }} | {{
-                                    show.show_time|time:"H:i" }}</strong>
-                                <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i> {{ show.venue.name
-                                    }}, {{ show.venue.city.name }}</small>
-                            </div>
-                            <a href="{% url 'booking:seat_selection' show.id %}" class="btn btn-primary w-100">
-                                Book from ₹{{ show.base_price }}
-                            </a>
-                        </div>
-                        {% endfor %}
+        {% if shows %}
+        <!-- Assuming we display the first upcoming show or list them. The reference layout implies a single event view, but we have multiple shows. I'll adapt to list shows. -->
+        <div class="shows-container" style="max-height: 400px; overflow-y: auto;">
+            {% for show in shows %}
+            <div class="show-item">
+                <div class="booking-details">
+                    <div class="detail-row">
+                        <span class="detail-label">Date</span>
+                        <span class="detail-value">{{ show.show_date|date:"d M Y" }}</span>
                     </div>
-                    {% else %}
-                    <div class="alert alert-warning m-3">
-                        No shows scheduled currently.
+                    <div class="detail-row">
+                        <span class="detail-label">Time</span>
+                        <span class="detail-value">{{ show.show_time|time:"h:i A" }}</span>
                     </div>
-                    {% endif %}
+                    <div class="detail-row">
+                        <span class="detail-label">Venue</span>
+                        <span class="detail-value">{{ show.venue.name }}, {{ show.venue.city.name }}</span>
+                    </div>
                 </div>
+
+                <div class="price-tag">₹{{ show.base_price }}</div>
+
+                <a href="{% url 'booking:seat_selection' show.id %}" class="btn-book">Book Now</a>
             </div>
+            {% endfor %}
         </div>
+        {% else %}
+        <div class="alert alert-warning">
+            No shows scheduled currently.
+        </div>
+        {% endif %}
     </div>
-</div>
+
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-logo">ShowSphere</div>
+
+    <div class="social-links">
+        <a href="#" class="social-circle">fb</a>
+        <a href="#" class="social-circle">in</a>
+        <a href="#" class="social-circle">tw</a>
+        <a href="#" class="social-circle">ig</a>
+    </div>
+
+    <p class="footer-text">
+        Copyright 2026 @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
+        <br><br>
+        The content and images used on this site are copyright protected and copyrights vests with the respective
+        owners. The usage of the content and images on this website is intended to promote the works and endorsement
+        of the artist shall be implied. Unauthorized use is prohibited and punishable by law.
+    </p>
+</footer>
 {% endblock %}

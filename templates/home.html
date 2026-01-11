@@ -1,132 +1,406 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block content %}
-<!-- Hero Carousel -->
-<div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
-    <div class="carousel-inner">
+<head>
+    <meta charset="UTF-8">
+    <title>ShowSphere | Movie & Event Tickets</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {% load static %}
+
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* ========= STRICT DESIGN FROM 2nd HTML ========= */
+
+        :root {
+            --primary-color: #8C52FF;
+            --primary-hover: #7b40f2;
+            --text-color: #2D2042;
+            --text-light: #666;
+            --bg-color: #F9F7FF;
+            --white: #fff;
+            --radius: 20px;
+            --shadow: 0 10px 25px rgba(140, 82, 255, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .footer {
+            background-color: #1f2533;
+            color: #abb2bf;
+            padding: 4rem 2rem 3rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer-logo {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .social-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #2d3139;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .social-circle:hover {
+            background: var(--primary-color);
+        }
+
+        .footer-text {
+            font-size: 0.9rem;
+            line-height: 1.8;
+            border-top: 1px solid #2d3139;
+            padding-top: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        /* HEADER */
+        .header {
+            background: var(--white);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            gap: .5rem;
+            align-items: center;
+        }
+
+        .logo span {
+            color: var(--primary-color);
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 2rem;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.6rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            border: 1px solid #ddd;
+            background: transparent;
+        }
+
+        .btn-partner {
+            background-color: white;
+            border: 1px solid #dcdcdc;
+            color: #2D2042;
+            border-radius: 6px;
+            padding: 0.5rem 1.2rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .btn-partner:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        /* NAV BAR */
+        .nav-bar {
+            background: linear-gradient(135deg, #8C52FF, #00BFB2);
+            padding: 1rem;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        /* HERO */
+        .hero {
+            height: 400px;
+            overflow: hidden;
+        }
+
+        .hero-slide {
+            height: 400px;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            padding: 3rem;
+            color: white;
+        }
+
+        .hero-content {
+            max-width: 600px;
+        }
+
+        .hero-content h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .hero-content p {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        /* CONTENT */
+        .container {
+            max-width: 1200px;
+            margin: 3rem auto;
+            padding: 0 1rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background: var(--white);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .card img {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+        }
+
+        .card-content {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .card-content h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .card-content p {
+            color: var(--text-light);
+            margin-bottom: 0.8rem;
+            font-size: 0.95rem;
+        }
+
+        /* FOOTER */
+        .footer {
+            background: #333338;
+            color: #aaa;
+            text-align: center;
+            padding: 3rem 1rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER (from design + base.html logic) -->
+    <header class="header">
+        <a href="{% url 'booking:home' %}" class="logo">
+            <span>ShowSphere</span>
+        </a>
+
+        <form class="search-bar" action="{% url 'booking:search' %}" method="get">
+            <span class="search-icon">&#128269;</span>
+            <input type="text" name="q" placeholder="Search for Movies, Events...">
+        </form>
+
+        <div class="auth-buttons">
+            <a href="{% url 'booking:organizer_register' %}" class="btn-partner">New Partner</a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'booking:logout' %}" class="btn btn-outline">Logout</a>
+            {% else %}
+            <a href="{% url 'booking:login' %}" class="btn btn-primary">Sign In</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- NAV -->
+    <nav class="nav-bar">
+        <ul class="nav-links">
+            <li><a href="{% url 'booking:browse' %}">Movies</a></li>
+            <li><a href="{% url 'booking:browse' %}?category=events">Events</a></li>
+            <li><a href="{% url 'booking:browse' %}?category=sports">Sports</a></li>
+        </ul>
+    </nav>
+
+    <!-- HERO CAROUSEL (FULL BACKEND PRESERVED) -->
+    <section class="hero">
         {% if trending_movies %}
         {% for movie in trending_movies %}
-        <div class="carousel-item {% if forloop.first %}active{% endif %}">
-            <div class="d-block w-100"
-                style="height: 400px; background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('{{ movie.poster.url }}'); background-size: cover; background-position: center;">
-                <div class="carousel-caption d-none d-md-block text-start">
-                    <h2 class="display-4 fw-bold">{{ movie.title }}</h2>
-                    <p class="lead">{{ movie.description|truncatewords:20 }}</p>
-                    <a href="{% url 'booking:movie_detail' movie.id %}" class="btn btn-primary btn-lg">Book Tickets</a>
-                </div>
+        <div class="hero-slide"
+            style="background-image: linear-gradient(rgba(0,0,0,.65),rgba(0,0,0,.65)), url('{{ movie.poster.url }}');">
+            <div class="hero-content">
+                <h1>{{ movie.title }}</h1>
+                <p>{{ movie.description|truncatewords:20 }}</p>
+                <a href="{% url 'booking:movie_detail' movie.id %}" class="btn btn-primary">Book Tickets</a>
             </div>
         </div>
         {% endfor %}
-        {% else %}
-        <!-- Default banner if no movies/events yet -->
-        <div class="carousel-item active">
-            <div class="d-block w-100 bg-secondary text-white d-flex align-items-center justify-content-center"
-                style="height: 400px;">
-                <div class="text-center">
-                    <h1 class="display-4">Welcome to ShowSphere</h1>
-                    <p class="lead">Book tickets for your favorite movies and events</p>
-                </div>
-            </div>
-        </div>
         {% endif %}
-    </div>
-    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-    </button>
-</div>
+    </section>
 
-<!-- Recommended Movies -->
-<div class="container my-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Recommended Movies</h2>
-        <a href="{% url 'booking:browse' %}" class="btn btn-outlie-primary text-primary">See All <i
-                class="fas fa-chevron-right small"></i></a>
-    </div>
-    <div class="row row-cols-1 row-cols-md-4 g-4">
-        {% for movie in new_movies %}
-        <div class="col">
-            <div class="card h-100">
-                {% if movie.poster %}
-                <img src="{{ movie.poster.url }}" class="card-img-top" alt="{{ movie.title }}">
-                {% else %}
-                <div class="card-img-top bg-light d-flex align-items-center justify-content-center">
-                    <i class="fas fa-film fa-3x text-muted"></i>
-                </div>
-                {% endif %}
-                <div class="card-body">
-                    <h5 class="card-title text-truncate">{{ movie.title }}</h5>
-                    <p class="card-text text-muted small">{{ movie.genre.name }}</p>
-                </div>
-                <div class="card-footer bg-white border-top-0">
-                    <a href="{% url 'booking:movie_detail' movie.id %}" class="btn btn-primary w-100">Book Now</a>
+    <!-- RECOMMENDED MOVIES -->
+    <div class="container">
+        <div class="section-header">
+            <h2>Recommended Movies</h2>
+            <a href="{% url 'booking:browse' %}">See All ›</a>
+        </div>
+
+        <div class="card-grid">
+            {% for movie in new_movies %}
+            <div class="card">
+                <img src="{{ movie.poster.url }}">
+                <div class="card-content">
+                    <h3>{{ movie.title }}</h3>
+                    <p>{{ movie.genre.name }}</p>
+                    <a href="{% url 'booking:movie_detail' movie.id %}" class="btn btn-primary">Book Now</a>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% empty %}
-        <div class="col-12">
-            <div class="alert alert-info">No movies available right now. Check back soon!</div>
-        </div>
-        {% endfor %}
     </div>
-</div>
 
-<!-- Events Near You -->
-<div class="container my-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Events Near You</h2>
-        <a href="{% url 'booking:browse' %}?category=events" class="btn btn-outlie-primary text-primary">See All <i
-                class="fas fa-chevron-right small"></i></a>
-    </div>
-    <div class="row row-cols-1 row-cols-md-3 g-4">
-        {% for event in trending_events %}
-        <div class="col">
-            <div class="card h-100">
-                {% if event.poster %}
-                <img src="{{ event.poster.url }}" class="card-img-top" alt="{{ event.title }}" style="height: 250px;">
-                {% else %}
-                <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
-                    style="height: 250px;">
-                    <i class="fas fa-calendar-alt fa-3x text-muted"></i>
-                </div>
-                {% endif %}
-                <div class="card-body">
-                    <h5 class="card-title">{{ event.title }}</h5>
-                    <p class="card-text text-muted mb-1"><i class="fas fa-map-marker-alt me-1"></i> {{
-                        event.shows.first.venue.name|default:"Various Venues" }}</p>
-                    <p class="card-text text-muted small">{{ event.category.name }} | {{ event.language.name }}</p>
-                </div>
-                <div class="card-footer bg-white border-top-0">
-                    <a href="{% url 'booking:event_detail' event.id %}" class="btn btn-primary w-100">Book Now</a>
+    <!-- EVENTS -->
+    <div class="container">
+        <div class="section-header">
+            <h2>Events Near You</h2>
+        </div>
+
+        <div class="card-grid">
+            {% for event in trending_events %}
+            <div class="card">
+                <img src="{{ event.poster.url }}">
+                <div class="card-content">
+                    <h3>{{ event.title }}</h3>
+                    <p>{{ event.category.name }} | {{ event.language.name }}</p>
+                    <a href="{% url 'booking:event_detail' event.id %}" class="btn btn-primary">Book Now</a>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% empty %}
-        <div class="col-12">
-            <div class="alert alert-info">No upcoming events found.</div>
-        </div>
-        {% endfor %}
     </div>
-</div>
 
-<!-- Best of Entertainment -->
-<div class="container my-5 p-5 bg-light rounded-3 text-center">
-    <h2 class="mb-4">The Best of Entertainment</h2>
-    <div class="row justify-content-center g-4">
-        {% for category in categories %}
-        <div class="col-6 col-md-2">
-            <a href="{% url 'booking:browse' %}?category={{ category.slug }}" class="text-decoration-none text-dark">
-                <div class="p-3 bg-white rounded shadow-sm hover-effect">
-                    <i class="{{ category.icon }} fa-2x mb-2 text-primary"></i>
-                    <h6 class="mb-0">{{ category.name }}</h6>
-                </div>
-            </a>
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-logo">ShowSphere</div>
+
+        <div class="social-links">
+            <a href="#" class="social-circle">fb</a>
+            <a href="#" class="social-circle">in</a>
+            <a href="#" class="social-circle">tw</a>
+            <a href="#" class="social-circle">ig</a>
         </div>
-        {% endfor %}
-    </div>
-</div>
-{% endblock %}
+
+        <p class="footer-text">
+            Copyright 2026 @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
+            <br><br>
+            The content and images used on this site are copyright protected and copyrights vests with the respective
+            owners. The usage of the content and images on this website is intended to promote the works and endorsement
+            of the artist shall be implied. Unauthorized use is prohibited and punishable by law.
+        </p>
+    </footer>
+
+</body>
+
+</html>

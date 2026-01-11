@@ -1,74 +1,489 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
+
+    :root {
+        --primary-color: #8C52FF;
+        --primary-hover: #7b40f2;
+        --text-color: #2D2042;
+        --text-light: #666666;
+        --bg-color: #F9F7FF;
+        --white: #FFFFFF;
+        --success-green: #28a745;
+        --border-radius: 12px;
+        --shadow: 0 10px 25px rgba(140, 82, 255, 0.1);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Roboto', sans-serif;
+    }
+
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    /* Header Styles */
+    .header {
+        background-color: var(--white);
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .logo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .logo span {
+        color: var(--primary-color);
+    }
+
+    .auth-buttons {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .btn-custom {
+        padding: 0.5rem 1.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 0.9rem;
+        border: none;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-custom-primary {
+        background-color: var(--primary-color);
+        color: var(--white);
+    }
+
+    .btn-custom-primary:hover {
+        background-color: var(--primary-hover);
+        color: white;
+    }
+
+    .btn-custom-outline {
+        background-color: transparent;
+        border: 1px solid #ddd;
+        color: var(--text-color);
+    }
+
+    .btn-custom-outline:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+
+    /* Navigation Bar */
+    .nav-bar {
+        background: linear-gradient(135deg, #8C52FF 0%, #00BFB2 100%);
+        color: var(--white);
+        padding: 0.8rem 2rem;
+        box-shadow: 0 4px 15px rgba(140, 82, 255, 0.3);
+    }
+
+    .nav-links {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        list-style: none;
+    }
+
+    .nav-links li a {
+        color: white;
+        opacity: 0.8;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: opacity 0.3s;
+    }
+
+    .nav-links li a:hover {
+        opacity: 1;
+    }
+
+    /* Main Content */
+    .container-content {
+        max-width: 1240px;
+        margin: 3rem auto;
+        width: 100%;
+        padding: 0 1rem;
+        flex: 1;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: var(--text-color);
+    }
+
+    .btn-back {
+        padding: 0.7rem 1.5rem;
+        background: var(--white);
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-weight: 600;
+        color: var(--text-light);
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-back:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        transform: translateY(-2px);
+    }
+
+    /* Table Card Styles */
+    .history-card {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        border: 1px solid #f0edf7;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f8f9fe;
+        padding: 1.2rem 1.5rem;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #b2b2b2;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border-bottom: 2px solid #f0edf7;
+    }
+
+    td {
+        padding: 1.5rem;
+        border-bottom: 1px solid #f0edf7;
+        vertical-align: middle;
+        font-size: 1rem;
+    }
+
+    .movie-cell {
+        font-weight: 800;
+        color: var(--text-color);
+    }
+
+    .movie-subtitle {
+        display: block;
+        font-size: 0.85rem;
+        color: var(--text-light);
+        font-weight: 500;
+        margin-top: 0.3rem;
+    }
+
+    .total-cell {
+        font-weight: 700;
+        color: var(--text-color);
+    }
+
+    .status-badge {
+        background: #e7f7ed;
+        color: var(--success-green);
+        padding: 0.4rem 1rem;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        display: inline-block;
+    }
+
+    .status-badge.pending {
+        background: #fff3cd;
+        color: #856404;
+    }
+
+    .status-badge.failed {
+        background: #f8d7da;
+        color: #721c24;
+    }
+
+    .btn-view {
+        padding: 0.5rem 1.2rem;
+        border: 1.5px solid var(--primary-color);
+        background: transparent;
+        color: var(--primary-color);
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-view:hover {
+        background: var(--primary-color);
+        color: white;
+        box-shadow: 0 5px 15px rgba(140, 82, 255, 0.2);
+    }
+
+    /* Footer */
+    .footer {
+        background-color: #1f2533;
+        color: #abb2bf;
+        padding: 5rem 2rem 3rem;
+        margin-top: 5rem;
+    }
+
+    .footer-content {
+        max-width: 1240px;
+        margin: 0 auto;
+    }
+
+    .footer-logo {
+        color: white;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .footer-logo svg {
+        width: 30px;
+        height: 30px;
+    }
+
+    .social-links {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+        justify-content: center;
+    }
+
+    .social-circle {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: #2d3139;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        transition: all 0.3s;
+    }
+
+    .social-circle:hover {
+        background: var(--primary-color);
+        transform: translateY(-3px);
+    }
+
+    .footer-text {
+        text-align: center;
+        font-size: 0.9rem;
+        line-height: 1.8;
+        border-top: 1px solid #2d3139;
+        padding-top: 3rem;
+    }
+
+    .no-history {
+        text-align: center;
+        padding: 3rem;
+        color: var(--text-light);
+    }
+
+    @media (max-width: 992px) {
+        .history-card {
+            overflow-x: auto;
+        }
+
+        table {
+            min-width: 800px;
+        }
+
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+    }
+</style>
+<style>
+    /* Hide base footer if consistent with other standalone pages */
+    body>footer {
+        display: none !important;
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+<!-- Reuse Header for consistency -->
+<header class="header">
+    <a href="{% url 'booking:home' %}" class="logo">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
+                fill="#8C52FF" />
+        </svg>
+        <span>ShowSphere</span>
+    </a>
+
+    <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Search for Movies, Events, Plays, Sports and Activities">
+    </div>
+
+    <div class="auth-buttons">
+        {% if user.is_authenticated %}
+        <span style="font-weight: 700; color: var(--primary-color);">Hi, {{ user.first_name|default:user.username
+            }}</span>
+        <a href="{% url 'booking:customer_dashboard' %}" class="btn-custom btn-custom-outline">Dashboard</a>
+        <a href="{% url 'booking:logout' %}" class="btn-custom btn-custom-primary">Logout</a>
+        {% else %}
+        <a href="{% url 'booking:organizer_register' %}" class="btn-custom btn-custom-outline">New Partner</a>
+        <a href="{% url 'booking:login' %}" class="btn-custom btn-custom-primary">Sign In</a>
+        {% endif %}
+    </div>
+</header>
+<nav class="nav-bar">
+    <ul class="nav-links">
+        <li><a href="{% url 'booking:browse' %}">Movies</a></li>
+        <li><a href="{% url 'booking:browse' %}?category=events">Events</a></li>
+        <li><a href="{% url 'booking:browse' %}?category=sports">Sports</a></li>
+    </ul>
+</nav>
+{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Booking History</h2>
-        <a href="{% url 'booking:customer_dashboard' %}" class="btn btn-outline-secondary">Back to Dashboard</a>
+<div class="container-content">
+    <div class="page-header">
+        <h1 class="page-title">Booking History</h1>
+        <a href="{% url 'booking:customer_dashboard' %}" class="btn-back">Back to Dashboard</a>
     </div>
 
-    <div class="card shadow-sm">
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead class="bg-light">
-                        <tr>
-                            <th class="ps-4">Date</th>
-                            <th>Event/Movie</th>
-                            <th>Location</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for booking in bookings %}
-                        <tr>
-                            <td class="ps-4">{{ booking.booking_date|date:"d M Y" }}</td>
-                            <td>
-                                {% if booking.show.show_type == 'movie' %}
-                                <strong>{{ booking.show.movie.title }}</strong>
-                                {% else %}
-                                <strong>{{ booking.show.event.title }}</strong>
-                                {% endif %}
-                                <br>
-                                <small class="text-muted">{{ booking.show.show_date|date:"D, d M" }}</small>
-                            </td>
-                            <td>
-                                {% if booking.show.venue %}
-                                {{ booking.show.venue.name }}
-                                {% else %}
-                                {{ booking.show.screen.theatre.name }}
-                                {% endif %}
-                            </td>
-                            <td>₹{{ booking.grand_total }}</td>
-                            <td>
-                                {% if booking.payment_status == 'completed' %}
-                                <span class="badge bg-success">Confirmed</span>
-                                {% elif booking.payment_status == 'pending' %}
-                                <span class="badge bg-warning text-dark">Pending</span>
-                                {% else %}
-                                <span class="badge bg-danger">{{ booking.payment_status|title }}</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if booking.payment_status == 'completed' %}
-                                <a href="{% url 'booking:ticket_detail' booking.tickets.first.id %}"
-                                    class="btn btn-sm btn-outline-primary">View Ticket</a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="6" class="text-center py-5">
-                                <p class="text-muted mb-0">No booking history found.</p>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <div class="history-card">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Event/Movie</th>
+                    <th>Location</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in bookings %}
+                <tr>
+                    <td>{{ booking.booking_date|date:"d M Y" }}</td>
+                    <td class="movie-cell">
+                        {% if booking.show.show_type == 'movie' %}
+                        {{ booking.show.movie.title }}
+                        {% else %}
+                        {{ booking.show.event.title }}
+                        {% endif %}
+                        <span class="movie-subtitle">{{ booking.show.show_date|date:"D, d M" }}</span>
+                    </td>
+                    <td>
+                        {% if booking.show.venue %}
+                        {{ booking.show.venue.name }}
+                        {% else %}
+                        {{ booking.show.screen.theatre.name }}
+                        {% endif %}
+                    </td>
+                    <td class="total-cell">₹{{ booking.grand_total }}</td>
+                    <td>
+                        {% if booking.payment_status == 'completed' %}
+                        <span class="status-badge">Confirmed</span>
+                        {% elif booking.payment_status == 'pending' %}
+                        <span class="status-badge pending">Pending</span>
+                        {% else %}
+                        <span class="status-badge failed">{{ booking.payment_status|title }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if booking.payment_status == 'completed' %}
+                        <a href="{% url 'booking:ticket_detail' booking.tickets.first.id %}" class="btn-view">View
+                            Ticket</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="no-history">
+                        No booking history found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-content">
+        <div class="footer-logo">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
+                <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
+                    fill="#8C52FF" />
+            </svg>
+            ShowSphere
+        </div>
+
+        <div class="social-links">
+            <div class="social-circle">fb</div>
+            <div class="social-circle">in</div>
+            <div class="social-circle">tw</div>
+            <div class="social-circle">ig</div>
+        </div>
+
+        <p class="footer-text">
+            Copyright 2026 @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
+            <br><br>
+            The content and images used on this site are copyright protected and copyrights vests with the
+            respective owners. The usage of the content and images on this website is intended to promote the works
+            and endorsement of the artist shall be implied. Unauthorized use is prohibited and punishable by law.
+        </p>
+    </div>
+</footer>
 {% endblock %}

@@ -1,11 +1,309 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
+
+    :root {
+        --primary-color: #8C52FF;
+        --primary-hover: #7b40f2;
+        --text-color: #2D2042;
+        --text-light: #666666;
+        --bg-color: #F8F9FA;
+        --white: #FFFFFF;
+        --dark-gray: #333338;
+        --pink-action: #F84464;
+        --border-radius: 8px;
+        --shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Roboto', sans-serif;
+    }
+
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    a {
+        text-decoration: none;
+        color: inherit;
+    }
+
+    /* Header Styles */
+    .header {
+        background-color: var(--white);
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .logo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .logo span {
+        color: var(--primary-color);
+    }
+
+    .auth-buttons {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .btn-custom {
+        padding: 0.5rem 1.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 0.9rem;
+        border: none;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-custom-primary {
+        background-color: var(--primary-color);
+        color: var(--white);
+    }
+
+    .btn-custom-primary:hover {
+        background-color: var(--primary-hover);
+        color: white;
+    }
+
+    .btn-custom-outline {
+        background-color: transparent;
+        border: 1px solid #ddd;
+        color: var(--text-color);
+    }
+
+    .btn-custom-outline:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+
+    /* Navigation Bar */
+    .nav-bar {
+        background: linear-gradient(135deg, #8C52FF 0%, #00BFB2 100%);
+        color: var(--white);
+        padding: 0.8rem 2rem;
+        box-shadow: 0 4px 15px rgba(140, 82, 255, 0.3);
+    }
+
+    .nav-links {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        list-style: none;
+    }
+
+    .nav-links li a {
+        color: white;
+        opacity: 0.8;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: opacity 0.3s;
+    }
+
+    .nav-links li a:hover {
+        opacity: 1;
+    }
+
+    /* 404 Content */
+    .main-content {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 2rem;
+    }
+
+    .error-card {
+        width: 100%;
+        max-width: 800px;
+        background: var(--white);
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        padding: 4rem 2rem;
+        text-align: center;
+        border: 1px solid #eee;
+    }
+
+    .error-title {
+        font-size: 3rem;
+        font-weight: 700;
+        color: #333;
+        margin-bottom: 1rem;
+    }
+
+    .error-subtitle {
+        font-size: 1.25rem;
+        color: #777;
+        margin-bottom: 2.5rem;
+    }
+
+    .btn-go-home {
+        background-color: var(--pink-action);
+        color: white;
+        padding: 0.8rem 2.5rem;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 1rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-block;
+        text-decoration: none;
+    }
+
+    .btn-go-home:hover {
+        opacity: 0.9;
+        transform: translateY(-2px);
+        color: white;
+    }
+
+    /* Footer Area */
+    .footer {
+        background-color: #1f2533;
+        color: #abb2bf;
+        padding: 4rem 2rem 3rem;
+        text-align: center;
+        margin-top: auto;
+    }
+
+    .footer-logo {
+        color: white;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+    }
+
+    .social-links {
+        display: flex;
+        justify-content: center;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .social-circle {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #2d3139;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        transition: all 0.3s;
+    }
+
+    .social-circle:hover {
+        background: var(--primary-color);
+    }
+
+    .footer-text {
+        font-size: 0.9rem;
+        line-height: 1.8;
+        border-top: 1px solid #2d3139;
+        padding-top: 2rem;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    @media (max-width: 768px) {
+        .header {
+            padding: 0.8rem 1rem;
+        }
+    }
+</style>
+<style>
+    /* Hide base footer if consistent with other standalone pages */
+    body>footer {
+        display: none !important;
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+<!-- Reuse Header for consistency -->
+<header class="header">
+    <a href="{% url 'booking:home' %}" class="logo">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
+                fill="#8C52FF" />
+        </svg>
+        <span>ShowSphere</span>
+    </a>
+
+    <div class="auth-buttons">
+        {% if user.is_authenticated %}
+        <span style="font-weight: 700; color: var(--primary-color);">Hi, {{ user.first_name|default:user.username
+            }}</span>
+        <a href="{% url 'booking:customer_dashboard' %}" class="btn-custom btn-custom-outline">Dashboard</a>
+        <a href="{% url 'booking:logout' %}" class="btn-custom btn-custom-primary">Logout</a>
+        {% else %}
+        <a href="{% url 'booking:organizer_register' %}" class="btn-custom btn-custom-outline">New Partner</a>
+        <a href="{% url 'booking:login' %}" class="btn-custom btn-custom-primary">Sign In</a>
+        {% endif %}
+    </div>
+</header>
+<nav class="nav-bar">
+    <ul class="nav-links">
+        <li><a href="{% url 'booking:browse' %}">Movies</a></li>
+        <li><a href="{% url 'booking:browse' %}?category=events">Events</a></li>
+        <li><a href="{% url 'booking:browse' %}?category=sports">Sports</a></li>
+    </ul>
+</nav>
+{% endblock %}
 
 {% block content %}
-<div class="container my-5 text-center">
-    <div class="bg-light p-5 rounded">
-        <h1>404 - Page Not Found</h1>
-        <p class="lead">The page you are looking for does not exist.</p>
-        <a href="{% url 'booking:home' %}" class="btn btn-primary">Go Home</a>
+<main class="main-content">
+    <section class="error-card">
+        <h1 class="error-title">404 - Page Not Found</h1>
+        <p class="error-subtitle">The page you are looking for does not exist.</p>
+        <a href="{% url 'booking:home' %}" class="btn-go-home">Go Home</a>
+    </section>
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-logo">ShowSphere</div>
+
+    <div class="social-links">
+        <a href="#" class="social-circle">fb</a>
+        <a href="#" class="social-circle">in</a>
+        <a href="#" class="social-circle">tw</a>
+        <a href="#" class="social-circle">ig</a>
     </div>
-</div>
+
+    <p class="footer-text">
+        Copyright 2026 @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
+        <br><br>
+        The content and images used on this site are copyright protected and copyrights vests with the respective
+        owners. The usage of the content and images on this website is intended to promote the works and endorsement
+        of the artist shall be implied. Unauthorized use is prohibited and punishable by law.
+    </p>
+</footer>
 {% endblock %}

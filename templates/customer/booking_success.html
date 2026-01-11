@@ -1,46 +1,323 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* Global Styles from 1.html */
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
+
+    :root {
+        --primary-color: #8C52FF;
+        --primary-hover: #7b40f2;
+        --text-color: #2D2042;
+        --text-light: #666666;
+        --bg-color: #F9F7FF;
+        --white: #FFFFFF;
+        --border-radius: 20px;
+        --shadow: 0 10px 25px rgba(140, 82, 255, 0.15);
+        --success-green: #28a745;
+    }
+
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+    }
+
+    /* Navbar Styles specific to this page override */
+    .header {
+        background-color: var(--white);
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .logo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .logo span {
+        color: var(--primary-color);
+    }
+
+    .auth-buttons {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .btn-custom {
+        padding: 0.5rem 1.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s;
+        font-size: 0.9rem;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-custom-primary {
+        background-color: var(--primary-color);
+        color: var(--white);
+        border: none;
+    }
+
+    .btn-custom-primary:hover {
+        color: white;
+        background-color: var(--primary-hover);
+    }
+
+    .btn-custom-outline {
+        background-color: transparent;
+        border: 1px solid #ddd;
+        color: var(--text-color);
+    }
+
+    .btn-custom-outline:hover {
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    /* Navigation Bar */
+    .nav-bar {
+        background: linear-gradient(135deg, #8C52FF 0%, #00BFB2 100%);
+        color: var(--white);
+        padding: 1rem 2rem;
+        box-shadow: 0 4px 15px rgba(140, 82, 255, 0.3);
+    }
+
+    .nav-links {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        font-size: 1rem;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .nav-links li a {
+        opacity: 0.8;
+        transition: opacity 0.3s;
+        color: white;
+        text-decoration: none;
+    }
+
+    .nav-links li a:hover {
+        opacity: 1;
+        color: var(--white);
+    }
+
+    /* Confirmation Card Styles */
+    .confirmation-container {
+        padding: 2rem 1rem;
+        display: flex;
+        justify-content: center;
+        margin-top: 2rem;
+    }
+
+    .confirmation-card {
+        background: var(--white);
+        width: 100%;
+        max-width: 550px;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        padding: 3rem 2.5rem;
+        text-align: center;
+        border: 1px solid #eee;
+    }
+
+    .success-icon {
+        width: 90px;
+        height: 90px;
+        background: var(--success-green);
+        color: var(--white);
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 auto 1.5rem;
+        font-size: 3rem;
+        box-shadow: 0 10px 20px rgba(40, 167, 69, 0.2);
+    }
+
+    .confirmation-card h2 {
+        font-size: 2rem;
+        margin-bottom: 0.6rem;
+        color: var(--success-green);
+        font-weight: 900;
+    }
+
+    .confirmation-card h2+p {
+        color: var(--text-light);
+        margin-bottom: 2.5rem;
+        font-size: 1.05rem;
+    }
+
+    .booking-details-box {
+        background-color: #fdfdff;
+        border: 1px solid #f0f0ff;
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: left;
+        margin-bottom: 2.5rem;
+    }
+
+    .booking-id {
+        font-size: 0.9rem;
+        color: var(--text-color);
+        margin-bottom: 1rem;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+    }
+
+    .movie-name {
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        color: var(--text-color);
+    }
+
+    .show-info {
+        font-size: 1rem;
+        color: var(--text-light);
+        margin-bottom: 0.4rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Action Buttons */
+    .actions {
+        display: flex;
+        gap: 1.2rem;
+    }
+
+    .btn-action {
+        flex: 1;
+        padding: 1rem;
+        border-radius: 10px;
+        font-weight: 700;
+        cursor: pointer;
+        font-size: 1rem;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: none;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .btn-view {
+        background-color: var(--primary-color);
+        color: var(--white);
+        box-shadow: 0 5px 15px rgba(140, 82, 255, 0.3);
+    }
+
+    .btn-view:hover {
+        background-color: var(--primary-hover);
+        color: var(--white);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(140, 82, 255, 0.4);
+    }
+
+    .btn-home {
+        background-color: var(--white);
+        color: var(--text-light);
+        border: 1px solid #ddd;
+    }
+
+    .btn-home:hover {
+        background-color: #f8f8f8;
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+<!-- Reuse Header from seat_selection.html for consistency -->
+<header class="header">
+    <a href="{% url 'booking:home' %}" class="logo">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
+                fill="#8C52FF" />
+        </svg>
+        <span>ShowSphere</span>
+    </a>
+    <div class="auth-buttons">
+        {% if user.is_authenticated %}
+        {% if user.role == 'customer' %}
+        <a href="{% url 'booking:customer_dashboard' %}" class="btn-custom btn-custom-outline">My Profile</a>
+        {% elif user.role == 'organizer' %}
+        <a href="{% url 'booking:organizer_dashboard' %}" class="btn-custom btn-custom-outline">Dashboard</a>
+        {% elif user.role == 'theatre_owner' %}
+        <a href="{% url 'booking:theatre_dashboard' %}" class="btn-custom btn-custom-outline">Dashboard</a>
+        {% elif user.role == 'admin' %}
+        <a href="{% url 'booking:admin_dashboard' %}" class="btn-custom btn-custom-outline">Admin</a>
+        {% endif %}
+        <a href="{% url 'booking:logout' %}" class="btn-custom btn-custom-primary">Logout</a>
+        {% else %}
+        <a href="{% url 'booking:organizer_register' %}" class="btn-custom btn-custom-outline">New Partner</a>
+        <a href="{% url 'booking:login' %}" class="btn-custom btn-custom-primary">Sign In</a>
+        {% endif %}
+    </div>
+</header>
+<nav class="nav-bar">
+    <ul class="nav-links">
+        <li><a href="{% url 'booking:browse' %}">Movies</a></li>
+        <li><a href="{% url 'booking:browse' %}?category=events">Events</a></li>
+        <li><a href="{% url 'booking:browse' %}?category=sports">Sports</a></li>
+    </ul>
+</nav>
+{% endblock %}
 
 {% block content %}
-<div class="container my-5 text-center">
-    <div class="card shadow mx-auto" style="max-width: 600px;">
-        <div class="card-body p-5">
-            <div class="mb-4">
-                <div class="d-inline-block bg-success text-white rounded-circle p-4 mb-3">
-                    <i class="fas fa-check fa-4x"></i>
-                </div>
-                <h2 class="text-success">Booking Confirmed!</h2>
-                <p class="lead">Your tickets have been booked successfully.</p>
+<div class="confirmation-container">
+    <div class="confirmation-card">
+        <div class="success-icon">✓</div>
+
+        <h2>Booking Confirmed!</h2>
+        <p>Your tickets have been booked successfully.</p>
+
+        <div class="booking-details-box">
+            <div class="booking-id">BOOKING ID: {{ booking.booking_id }}</div>
+
+            {% if booking.show.show_type == 'movie' %}
+            <div class="movie-name">{{ booking.show.movie.title }}</div>
+            <div class="show-info">
+                <span>📅</span> {{ booking.show.show_date|date:"D, d M Y" }} | {{ booking.show.show_time|time:"H:i" }}
             </div>
-
-            <div class="bg-light p-4 rounded mb-4 text-start">
-                <p class="mb-1"><strong>Booking ID:</strong> {{ booking.booking_id }}</p>
-
-                {% if booking.show.show_type == 'movie' %}
-                <h5 class="mt-2">{{ booking.show.movie.title }}</h5>
-                {% else %}
-                <h5 class="mt-2">{{ booking.show.event.title }}</h5>
-                {% endif %}
-
-                <p class="mb-0 text-muted">{{ booking.show.show_date|date:"D, d M Y" }} | {{
-                    booking.show.show_time|time:"H:i" }}</p>
-                <p class="mb-0 text-muted">
-                    {% if booking.show.venue %}
-                    {{ booking.show.venue.name }}, {{ booking.show.venue.city.name }}
-                    {% else %}
-                    {{ booking.show.screen.theatre.name }}, {{ booking.show.screen.theatre.city.name }}
-                    {% endif %}
-                </p>
+            <div class="show-info">
+                <span>📍</span> {{ booking.show.screen.theatre.name }}, {{ booking.show.screen.theatre.city.name }}
             </div>
-
-            <div class="row g-2">
-                <div class="col-md-6">
-                    <a href="{% url 'booking:ticket_detail' booking.tickets.first.id %}"
-                        class="btn btn-primary w-100">View Tickets</a>
-                </div>
-                <div class="col-md-6">
-                    <a href="{% url 'booking:home' %}" class="btn btn-outline-secondary w-100">Back to Home</a>
-                </div>
+            {% else %}
+            <div class="movie-name">{{ booking.show.event.title }}</div>
+            <div class="show-info">
+                <span>📅</span> {{ booking.show.show_date|date:"D, d M Y" }} | {{ booking.show.show_time|time:"H:i" }}
             </div>
+            <div class="show-info">
+                <span>📍</span> {{ booking.show.venue.name }}, {{ booking.show.venue.city.name }}
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="actions">
+            {% if booking.tickets.all %}
+            <a href="{% url 'booking:ticket_detail' booking.tickets.first.id %}" class="btn-action btn-view">View
+                Tickets</a>
+            {% endif %}
+            <a href="{% url 'booking:home' %}" class="btn-action btn-home">Back to Home</a>
         </div>
     </div>
 </div>

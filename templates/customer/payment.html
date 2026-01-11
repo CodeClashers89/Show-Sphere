@@ -1,121 +1,475 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    /* Global Styles from 1.html */
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;800&display=swap');
+
+    :root {
+        --primary-color: #8C52FF;
+        --primary-hover: #7b40f2;
+        --text-color: #2D2042;
+        --text-light: #666666;
+        --bg-color: #F9F7FF;
+        --white: #FFFFFF;
+        --border-radius: 20px;
+        --shadow: 0 10px 25px rgba(140, 82, 255, 0.15);
+    }
+
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+    }
+
+    /* Navbar Styles specific to this page override */
+    .header {
+        background-color: var(--white);
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .logo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+    }
+
+    .logo span {
+        color: var(--primary-color);
+    }
+
+    .auth-buttons {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .btn-custom {
+        padding: 0.5rem 1.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: all 0.3s;
+        font-size: 0.9rem;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-custom-primary {
+        background-color: var(--primary-color);
+        color: var(--white);
+        border: none;
+    }
+
+    .btn-custom-primary:hover {
+        color: white;
+        background-color: var(--primary-hover);
+    }
+
+    .btn-custom-outline {
+        background-color: transparent;
+        border: 1px solid #ddd;
+        color: var(--text-color);
+    }
+
+    .btn-custom-outline:hover {
+        color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    /* Navigation Bar */
+    .nav-bar {
+        background: linear-gradient(135deg, #8C52FF 0%, #00BFB2 100%);
+        color: var(--white);
+        padding: 1rem 2rem;
+        box-shadow: 0 4px 15px rgba(140, 82, 255, 0.3);
+    }
+
+    .nav-links {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        font-size: 1rem;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .nav-links li a {
+        opacity: 0.8;
+        transition: opacity 0.3s;
+        color: white;
+        text-decoration: none;
+    }
+
+    .nav-links li a:hover {
+        opacity: 1;
+        color: var(--white);
+    }
+
+    /* Page Layout Styles */
+    .payment-layout {
+        display: flex;
+        gap: 2rem;
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        align-items: flex-start;
+    }
+
+    .booking-summary-section {
+        flex: 2;
+    }
+
+    .payment-section {
+        flex: 1;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: var(--text-color);
+    }
+
+    .card-box {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        border: 1px solid #eee;
+        overflow: hidden;
+    }
+
+    /* Booking Summary Styles */
+    .summary-header {
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid #f0f0f0;
+        font-weight: 700;
+        color: var(--text-color);
+        background: #fdfdff;
+    }
+
+    .summary-content {
+        padding: 2rem;
+    }
+
+    .movie-title {
+        font-size: 1.8rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        color: var(--text-color);
+    }
+
+    .venue-info {
+        color: var(--text-light);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        font-size: 1rem;
+    }
+
+    .show-tag {
+        background: #f4efff;
+        color: var(--primary-color);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        display: inline-block;
+        margin-right: 1rem;
+        font-weight: 600;
+    }
+
+    .summary-table {
+        width: 100%;
+        margin-top: 2rem;
+        border-collapse: collapse;
+    }
+
+    .summary-table th {
+        text-align: left;
+        color: var(--text-light);
+        font-weight: 600;
+        padding-bottom: 1rem;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .summary-table td {
+        padding: 1rem 0;
+        border-top: 1px solid #f8f8f8;
+        color: var(--text-color);
+        font-weight: 500;
+    }
+
+    .price-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.8rem 0;
+        color: var(--text-light);
+        font-size: 1rem;
+    }
+
+    .price-row.total {
+        background: #fdfdff;
+        margin: 1.5rem -2rem -2rem -2rem;
+        padding: 1.5rem 2rem;
+        color: var(--text-color);
+        font-weight: 800;
+        border-top: 1px solid #f0f0f0;
+        align-items: center;
+    }
+
+    /* Payment Section Styles */
+    .payment-header {
+        background: #1f2533;
+        color: white;
+        padding: 1.2rem 1.5rem;
+        font-weight: 700;
+    }
+
+    .payment-content {
+        padding: 2rem;
+    }
+
+    .payment-option {
+        border: 1px solid #eee;
+        padding: 1.2rem;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        width: 100%;
+        /* Ensure label takes full width */
+    }
+
+    .payment-option:hover {
+        border-color: var(--primary-color);
+        background: #fdfbfe;
+    }
+
+    .payment-option input[type="radio"] {
+        margin-right: 1.2rem;
+        accent-color: var(--primary-color);
+        width: 1.2rem;
+        height: 1.2rem;
+    }
+
+    .payment-label {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        font-weight: 600;
+        color: var(--text-color);
+        font-size: 1.05rem;
+    }
+
+    .pay-btn {
+        background: var(--primary-color);
+        color: white;
+        width: 100%;
+        padding: 1.2rem;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        font-weight: 700;
+        cursor: pointer;
+        margin-top: 1.5rem;
+        box-shadow: 0 5px 15px rgba(140, 82, 255, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .pay-btn:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(140, 82, 255, 0.4);
+    }
+
+    .secure-note {
+        text-align: center;
+        color: var(--text-light);
+        font-size: 0.9rem;
+        margin-top: 1.5rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    @media (max-width: 992px) {
+        .payment-layout {
+            flex-direction: column;
+        }
+
+        .booking-summary-section,
+        .payment-section {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+<!-- Reuse Header from seat_selection.html for consistency -->
+<header class="header">
+    <a href="{% url 'booking:home' %}" class="logo">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
+                fill="#8C52FF" />
+        </svg>
+        <span>ShowSphere</span>
+    </a>
+    <div class="auth-buttons">
+        {% if user.is_authenticated %}
+        {% if user.role == 'customer' %}
+        <a href="{% url 'booking:customer_dashboard' %}" class="btn-custom btn-custom-outline">My Profile</a>
+        {% elif user.role == 'organizer' %}
+        <a href="{% url 'booking:organizer_dashboard' %}" class="btn-custom btn-custom-outline">Dashboard</a>
+        {% elif user.role == 'theatre_owner' %}
+        <a href="{% url 'booking:theatre_dashboard' %}" class="btn-custom btn-custom-outline">Dashboard</a>
+        {% elif user.role == 'admin' %}
+        <a href="{% url 'booking:admin_dashboard' %}" class="btn-custom btn-custom-outline">Admin</a>
+        {% endif %}
+        <a href="{% url 'booking:logout' %}" class="btn-custom btn-custom-primary">Logout</a>
+        {% else %}
+        <a href="{% url 'booking:organizer_register' %}" class="btn-custom btn-custom-outline">New Partner</a>
+        <a href="{% url 'booking:login' %}" class="btn-custom btn-custom-primary">Sign In</a>
+        {% endif %}
+    </div>
+</header>
+<nav class="nav-bar">
+    <ul class="nav-links">
+        <li><a href="{% url 'booking:browse' %}">Movies</a></li>
+        <li><a href="{% url 'booking:browse' %}?category=events">Events</a></li>
+        <li><a href="{% url 'booking:browse' %}?category=sports">Sports</a></li>
+    </ul>
+</nav>
+{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center my-5">
-    <div class="col-md-8">
-        <h2 class="mb-4">Confirm Booking</h2>
+<div class="payment-layout">
+    <!-- Left Column: Booking Summary -->
+    <div class="booking-summary-section">
+        <h2 class="section-title">Confirm Booking</h2>
+        <div class="card-box">
+            <div class="summary-header">Booking Summary</div>
+            <div class="summary-content">
+                {% if show.show_type == 'movie' %}
+                <div class="movie-title">{{ show.movie.title }}</div>
+                <div class="venue-info">
+                    <span>📍</span> {{ show.screen.theatre.name }} | {{ show.screen.name }}
+                </div>
+                {% else %}
+                <div class="movie-title">{{ show.event.title }}</div>
+                <div class="venue-info">
+                    <span>📍</span> {{ show.venue.name }} | {{ show.venue.city.name }}
+                </div>
+                {% endif %}
 
-        <div class="row">
-            <div class="col-md-8">
-                <!-- Booking Summary -->
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">Booking Summary</h5>
+                <div style="margin-bottom: 2rem;">
+                    <span class="show-tag">{{ show.show_date|date:"D, d M Y" }}</span>
+                    <span class="show-tag">{{ show.show_time|time:"H:i" }}</span>
+                </div>
+
+                <table class="summary-table">
+                    <thead>
+                        <tr>
+                            <th>Seat</th>
+                            <th style="text-align: center;">Type</th>
+                            <th style="text-align: right;">Price</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for seat in seats %}
+                        <tr>
+                            <td>{{ seat.row }}{{ seat.seat_number }}</td>
+                            <td style="text-align: center;">{{ seat.get_seat_type_display }}</td>
+                            <td style="text-align: right;">₹{{ seat.price }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <div style="margin-top: 1.5rem; border-top: 1px solid #eee; padding-top: 1rem;">
+                    <div class="price-row">
+                        <span>Subtotal</span>
+                        <span>₹{{ total_amount }}</span>
                     </div>
-                    <div class="card-body">
-                        {% if show.show_type == 'movie' %}
-                        <h4>{{ show.movie.title }}</h4>
-                        <p class="text-muted"><i class="fas fa-map-marker-alt me-2"></i> {{ show.screen.theatre.name }}
-                            | {{ show.screen.name }}</p>
-                        {% else %}
-                        <h4>{{ show.event.title }}</h4>
-                        <p class="text-muted"><i class="fas fa-map-marker-alt me-2"></i> {{ show.venue.name }}</p>
-                        {% endif %}
+                    <div class="price-row">
+                        <span>Convenience Fee (2%)</span>
+                        <span>₹{{ convenience_fee }}</span>
+                    </div>
+                </div>
 
-                        <p class="mb-4">
-                            <span class="badge bg-light text-dark fs-6">{{ show.show_date|date:"D, d M Y" }}</span>
-                            <span class="badge bg-light text-dark fs-6 ms-2">{{ show.show_time|time:"H:i" }}</span>
-                        </p>
+                <div class="price-row total">
+                    <span>Amount Payable</span>
+                    <span style="font-size: 1.5rem;">₹{{ grand_total }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
-                        <div class="table-responsive">
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Seat</th>
-                                        <th>Type</th>
-                                        <th class="text-end">Price</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for seat in seats %}
-                                    <tr>
-                                        <td>{{ seat.row }}{{ seat.seat_number }}</td>
-                                        <td>{{ seat.get_seat_type_display }}</td>
-                                        <td class="text-end">₹{{ seat.price }}</td>
-                                    </tr>
-                                    {% endfor %}
-                                    <tr>
-                                        <td colspan="2" class="text-end fw-bold">Subtotal</td>
-                                        <td class="text-end fw-bold">₹{{ total_amount|floatformat:2 }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="2" class="text-end text-muted">Convenience Fee (2%)</td>
-                                        <td class="text-end text-muted">₹{{ convenience_fee|floatformat:2 }}</td>
-                                    </tr>
-                                    <tr class="table-active">
-                                        <td colspan="2" class="text-end fw-bold fs-5">Amount Payable</td>
-                                        <td class="text-end fw-bold fs-5">₹{{ grand_total|floatformat:2 }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+    <!-- Right Column: Payment -->
+    <div class="payment-section">
+        <br><br> <!-- Spacing to align with card below title -->
+        <div class="card-box">
+            <div class="payment-header">Payment</div>
+            <div class="payment-content">
+                <form method="post">
+                    {% csrf_token %}
+                    {% for seat in seats %}
+                    <input type="hidden" name="seats" value="{{ seat.id }}">
+                    {% endfor %}
+
+                    <p style="margin-bottom: 1.5rem; color: var(--text-color); font-weight: 700;">Select Payment Method
+                    </p>
+
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="upi" checked>
+                        <div class="payment-label">
+                            <span>📱</span> UPI
                         </div>
+                    </label>
+
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="card">
+                        <div class="payment-label">
+                            <span>💳</span> Credit/Debit Card
+                        </div>
+                    </label>
+
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="wallet">
+                        <div class="payment-label">
+                            <span>📁</span> Wallet
+                        </div>
+                    </label>
+
+                    <button type="submit" class="pay-btn">Pay ₹{{ grand_total }}</button>
+
+                    <div class="secure-note">
+                        <span>🔒</span> Secure Payment Simulation
                     </div>
-                </div>
+                </form>
             </div>
+        </div>
 
-            <div class="col-md-4">
-                <!-- Payment Options -->
-                <div class="card shadow-sm">
-                    <div class="card-header bg-dark text-white">
-                        <h5 class="mb-0">Payment</h5>
-                    </div>
-                    <div class="card-body">
-                        <form method="post">
-                            {% csrf_token %}
-                            {% for seat in seats %}
-                            <input type="hidden" name="seats" value="{{ seat.id }}">
-                            {% endfor %}
-
-                            <h6 class="mb-3">Select Payment Method</h6>
-
-                            <div class="form-check mb-3 p-3 border rounded">
-                                <input class="form-check-input" type="radio" name="payment_method" id="pay_upi"
-                                    value="upi" checked>
-                                <label class="form-check-label w-100" for="pay_upi">
-                                    <i class="fas fa-mobile-alt me-2 text-primary"></i> UPI
-                                </label>
-                            </div>
-
-                            <div class="form-check mb-3 p-3 border rounded">
-                                <input class="form-check-input" type="radio" name="payment_method" id="pay_card"
-                                    value="card">
-                                <label class="form-check-label w-100" for="pay_card">
-                                    <i class="fas fa-credit-card me-2 text-success"></i> Credit/Debit Card
-                                </label>
-                            </div>
-
-                            <div class="form-check mb-3 p-3 border rounded">
-                                <input class="form-check-input" type="radio" name="payment_method" id="pay_wallet"
-                                    value="wallet">
-                                <label class="form-check-label w-100" for="pay_wallet">
-                                    <i class="fas fa-wallet me-2 text-warning"></i> Wallet
-                                </label>
-                            </div>
-
-                            <div class="d-grid mt-4">
-                                <button type="submit" class="btn btn-primary btn-lg">Pay ₹{{ grand_total|floatformat:2
-                                    }}</button>
-                            </div>
-                            <p class="text-center mt-3 text-muted small"><i class="fas fa-lock me-1"></i> Secure Payment
-                                Simulation</p>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="alert alert-warning mt-3 small">
-                    <i class="fas fa-hourglass-half me-1"></i> Seats are locked for 10 minutes. Please complete payment.
-                </div>
-            </div>
+        <div style="margin-top: 1rem; text-align: center; color: #666; font-size: 0.9rem;">
+            <i class="fas fa-hourglass-half me-1"></i> Seats are locked for 10 minutes.
         </div>
     </div>
 </div>

@@ -1,138 +1,643 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block content %}
-<div class="container my-5">
-    <h2 class="mb-4">Browse Events & Movies</h2>
+<head>
+    <meta charset="UTF-8">
+    <title>Browse | ShowSphere</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Filters -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="get" class="row g-3">
-                <div class="col-md-3">
-                    <label class="form-label">Category</label>
-                    <select name="category" class="form-select">
-                        <option value="">All Categories</option>
-                        {% for cat in categories %}
-                        <option value="{{ cat.slug }}" {% if request.GET.category|default:'' == cat.slug %}selected{%endif %}>
-                            {{ cat.name }}
-                        </option>
+    {% load static %}
 
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label">City</label>
-                    <select name="city" class="form-select">
-                        <option value="">All Cities</option>
-                        {% for city in cities %}
-                        <option value="{{ city.id }}" {% if request.GET.city == city.id|stringformat:"i"%}selected{%endif%}>{{ city.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <label class="form-label">Language</label>
-                    <select name="language" class="form-select">
-                        <option value="">All Languages</option>
+    <style>
+        /* ================= STRICT DESIGN FROM 1.html ================= */
+
+        :root {
+            --primary-color: #8C52FF;
+            --primary-hover: #7b40f2;
+            --primary-light: rgba(140, 82, 255, 0.1);
+            --text-color: #2D2042;
+            --text-light: #666;
+            --bg-color: #F9F7FF;
+            --white: #fff;
+            --radius: 20px;
+            --shadow: 0 10px 25px rgba(140, 82, 255, .15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* HEADER */
+        .header {
+            background: var(--white);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            gap: .5rem;
+            align-items: center;
+        }
+
+        .logo span {
+            color: var(--primary-color);
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 2rem;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: .6rem 1rem .6rem 2.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: .5rem 1.4rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+        }
+
+        .btn-outline {
+            border: 1px solid #ddd;
+            background: transparent;
+        }
+
+        .btn-partner {
+            background-color: white;
+            border: 1px solid #dcdcdc;
+            color: #2D2042;
+            border-radius: 6px;
+            padding: 0.5rem 1.2rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        /* NAV BAR */
+        .nav-bar {
+            background: linear-gradient(135deg, #8C52FF, #00BFB2);
+            padding: 1rem;
+            color: #fff;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        /* LAYOUT */
+        .main-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 2rem;
+            padding: 0 1rem;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            height: fit-content;
+        }
+
+        .sidebar h2 {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            font-weight: 700;
+        }
+
+        .filter-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding: 0.5rem 0;
+        }
+
+        .filter-header .group-label {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-color);
+        }
+
+        .filter-header i {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            transition: transform 0.3s;
+        }
+
+        .filter-group.active .filter-header i {
+            transform: rotate(180deg);
+        }
+
+        .filter-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .filter-group.active .filter-options {
+            max-height: 500px;
+        }
+
+        .filter-option {
+            position: relative;
+        }
+
+        .filter-option input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            height: 0;
+            width: 0;
+        }
+
+        .filter-box {
+            display: block;
+            padding: 0.5rem 1rem;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            background: var(--white);
+        }
+
+        .filter-option input:checked+.filter-box {
+            background: var(--primary-color);
+            color: var(--white);
+            border-color: var(--primary-color);
+        }
+
+        .filter-box:hover:not(.active) {
+            border-color: var(--primary-color);
+        }
+
+        /* VERTICAL LAYOUT FOR EVENTS */
+        .vertical-layout {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .vertical-layout .filter-option {
+            width: 100%;
+        }
+
+        .vertical-layout .filter-box {
+            width: 100%;
+            text-align: left;
+            padding: 0.8rem 1.2rem;
+            font-size: 1rem;
+            border-radius: 8px;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        /* GRID */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .result-card {
+            background: var(--white);
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all .3s;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid transparent;
+        }
+
+        .result-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary-light);
+        }
+
+        .card-image {
+            position: relative;
+            width: 100%;
+            height: 320px;
+        }
+
+        .card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .rating-badge {
+            position: absolute;
+            left: 10px;
+            bottom: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-content {
+            padding: 1.2rem;
+            flex-grow: 1;
+        }
+
+        .result-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            color: var(--text-color);
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-meta-inline {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 0.6rem;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .cert-tag {
+            background: var(--primary-light);
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .lang-list {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            line-height: 1.4;
+        }
+
+        /* FOOTER */
+        .footer {
+            background-color: #1f2533;
+            color: #abb2bf;
+            padding: 4rem 2rem 3rem;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        .footer-logo {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .social-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #2d3139;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .social-circle:hover {
+            background: var(--primary-color);
+        }
+
+        .footer-text {
+            font-size: 0.9rem;
+            line-height: 1.8;
+            border-top: 1px solid #2d3139;
+            padding-top: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        @media(max-width:768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <a href="{% url 'booking:home' %}" class="logo">
+            <span>ShowSphere</span>
+        </a>
+
+        <form class="search-bar" action="{% url 'booking:search' %}" method="get">
+            <span class="search-icon">&#128269;</span>
+            <input type="text" name="q" placeholder="Search for Movies, Events...">
+        </form>
+
+        <div class="auth-buttons">
+            <a href="{% url 'booking:organizer_register' %}" class="btn-partner">New Partner</a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'booking:logout' %}" class="btn btn-outline">Logout</a>
+            {% else %}
+            <a href="{% url 'booking:login' %}" class="btn btn-primary">Sign In</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- NAV -->
+    <nav class="nav-bar">
+        <ul class="nav-links">
+            <li><a href="{% url 'booking:browse' %}">Movies</a></li>
+            <li><a href="{% url 'booking:browse' %}?category=events">Events</a></li>
+            <li><a href="{% url 'booking:browse' %}?category=sports">Sports</a></li>
+        </ul>
+    </nav>
+
+    <!-- PAGE -->
+    <div class="main-container">
+
+        <!-- SIDEBAR FILTERS -->
+        <aside class="sidebar">
+            <form id="filterForm" method="get">
+                {% if request.GET.category %}
+                <input type="hidden" name="category" value="{{ request.GET.category }}">
+                {% endif %}
+
+                <h2>Filter</h2>
+
+                <div class="filter-group active">
+                    <div class="filter-header" onclick="this.parentElement.classList.toggle('active')">
+                        <span class="group-label">Language</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="filter-options {% if request.GET.category == 'events' %}vertical-layout{% endif %}">
                         {% for lang in languages %}
-                        <option value="{{ lang.id }}" {% if request.GET.language == lang.id|stringformat:"i" %}selected{%endif %}>{{ lang.name }}</option>
+                        <label class="filter-option">
+                            <input type="checkbox" name="language" value="{{ lang.id }}" {% if lang.id|stringformat:"i" in request.GET.getlist.language %}checked{% endif %} onchange="this.form.submit()">
+                            <span class="filter-box">{{ lang.name }}</span>
+                        </label>
                         {% endfor %}
-                    </select>
+                    </div>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label">Genre</label>
-                    <select name="genre" class="form-select">
-                        <option value="">All Genres</option>
-                        {% for gen in genres %}
-                        <option value="{{ gen.id }}" {% if request.GET.genre == gen.id|stringformat:"i" %}selected{% endif%}>{{ gen.name }}</option>
+
+                <div class="filter-group active">
+                    <div class="filter-header" onclick="this.parentElement.classList.toggle('active')">
+                        <span class="group-label">{% if request.GET.category == 'events' %}Categories{% else%}Genre{%endif %}</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="filter-options {% if request.GET.category == 'events' %}vertical-layout{% endif %}">
+                        {% for genre in genres %}
+                        <label class="filter-option">
+                            <input type="checkbox" name="genre" value="{{ genre.id }}" {% if genre.id|stringformat:"i" in request.GET.getlist.genre %}checked{% endif %} onchange="this.form.submit()">
+                            <span class="filter-box">{{ genre.name }}</span>
+                        </label>
                         {% endfor %}
-                    </select>
+                    </div>
                 </div>
-                <div class="col-md-2 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary w-100">Apply Filter</button>
+
+                {% if request.GET.category != 'events' %}
+                <div class="filter-group active">
+                    <div class="filter-header" onclick="this.parentElement.classList.toggle('active')">
+                        <span class="group-label">Format</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="filter-options">
+                        <label class="filter-option">
+                            <input type="checkbox" name="format" value="2D" {% if '2D' in request.GET.getlist.format%}checked{% endif %} onchange="this.form.submit()">
+                            <span class="filter-box">2D</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" name="format" value="3D" {% if '3D' in request.GET.getlist.format%}checked{% endif %} onchange="this.form.submit()">
+                            <span class="filter-box">3D</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" name="format" value="IMAX" {% if 'IMAX' in request.GET.getlist.format%}checked{% endif %} onchange="this.form.submit()">
+                            <span class="filter-box">IMAX</span>
+                        </label>
+                    </div>
                 </div>
+                {% endif %}
+
+                {% if request.GET.category == 'events' %}
+                <div class="filter-group active">
+                    <div class="filter-header" onclick="this.parentElement.classList.toggle('active')">
+                        <span class="group-label">Price</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="filter-options vertical-layout">
+                        <label class="filter-option">
+                            <input type="radio" name="price" value="free" {% if request.GET.price == 'free'%}checked{%endif %} onchange="this.form.submit()">
+                            <span class="filter-box">Free</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="radio" name="price" value="0-500" {% if request.GET.price == '0-500'%}checked{%endif %} onchange="this.form.submit()">
+                            <span class="filter-box">0 - 500</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="radio" name="price" value="501-2000" {% if request.GET.price == '501-2000'%}checked{% endif %} onchange="this.form.submit()">
+                            <span class="filter-box">501 - 2000</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="radio" name="price" value="above-2000" {% if request.GET.price == 'above-2000'%}checked{% endif %} onchange="this.form.submit()">
+                            <span class="filter-box">Above 2000</span>
+                        </label>
+                    </div>
+                </div>
+                {% endif %}
             </form>
-        </div>
-    </div>
+        </aside>
 
-    <!-- Results -->
-    <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
-        <li class="nav-item" role="presentation">
-            <button class="nav-link active" id="movies-tab" data-bs-toggle="tab" data-bs-target="#movies" type="button"
-                role="tab">Movies ({{ movies.count }})</button>
-        </li>
-        <li class="nav-item" role="presentation">
-            <button class="nav-link" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button"
-                role="tab">Events ({{ events.count }})</button>
-        </li>
-    </ul>
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
 
-    <div class="tab-content" id="myTabContent">
-        <!-- Movies Tab -->
-        <div class="tab-pane fade show active" id="movies" role="tabpanel">
-            <div class="row row-cols-1 row-cols-md-4 g-4">
-                {% for movie in movies %}
-                <div class="col">
-                    <div class="card h-100">
-                        {% if movie.poster %}
-                        <img src="{{ movie.poster.url }}" class="card-img-top" alt="{{ movie.title }}">
-                        {% else %}
-                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center">
-                            <i class="fas fa-film fa-3x text-muted"></i>
-                        </div>
-                        {% endif %}
-                        <div class="card-body">
-                            <h5 class="card-title text-truncate">{{ movie.title }}</h5>
-                            <p class="card-text text-muted small">{{ movie.language.name }} | {{ movie.genre.name }}</p>
-                            <p class="card-text small"><i class="fas fa-star text-warning"></i> {{movie.rating|default:"--" }}/10</p>
-                        </div>
-                        <div class="card-footer bg-white border-top-0">
-                            <a href="{% url 'booking:movie_detail' movie.id %}" class="btn btn-outline-primary w-100">Book Tickets</a>
-                        </div>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="col-12">
-                    <div class="alert alert-info">No movies found matching your filters.</div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
+            <h1 class="section-title">
+                {% if request.GET.category == 'events' %}
+                Events in location
+                {% else %}
+                Movie in location
+                {% endif %}
+            </h1>
 
-        <!-- Events Tab -->
-        <div class="tab-pane fade" id="events" role="tabpanel">
-            <div class="row row-cols-1 row-cols-md-3 g-4">
+            <!-- RESULTS -->
+            <div class="results-grid">
+                {% if request.GET.category == 'events' %}
                 {% for event in events %}
-                <div class="col">
-                    <div class="card h-100">
+                <a href="{% url 'booking:event_detail' event.id %}" class="result-card">
+                    <div class="card-image">
                         {% if event.poster %}
-                        <img src="{{ event.poster.url }}" class="card-img-top" alt="{{ event.title }}"
-                            style="height: 250px;">
-                        {% else %}
-                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center"
-                            style="height: 250px;">
-                            <i class="fas fa-calendar-alt fa-3x text-muted"></i>
+                        <img src="{{ event.poster.url }}">
+                        {% endif %}
+                    </div>
+                    <div class="card-content">
+                        <div class="result-title">{{ event.title }}</div>
+                        <div class="card-meta-inline">
+                            <span>{{ event.category.name }}</span>
+                            <span>•</span>
+                            <span>{{ event.language.name }}</span>
+                        </div>
+                        <div class="result-price" style="font-weight: 700; color: var(--primary-color);">₹ {{
+                            event.price|default:"Free" }}</div>
+                    </div>
+                </a>
+                {% empty %}
+                <p>No events found.</p>
+                {% endfor %}
+                {% else %}
+                {% for movie in movies %}
+                <a href="{% url 'booking:movie_detail' movie.id %}" class="result-card">
+                    <div class="card-image">
+                        {% if movie.poster %}
+                        <img src="{{ movie.poster.url }}">
+                        {% endif %}
+                        {% if movie.rating %}
+                        <div class="rating-badge">
+                            <i class="fas fa-star"></i>
+                            <span>{{ movie.rating|floatformat:1 }}%</span>
                         </div>
                         {% endif %}
-                        <div class="card-body">
-                            <h5 class="card-title">{{ event.title }}</h5>
-                            <p class="card-text text-muted mb-1"><i class="fas fa-map-marker-alt me-1"></i> {{event.shows.first.venue.name|default:"Various Venues" }}</p>
-                            <p class="card-text text-muted small">{{ event.category.name }} | {{ event.language.name }}
-                            </p>
+                    </div>
+                    <div class="card-content">
+                        <div class="result-title">{{ movie.title }}</div>
+                        <div class="card-meta-inline">
+                            {% if movie.certification %}
+                            <span class="cert-tag">{{ movie.certification }}</span>
+                            {% endif %}
+                            <span>{{ movie.genre.name }}</span>
                         </div>
-                        <div class="card-footer bg-white border-top-0">
-                            <a href="{% url 'booking:event_detail' event.id %}"
-                                class="btn btn-outline-primary w-100">Book Tickets</a>
+                        <div class="lang-list">
+                            {{ movie.language.name }}
                         </div>
                     </div>
-                </div>
+                </a>
                 {% empty %}
-                <div class="col-12">
-                    <div class="alert alert-info">No events found matching your filters.</div>
-                </div>
+                <p>No movies found.</p>
                 {% endfor %}
+                {% endif %}
             </div>
-        </div>
+
+        </main>
     </div>
-</div>
-{% endblock %}
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-logo">ShowSphere</div>
+
+        <div class="social-links">
+            <a href="#" class="social-circle">fb</a>
+            <a href="#" class="social-circle">in</a>
+            <a href="#" class="social-circle">tw</a>
+            <a href="#" class="social-circle">ig</a>
+        </div>
+
+        <p class="footer-text">
+            Copyright 2026 @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
+            <br><br>
+            The content and images used on this site are copyright protected and copyrights vests with the respective
+            owners. The usage of the content and images on this website is intended to promote the works and endorsement
+            of the artist shall be implied. Unauthorized use is prohibited and punishable by law.
+        </p>
+    </footer>
+
+</body>
+
+</html>

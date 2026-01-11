@@ -1,68 +1,529 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
+
+    :root {
+        --primary-color: #8C52FF;
+        --primary-hover: #7b40f2;
+        --text-color: #2D2042;
+        --text-light: #666666;
+        --bg-color: #F9F7FF;
+        --white: #FFFFFF;
+        --success-green: #28a745;
+        --border-radius: 12px;
+        --shadow: 0 10px 25px rgba(140, 82, 255, 0.1);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Roboto', sans-serif;
+    }
+
+    body {
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Header Styles */
+    .header {
+        background-color: var(--white);
+        padding: 1rem 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .logo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .logo span {
+        color: var(--primary-color);
+    }
+
+    .auth-buttons {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .btn-custom {
+        padding: 0.5rem 1.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 0.9rem;
+        border: none;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-custom-primary {
+        background-color: var(--primary-color);
+        color: var(--white);
+    }
+
+    .btn-custom-primary:hover {
+        background-color: var(--primary-hover);
+        color: white;
+    }
+
+    .btn-custom-outline {
+        background-color: transparent;
+        border: 1px solid #ddd;
+        color: var(--text-color);
+    }
+
+    .btn-custom-outline:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+
+    /* Navigation Bar */
+    .nav-bar {
+        background: linear-gradient(135deg, #8C52FF 0%, #00BFB2 100%);
+        color: var(--white);
+        padding: 0.8rem 2rem;
+        box-shadow: 0 4px 15px rgba(140, 82, 255, 0.3);
+    }
+
+    .nav-links {
+        display: flex;
+        justify-content: center;
+        gap: 3rem;
+        list-style: none;
+    }
+
+    .nav-links li a {
+        color: white;
+        opacity: 0.8;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: opacity 0.3s;
+    }
+
+    .nav-links li a:hover {
+        opacity: 1;
+    }
+
+    /* Main Content */
+    .container-content {
+        max-width: 1240px;
+        margin: 3rem auto;
+        width: 100%;
+        padding: 0 1rem;
+        flex: 1;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 3rem;
+    }
+
+    .title-group {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .title-icon {
+        width: 40px;
+        height: 25px;
+        background: var(--primary-color);
+        border-radius: 6px;
+        position: relative;
+    }
+
+    .title-icon::after {
+        content: '';
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: var(--bg-color);
+        border-radius: 50%;
+        top: 50%;
+        left: -4px;
+        transform: translateY(-50%);
+    }
+
+    .title-icon::before {
+        content: '';
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: var(--bg-color);
+        border-radius: 50%;
+        top: 50%;
+        right: -4px;
+        transform: translateY(-50%);
+    }
+
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: var(--text-color);
+    }
+
+    .btn-back {
+        padding: 0.7rem 1.5rem;
+        background: var(--white);
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-weight: 600;
+        color: var(--text-light);
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-back:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        transform: translateX(-5px);
+    }
+
+    /* Ticket Grid */
+    .ticket-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+        gap: 2.5rem;
+    }
+
+    .ticket-card {
+        background: var(--white);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        padding: 2.2rem;
+        border: 1px solid #f0edf7;
+        position: relative;
+        transition: transform 0.3s;
+    }
+
+    .ticket-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .ticket-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.8rem;
+    }
+
+    .status-badge {
+        background: #e7f7ed;
+        color: var(--success-green);
+        padding: 0.4rem 1rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .seat-info {
+        text-align: right;
+    }
+
+    .seat-number {
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: var(--text-color);
+        display: block;
+        line-height: 1;
+    }
+
+    .seat-type {
+        font-size: 0.75rem;
+        color: #b2b2b2;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .movie-info {
+        margin-bottom: 2.2rem;
+    }
+
+    .movie-name {
+        font-size: 1.6rem;
+        font-weight: 900;
+        color: var(--text-color);
+        margin-bottom: 0.4rem;
+    }
+
+    .theater-name {
+        color: var(--text-light);
+        font-size: 1.05rem;
+        font-weight: 500;
+    }
+
+    .time-info {
+        display: flex;
+        justify-content: space-between;
+        border-top: 2px dashed #f0edf7;
+        padding-top: 1.8rem;
+        margin-bottom: 2.2rem;
+    }
+
+    .info-label {
+        display: block;
+        font-size: 0.8rem;
+        color: #b2b2b2;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 0.4rem;
+        letter-spacing: 0.5px;
+    }
+
+    .info-value {
+        font-weight: 800;
+        font-size: 1.2rem;
+        color: var(--text-color);
+    }
+
+    .btn-qr {
+        width: 100%;
+        background: transparent;
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+        padding: 0.9rem;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: block;
+        text-align: center;
+    }
+
+    .btn-qr:hover {
+        background: var(--primary-color);
+        color: var(--white);
+        box-shadow: 0 8px 15px rgba(140, 82, 255, 0.2);
+    }
+
+    /* Footer */
+    .footer {
+        background-color: #1f2533;
+        color: #abb2bf;
+        padding: 5rem 2rem 3rem;
+        margin-top: 5rem;
+    }
+
+    .footer-content {
+        max-width: 1240px;
+        margin: 0 auto;
+    }
+
+    .footer-logo {
+        color: white;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .footer-logo svg {
+        width: 30px;
+        height: 30px;
+    }
+
+    .social-links {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+        justify-content: center;
+    }
+
+    .social-circle {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: #2d3139;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        transition: all 0.3s;
+    }
+
+    .social-circle:hover {
+        background: var(--primary-color);
+        transform: translateY(-3px);
+    }
+
+    .footer-text {
+        text-align: center;
+        font-size: 0.9rem;
+        line-height: 1.8;
+        border-top: 1px solid #2d3139;
+        padding-top: 3rem;
+    }
+
+    .no-tickets {
+        text-align: center;
+        padding: 4rem;
+        color: var(--text-light);
+    }
+
+    @media (max-width: 768px) {
+        .page-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1.5rem;
+        }
+
+        .ticket-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+<style>
+    /* Hide base footer if consistent with other standalone pages */
+    body>footer {
+        display: none !important;
+    }
+</style>
+{% endblock %}
+
+{% block navbar %}
+<!-- Reuse Header for consistency -->
+<header class="header">
+    <a href="{% url 'booking:home' %}" class="logo">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
+                fill="#8C52FF" />
+        </svg>
+        <span>ShowSphere</span>
+    </a>
+    <div class="auth-buttons">
+        {% if user.is_authenticated %}
+        <span style="font-weight: 700; color: var(--primary-color);">Hi, {{ user.first_name|default:user.username
+            }}</span>
+        <a href="{% url 'booking:customer_dashboard' %}" class="btn-custom btn-custom-outline">Dashboard</a>
+        <a href="{% url 'booking:logout' %}" class="btn-custom btn-custom-primary">Logout</a>
+        {% else %}
+        <a href="{% url 'booking:organizer_register' %}" class="btn-custom btn-custom-outline">New Partner</a>
+        <a href="{% url 'booking:login' %}" class="btn-custom btn-custom-primary">Sign In</a>
+        {% endif %}
+    </div>
+</header>
+<nav class="nav-bar">
+    <ul class="nav-links">
+        <li><a href="{% url 'booking:browse' %}">Movies</a></li>
+        <li><a href="{% url 'booking:browse' %}?category=events">Events</a></li>
+        <li><a href="{% url 'booking:browse' %}?category=sports">Sports</a></li>
+    </ul>
+</nav>
+{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-    <div class="row align-items-center mb-4">
-        <div class="col">
-            <h2><i class="fas fa-ticket-alt me-2 text-primary"></i>My Tickets</h2>
+<div class="container-content">
+    <div class="page-header">
+        <div class="title-group">
+            <div class="title-icon"></div>
+            <h1 class="page-title">My Tickets</h1>
         </div>
-        <div class="col-auto">
-            <a href="{% url 'booking:customer_dashboard' %}" class="btn btn-outline-secondary">Back to Dashboard</a>
-        </div>
+        <a href="{% url 'booking:customer_dashboard' %}" class="btn-back">Back to Dashboard</a>
     </div>
 
-    {% if tickets %}
-    <div class="row row-cols-1 row-cols-md-3 g-4">
+    <div class="ticket-grid">
+        {% if tickets %}
         {% for ticket in tickets %}
-        <div class="col">
-            <div class="card h-100 shadow-sm ticket-card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div>
-                            <span class="badge bg-success mb-2">Confirmed</span>
-                            {% if ticket.booking.show.show_type == 'movie' %}
-                            <h5 class="card-title mb-1">{{ ticket.booking.show.movie.title|truncatechars:20 }}</h5>
-                            <small class="text-muted">{{ ticket.booking.show.screen.theatre.name }}</small>
-                            {% else %}
-                            <h5 class="card-title mb-1">{{ ticket.booking.show.event.title|truncatechars:20 }}</h5>
-                            <small class="text-muted">{{ ticket.booking.show.venue.name }}</small>
-                            {% endif %}
-                        </div>
-                        <div class="text-end">
-                            <div class="fw-bold fs-4">{{ ticket.seat.row }}{{ ticket.seat.seat_number }}</div>
-                            <small class="text-muted">{{ ticket.seat.get_seat_type_display }}</small>
-                        </div>
-                    </div>
-
-                    <hr class="border-dashed">
-
-                    <div class="row mb-3">
-                        <div class="col-6">
-                            <small class="text-muted d-block">Date</small>
-                            <strong>{{ ticket.booking.show.show_date|date:"d M" }}</strong>
-                        </div>
-                        <div class="col-6 text-end">
-                            <small class="text-muted d-block">Time</small>
-                            <strong>{{ ticket.booking.show.show_time|time:"H:i" }}</strong>
-                        </div>
-                    </div>
-
-                    <div class="text-center mt-3">
-                        <a href="{% url 'booking:ticket_detail' ticket.id %}"
-                            class="btn btn-outline-primary btn-sm w-100">View QR Code</a>
-                    </div>
+        <div class="ticket-card">
+            <div class="ticket-top">
+                <!-- Assuming all displayed tickets are confirmed/active -->
+                <span class="status-badge">Confirmed</span>
+                <div class="seat-info">
+                    <span class="seat-number">{{ ticket.seat.row }}{{ ticket.seat.seat_number }}</span>
+                    <!-- Placeholder or dynamic if available -->
+                    <span class="seat-type">Standard</span>
                 </div>
             </div>
+            <div class="movie-info">
+                {% if ticket.booking.show.show_type == 'movie' %}
+                <h2 class="movie-name">{{ ticket.booking.show.movie.title }}</h2>
+                <p class="theater-name">{{ ticket.booking.show.screen.theatre.name }}</p>
+                {% else %}
+                <h2 class="movie-name">{{ ticket.booking.show.event.title }}</h2>
+                <p class="theater-name">{{ ticket.booking.show.venue.name }}</p>
+                {% endif %}
+            </div>
+            <div class="time-info">
+                <div class="info-item">
+                    <span class="info-label">Date</span>
+                    <span class="info-value">{{ ticket.booking.show.show_date|date:"d M" }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Time</span>
+                    <span class="info-value">{{ ticket.booking.show.show_time|time:"H:i" }}</span>
+                </div>
+            </div>
+            <a href="{% url 'booking:ticket_detail' ticket.id %}" class="btn-qr">View QR Code</a>
         </div>
         {% endfor %}
+        {% else %}
+        <div class="no-tickets" style="grid-column: 1/-1;">
+            <h3 style="color: var(--text-light); margin-bottom: 2rem;">No tickets found</h3>
+            <a href="{% url 'booking:home' %}" class="btn-custom btn-custom-primary">Book Your First Ticket</a>
+        </div>
+        {% endif %}
     </div>
-    {% else %}
-    <div class="alert alert-info text-center py-5">
-        <i class="fas fa-ticket-alt fa-3x mb-3"></i>
-        <h4>No tickets found</h4>
-        <p>You haven't booked any tickets yet.</p>
-        <a href="{% url 'booking:home' %}" class="btn btn-primary mt-2">Book Now</a>
-    </div>
-    {% endif %}
 </div>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="footer-content">
+        <div class="footer-logo">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
+                <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
+                    fill="#8C52FF" />
+            </svg>
+            ShowSphere
+        </div>
+
+        <div class="social-links">
+            <div class="social-circle">fb</div>
+            <div class="social-circle">in</div>
+            <div class="social-circle">tw</div>
+            <div class="social-circle">ig</div>
+        </div>
+
+        <p class="footer-text">
+            Copyright 2026 @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
+            <br><br>
+            The content and images used on this site are copyright protected and copyrights vests with the
+            respective owners. The usage of the content and images on this website is intended to promote the works
+            and endorsement of the artist shall be implied. Unauthorized use is prohibited and punishable by law.
+        </p>
+    </div>
+</footer>
 {% endblock %}
