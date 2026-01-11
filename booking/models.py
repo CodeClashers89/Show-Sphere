@@ -9,6 +9,7 @@ except ImportError:
 from io import BytesIO
 from django.core.files import File
 import uuid
+from datetime import timedelta
 
 
 class CustomUser(AbstractUser):
@@ -440,3 +441,24 @@ class Ticket(models.Model):
     
     def __str__(self):
         return f"{self.ticket_id} - {self.seat}"
+
+
+class OTP(models.Model):
+    """One-Time Passwords for authentication"""
+    PURPOSE_CHOICES = [
+        ('login', 'Login'),
+        ('reset_password', 'Reset Password'),
+    ]
+    
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='otps')
+    otp_code = models.CharField(max_length=6)
+    purpose = models.CharField(max_length=20, choices=PURPOSE_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
+    
+    def is_valid(self):
+        # Valid for 5 minutes
+        return not self.is_used and timezone.now() < self.created_at + timedelta(minutes=5)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.otp_code} ({self.purpose})"

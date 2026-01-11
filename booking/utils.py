@@ -245,3 +245,59 @@ def simulate_payment(booking, payment_method):
         booking.payment_status = 'failed'
         booking.save()
         return False, "Payment failed. Please try again."
+
+
+def generate_otp(user, purpose):
+    """Generate and save 6-digit OTP"""
+    import random
+    import string
+    from .models import OTP
+    
+    # Invalidate old OTPs for this purpose
+    OTP.objects.filter(user=user, purpose=purpose, is_used=False).update(is_used=True)
+    
+    # Generate new 6-digit code
+    otp_code = ''.join(random.choices(string.digits, k=6))
+    
+    # Save to DB
+    OTP.objects.create(
+        user=user,
+        otp_code=otp_code,
+        purpose=purpose
+    )
+    
+    return otp_code
+
+
+def send_otp_email(user, otp_code, purpose):
+    """Send OTP via email"""
+    if purpose == 'login':
+        subject = 'Login Verification Code - ShowSphere'
+        action = 'log in to'
+    else:
+        subject = 'Password Reset Code - ShowSphere'
+        action = 'reset your password for'
+        
+    message = f"""
+    Hi {user.first_name or user.username},
+    
+    Your verification code to {action} your ShowSphere account is:
+    
+    {otp_code}
+    
+    This code is valid for 5 minutes.
+    
+    If you did not request this, please ignore this email.
+    
+    Thanks,
+    ShowSphere Team
+    """
+    
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [user.email],
+        fail_silently=False,
+    )
+

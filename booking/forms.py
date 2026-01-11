@@ -282,3 +282,35 @@ class SeatForm(forms.ModelForm):
             'seat_type': forms.Select(attrs={'class': 'form-control'}),
             'price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Price', 'step': '0.01'}),
         }
+
+
+class OTPVerifyForm(forms.Form):
+    """OTP Verification Form"""
+    otp_code = forms.CharField(max_length=6, min_length=6, widget=forms.TextInput(attrs={
+        'class': 'form-control text-center', 
+        'placeholder': 'Enter 6-digit Code',
+        'style': 'letter-spacing: 0.5em; font-size: 1.5rem; max-width: 300px; margin: 0 auto;'
+    }))
+
+
+class SetNewPasswordForm(forms.Form):
+    """Set New Password Form"""
+    password1 = forms.CharField(widget=forms.PasswordInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'New Password'
+    }))
+    password2 = forms.CharField(widget=forms.PasswordInput(attrs={
+        'class': 'form-control',
+        'placeholder': 'Confirm New Password'
+    }))
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        password1 = cleaned_data.get('password1')
+        password2 = cleaned_data.get('password2')
+        
+        if password1 and password2 and password1 != password2:
+            raise forms.ValidationError("Passwords don't match")
+        
+        return cleaned_data
+

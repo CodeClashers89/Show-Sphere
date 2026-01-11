@@ -13,13 +13,15 @@ urlpatterns = [
     
     # Authentication
     path('login/', views.user_login, name='login'),
+    path('login/verify/', views.verify_login_otp, name='verify_login_otp'),
     path('logout/', views.user_logout, name='logout'),
     path('register/', views.customer_register, name='customer_register'),
     path('register/organizer/', views.organizer_register, name='organizer_register'),
     path('register/theatre/', views.theatre_register, name='theatre_register'),
     path('verify-email/<str:token>/', views.verify_email, name='verify_email'),
     path('password-reset/', views.password_reset_request, name='password_reset'),
-    path('password-reset/<str:token>/', views.password_reset_confirm, name='password_reset_confirm'),
+    path('password-reset/verify/', views.verify_reset_otp, name='verify_reset_otp'),
+    path('password-reset/set-password/', views.set_new_password, name='set_new_password'),
     
     # Customer pages
     path('dashboard/', views.customer_dashboard, name='customer_dashboard'),

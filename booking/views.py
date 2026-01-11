@@ -178,40 +178,77 @@ def movie_detail(request, movie_id):
 # ============= AUTHENTICATION =============
 
 def user_login(request):
-    """User login"""
+    """User login with OTP"""
     if request.user.is_authenticated:
-        # Redirect based on role
-        if request.user.role == 'customer':
-            return redirect('booking:customer_dashboard')
-        elif request.user.role == 'organizer':
-            return redirect('booking:organizer_dashboard')
-        elif request.user.role == 'theatre_owner':
-            return redirect('booking:theatre_dashboard')
-        elif request.user.role == 'admin' or request.user.is_superuser:
-            return redirect('booking:admin_dashboard')
+        return _redirect_after_login(request.user)
     
     if request.method == 'POST':
         form = LoginForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
-            login(request, user)
-            messages.success(request, f'Welcome back, {user.username}!')
             
-            # Redirect based on role
-            if user.role == 'customer':
-                return redirect('booking:customer_dashboard')
-            elif user.role == 'organizer':
-                return redirect('booking:organizer_dashboard')
-            elif user.role == 'theatre_owner':
-                return redirect('booking:theatre_dashboard')
-            elif user.role == 'admin' or user.is_superuser:
-                return redirect('booking:admin_dashboard')
-            else:
-                return redirect('booking:home')
+            # Step 1: Generate OTP
+            otp_code = generate_otp(user, 'login')
+            
+            # Step 2: Send Email
+            send_otp_email(user, otp_code, 'login')
+            
+            # Step 3: Store user ID in session
+            request.session['login_otp_user_id'] = user.id
+            messages.info(request, f'OTP sent to {user.email}. Please verify.')
+            
+            return redirect('booking:verify_login_otp')
     else:
         form = LoginForm()
     
     return render(request, 'auth/login.html', {'form': form})
+
+
+def verify_login_otp(request):
+    """Verify OTP for login"""
+    user_id = request.session.get('login_otp_user_id')
+    if not user_id:
+        messages.error(request, 'Session expired. Please login again.')
+        return redirect('booking:login')
+        
+    user = get_object_or_404(CustomUser, id=user_id)
+    
+    if request.method == 'POST':
+        form = OTPVerifyForm(request.POST)
+        if form.is_valid():
+            otp_code = form.cleaned_data['otp_code']
+            
+            # Check OTP
+            otp = OTP.objects.filter(user=user, otp_code=otp_code, purpose='login', is_used=False).first()
+            
+            if otp and otp.is_valid():
+                otp.is_used = True
+                otp.save()
+                
+                # Login User
+                login(request, user)
+                del request.session['login_otp_user_id']
+                messages.success(request, f'Welcome back, {user.username}!')
+                return _redirect_after_login(user)
+            else:
+                messages.error(request, 'Invalid or expired OTP.')
+    else:
+        form = OTPVerifyForm()
+    
+    return render(request, 'auth/verify_otp.html', {'form': form, 'email': user.email})
+
+
+def _redirect_after_login(user):
+    """Helper to redirect based on role"""
+    if user.role == 'customer':
+        return redirect('booking:customer_dashboard')
+    elif user.role == 'organizer':
+        return redirect('booking:organizer_dashboard')
+    elif user.role == 'theatre_owner':
+        return redirect('booking:theatre_dashboard')
+    elif user.role == 'admin' or user.is_superuser:
+        return redirect('booking:admin_dashboard')
+    return redirect('booking:home')
 
 
 def user_logout(request):
@@ -310,44 +347,84 @@ def verify_email(request, token):
 
 
 def password_reset_request(request):
-    """Password reset request"""
+    """Password reset request with OTP"""
     if request.method == 'POST':
         form = PasswordResetRequestForm(request.POST)
         if form.is_valid():
             email = form.cleaned_data['email']
             try:
                 user = CustomUser.objects.get(email=email)
-                send_password_reset_email(user, request)
-                messages.success(request, 'Password reset link sent to your email.')
+                
+                # Generate & Send OTP
+                otp_code = generate_otp(user, 'reset_password')
+                send_otp_email(user, otp_code, 'reset_password')
+                
+                request.session['reset_otp_email'] = email
+                messages.success(request, 'OTP sent to your email.')
+                return redirect('booking:verify_reset_otp')
+                
             except CustomUser.DoesNotExist:
                 messages.error(request, 'No account found with this email.')
-            return redirect('booking:login')
     else:
         form = PasswordResetRequestForm()
     
     return render(request, 'auth/password_reset.html', {'form': form})
 
 
-def password_reset_confirm(request, token):
-    """Password reset confirmation"""
-    try:
-        user = CustomUser.objects.get(verification_token=token)
-    except CustomUser.DoesNotExist:
-        messages.error(request, 'Invalid reset link.')
-        return redirect('booking:login')
+def verify_reset_otp(request):
+    """Verify OTP for password reset"""
+    email = request.session.get('reset_otp_email')
+    if not email:
+        return redirect('booking:password_reset')
+        
+    user = get_object_or_404(CustomUser, email=email)
     
     if request.method == 'POST':
-        form = PasswordResetConfirmForm(request.POST)
+        form = OTPVerifyForm(request.POST)
+        if form.is_valid():
+            otp_code = form.cleaned_data['otp_code']
+            
+            otp = OTP.objects.filter(user=user, otp_code=otp_code, purpose='reset_password', is_used=False).first()
+            
+            if otp and otp.is_valid():
+                otp.is_used = True
+                otp.save()
+                
+                request.session['reset_verified'] = True
+                return redirect('booking:set_new_password')
+            else:
+                messages.error(request, 'Invalid or expired OTP.')
+    else:
+        form = OTPVerifyForm()
+        
+    return render(request, 'auth/password_reset_otp.html', {'form': form, 'email': email})
+
+
+def set_new_password(request):
+    """Set new password after OTP verification"""
+    email = request.session.get('reset_otp_email')
+    if not email or not request.session.get('reset_verified'):
+        return redirect('booking:password_reset')
+        
+    user = get_object_or_404(CustomUser, email=email)
+    
+    if request.method == 'POST':
+        form = SetNewPasswordForm(request.POST)
         if form.is_valid():
             user.set_password(form.cleaned_data['password1'])
-            user.verification_token = ''
             user.save()
-            messages.success(request, 'Password reset successful! You can now login.')
+            
+            # Clear session
+            if 'reset_otp_email' in request.session: del request.session['reset_otp_email']
+            if 'reset_verified' in request.session: del request.session['reset_verified']
+            
+            messages.success(request, 'Password verified successfully! Please login.')
             return redirect('booking:login')
     else:
-        form = PasswordResetConfirmForm()
-    
-    return render(request, 'auth/password_reset_confirm.html', {'form': form})
+        form = SetNewPasswordForm()
+        
+    return render(request, 'auth/set_new_password.html', {'form': form})
+
 
 
 # ============= CUSTOMER PAGES =============
