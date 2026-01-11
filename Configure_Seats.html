@@ -1,4 +1,3 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -67,14 +66,54 @@
             color: var(--primary-color);
         }
 
-        /* Search Bar Removed */
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 2rem;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
 
         .auth-buttons {
             display: flex;
             gap: 1.1rem;
             align-items: center;
-            margin-left: auto;
-            /* Push to right */
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #ddd;
+            color: var(--text-color);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
         }
 
         .organizer-profile {
@@ -89,7 +128,27 @@
             cursor: pointer;
         }
 
-        /* Navigation Bar Removed */
+        /* Navigation Bar */
+        .nav-bar {
+            background: linear-gradient(135deg, #8C52FF 0%, #00BFB2 100%);
+            color: var(--white);
+            padding: 0.8rem 2rem;
+            box-shadow: 0 4px 15px rgba(140, 82, 255, 0.3);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        .nav-links li a {
+            color: white;
+            opacity: 0.8;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
 
         /* Content Area */
         .main-container {
@@ -224,7 +283,6 @@
             border-radius: 4px;
             font-size: 0.9rem;
             background: white;
-            width: 100%;
         }
 
         /* Buttons */
@@ -244,7 +302,6 @@
             cursor: pointer;
             border: none;
             transition: all 0.3s;
-            width: 100%;
         }
 
         .btn-generate:hover {
@@ -261,10 +318,6 @@
             cursor: pointer;
             border: 1px solid #ddd;
             transition: all 0.3s;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
-            width: 100%;
         }
 
         .btn-skip:hover {
@@ -343,7 +396,7 @@
 
     <!-- Header Section -->
     <header class="header">
-        <a href="{% url 'booking:home' %}" class="logo">
+        <a href="home.html" class="logo">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
                 <path
@@ -353,113 +406,117 @@
             <span>ShowSphere</span>
         </a>
 
-        <!-- Search Bar Removed -->
+        <div class="search-bar">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Search for Movies, Events, Plays, Sports and Activities">
+        </div>
 
         <div class="auth-buttons">
-            <a href="{% url 'booking:organizer_register' %}" class="btn btn-outline">New Partner</a>
+            <button class="btn btn-outline" onclick="window.location.href='newpartner.html'">New Partner</button>
             <div class="organizer-profile">
-                {% if user.is_authenticated %}
-                👤 {{ user.username }} <span style="font-size: 0.8rem; opacity: 0.6;">▼</span>
-                {% else %}
-                👤 Guest
-                {% endif %}
+                👤 organizer <span style="font-size: 0.8rem; opacity: 0.6;">▼</span>
             </div>
         </div>
     </header>
 
-    <!-- Navigation Bar Removed -->
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+        <ul class="nav-links">
+            <li><a href="movies.html">Movies</a></li>
+            <li><a href="theaters.html">Theaters</a></li>
+            <li><a href="events.html">Events</a></li>
+            <li><a href="#">Sports</a></li>
+        </ul>
+    </nav>
 
     <!-- Main Content -->
     <main class="main-container">
         <section class="config-card">
-            <form method="post">
-                {% csrf_token %}
-                <!-- Card Header -->
-                <div class="card-header">
-                    <h1>Configure Seats for {{ show.event.title }}</h1>
-                    <div class="timestamp">{% now "Y-m-d H:i" %}</div>
-                </div>
+            <!-- Card Header -->
+            <div class="card-header">
+                <h1>Configure Seats for Coldplay Concert</h1>
+                <div class="timestamp">Jan. 11, 2026 4 p.m.</div>
+            </div>
 
-                <!-- Card Body -->
-                <div class="card-body">
-                    <!-- Basic Config -->
-                    <div class="form-row">
-                        <div class="field-group">
-                            <label>Row Labels (comma separated)</label>
-                            <input type="text" name="rows" value="A, B, C, D, E" placeholder="e.g. A, B, C" required>
-                            <span class="field-hint">Enter row letters separated by commas.</span>
-                        </div>
-                        <div class="field-group">
-                            <label>Seats per Row</label>
-                            <input type="number" name="seats_per_row" value="10" required>
-                        </div>
+            <!-- Card Body -->
+            <div class="card-body">
+                <!-- Basic Config -->
+                <div class="form-row">
+                    <div class="field-group">
+                        <label>Row Labels (comma separated)</label>
+                        <input type="text" value="A, B, C, D, E">
+                        <span class="field-hint">Enter row letters separated by commas.</span>
                     </div>
-
-                    <!-- Categorization Headline -->
-                    <h2 class="section-title">Seat Categories & Pricing</h2>
-                    <p class="section-subtitle">Rows are split into 3 sections (front, middle, back) automatically.</p>
-
-                    <!-- 3-Column Grid -->
-                    <div class="category-grid">
-                        <!-- Front Section -->
-                        <div class="category-box">
-                            <h3>Front Section</h3>
-                            <div class="category-field">
-                                <label>Type</label>
-                                <select name="seat_types">
-                                    <option value="silver" selected>Silver</option>
-                                    <option value="gold">Gold</option>
-                                    <option value="platinum">Platinum</option>
-                                </select>
-                            </div>
-                            <div class="category-field">
-                                <label>Price</label>
-                                <input type="number" name="prices" placeholder="Price" step="0.01" required>
-                            </div>
-                        </div>
-
-                        <!-- Middle Section -->
-                        <div class="category-box">
-                            <h3>Middle Section</h3>
-                            <div class="category-field">
-                                <label>Type</label>
-                                <select name="seat_types">
-                                    <option value="silver">Silver</option>
-                                    <option value="gold" selected>Gold</option>
-                                    <option value="platinum">Platinum</option>
-                                </select>
-                            </div>
-                            <div class="category-field">
-                                <label>Price</label>
-                                <input type="number" name="prices" placeholder="Price" step="0.01" required>
-                            </div>
-                        </div>
-
-                        <!-- Back Section -->
-                        <div class="category-box">
-                            <h3>Back Section</h3>
-                            <div class="category-field">
-                                <label>Type</label>
-                                <select name="seat_types">
-                                    <option value="silver">Silver</option>
-                                    <option value="gold">Gold</option>
-                                    <option value="platinum" selected>Platinum</option>
-                                </select>
-                            </div>
-                            <div class="category-field">
-                                <label>Price</label>
-                                <input type="number" name="prices" placeholder="Price" step="0.01" required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="action-group">
-                        <button type="submit" class="btn-generate">Generate Seats</button>
-                        <a href="{% url 'booking:manage_events' %}" class="btn-skip">Skip / Done</a>
+                    <div class="field-group">
+                        <label>Seats per Row</label>
+                        <input type="number" value="10">
                     </div>
                 </div>
-            </form>
+
+                <!-- Categorization Headline -->
+                <h2 class="section-title">Seat Categories & Pricing</h2>
+                <p class="section-subtitle">rows are split into 3 sections (front, middle, back) automatically.</p>
+
+                <!-- 3-Column Grid -->
+                <div class="category-grid">
+                    <!-- Front Section -->
+                    <div class="category-box">
+                        <h3>Front Section</h3>
+                        <div class="category-field">
+                            <label>Type</label>
+                            <select>
+                                <option selected>Silver</option>
+                                <option>Gold</option>
+                                <option>Premium</option>
+                            </select>
+                        </div>
+                        <div class="category-field">
+                            <label>Price</label>
+                            <input type="text" placeholder="Price">
+                        </div>
+                    </div>
+
+                    <!-- Middle Section -->
+                    <div class="category-box">
+                        <h3>Middle Section</h3>
+                        <div class="category-field">
+                            <label>Type</label>
+                            <select>
+                                <option selected>Gold</option>
+                                <option>Premium</option>
+                                <option>VIP</option>
+                            </select>
+                        </div>
+                        <div class="category-field">
+                            <label>Price</label>
+                            <input type="text" placeholder="Price">
+                        </div>
+                    </div>
+
+                    <!-- Back Section -->
+                    <div class="category-box">
+                        <h3>Back Section</h3>
+                        <div class="category-field">
+                            <label>Type</label>
+                            <select>
+                                <option selected>Premium</option>
+                                <option>VIP</option>
+                                <option>Recliner</option>
+                            </select>
+                        </div>
+                        <div class="category-field">
+                            <label>Price</label>
+                            <input type="text" placeholder="Price">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-group">
+                    <button class="btn-generate">Generate Seats</button>
+                    <button class="btn-skip">Skip / Done</button>
+                </div>
+            </div>
         </section>
     </main>
 
@@ -484,7 +541,7 @@
             </div>
 
             <p class="footer-text">
-                Copyright {% now "Y" %} @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
+                Copyright 2026 @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
                 <br><br>
                 The content and images used on this site are copyright protected and copyrights vests with the
                 respective owners. The usage of the content and images on this website is intended to promote the works

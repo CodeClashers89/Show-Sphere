@@ -1,24 +1,254 @@
-{% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block content %}
-<div class="row justify-content-center my-5">
-    <div class="col-md-6">
-        <div class="card shadow border-danger">
-            <div class="card-body p-5 text-center">
-                <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
-                <h3>Delete Venue?</h3>
-                <p class="text-muted">Are you sure you want to delete "<strong>{{ object.name }}</strong>"? This cannot
-                    be undone.</p>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Venue | ShowSphere Partner</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
 
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="d-flex justify-content-center gap-2 mt-4">
-                        <a href="{% url 'booking:manage_venues' %}" class="btn btn-secondary">Cancel</a>
-                        <button type="submit" class="btn btn-danger">Confirm Delete</button>
-                    </div>
-                </form>
+        :root {
+            --primary-color: #8C52FF;
+            --primary-hover: #7b40f2;
+            --text-color: #2D2042;
+            --text-light: #666666;
+            --bg-color: #F9F7FF;
+            --white: #FFFFFF;
+            --danger-color: #dc3545;
+            --border-radius: 12px;
+            --shadow: 0 10px 25px rgba(140, 82, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Header Styles */
+        .header {
+            background-color: var(--white);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo span {
+            color: var(--primary-color);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1.1rem;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .organizer-profile {
+            background: #f0f0f5;
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-color);
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Main Content */
+        .main-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem 1rem;
+        }
+
+        .delete-card {
+            background: var(--white);
+            padding: 3rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid #fee;
+        }
+
+        .icon-container {
+            color: var(--danger-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .delete-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .delete-text {
+            color: var(--text-light);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+
+        .delete-text strong {
+            color: var(--text-color);
+        }
+
+        /* Actions */
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .btn-cancel {
+            background-color: transparent;
+            color: var(--text-light);
+            padding: 0.8rem 1.5rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-cancel:hover {
+            background-color: #f8f9fa;
+        }
+
+        .btn-confirm {
+            background-color: var(--danger-color);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.2);
+            transition: all 0.3s;
+        }
+
+        .btn-confirm:hover {
+            background-color: #bd2130;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #1f2533;
+            color: #abb2bf;
+            padding: 4rem 2rem 2rem;
+            text-align: center;
+        }
+
+        .footer-logo {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .footer-text {
+            border-top: 1px solid #2d3139;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="header">
+        <a href="{% url 'booking:home' %}" class="logo">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
+                <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
+                    fill="#8C52FF" />
+            </svg>
+            <span>ShowSphere</span>
+        </a>
+
+        <div class="auth-buttons">
+            <div class="organizer-profile">
+                {% if user.is_authenticated %}
+                👤 {{ user.username }}
+                {% else %}
+                👤 Guest
+                {% endif %}
             </div>
         </div>
-    </div>
-</div>
-{% endblock %}
+    </header>
+
+    <main class="main-container">
+        <div class="delete-card">
+            <div class="icon-container">
+                <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                    </path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+            </div>
+
+            <h1 class="delete-title">Delete Venue?</h1>
+            <p class="delete-text">
+                Are you sure you want to delete "<strong>{{ object.name }}</strong>"?<br>
+                This action cannot be undone.
+            </p>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="action-buttons">
+                    <a href="{% url 'booking:manage_venues' %}" class="btn-cancel">Cancel</a>
+                    <button type="submit" class="btn-confirm">Confirm Delete</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-logo">ShowSphere</div>
+        <p class="footer-text">
+            © {% now "Y" %} ShowSphere. All rights reserved.
+        </p>
+    </footer>
+
+</body>
+
+</html>

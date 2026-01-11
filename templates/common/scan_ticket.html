@@ -436,11 +436,19 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <ul class="sidebar-menu">
+                {% if user.organizer_profile %}
+                <li class="sidebar-item"><a href="{% url 'booking:organizer_dashboard' %}">Dashboard</a></li>
+                <li class="sidebar-item"><a href="{% url 'booking:manage_events' %}">Manage Events</a></li>
+                <li class="sidebar-item"><a href="{% url 'booking:manage_venues' %}">Manage Venues</a></li>
+                <li class="sidebar-item"><a href="{% url 'booking:organizer_analytics' %}">Analytics</a></li>
+                <li class="sidebar-item active-danger"><a href="{% url 'booking:scan_ticket' %}">Scan Ticket</a></li>
+                {% else %}
                 <li class="sidebar-item"><a href="{% url 'booking:theatre_dashboard' %}">Dashboard</a></li>
                 <li class="sidebar-item"><a href="{% url 'booking:manage_movies' %}">Manage Movies</a></li>
                 <li class="sidebar-item"><a href="{% url 'booking:manage_theatres' %}">Manage Theatres</a></li>
                 <li class="sidebar-item"><a href="{% url 'booking:theatre_analytics' %}">Analytics</a></li>
                 <li class="sidebar-item active-danger"><a href="{% url 'booking:scan_ticket' %}">Scan Ticket</a></li>
+                {% endif %}
             </ul>
         </aside>
 

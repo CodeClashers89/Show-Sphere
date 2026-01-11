@@ -1,71 +1,516 @@
-{% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block content %}
-<div class="row my-5">
-    <div class="col-md-3">
-        <div class="list-group">
-            <a href="{% url 'booking:organizer_dashboard' %}"
-                class="list-group-item list-group-item-action">Dashboard</a>
-            <a href="{% url 'booking:manage_events' %}" class="list-group-item list-group-item-action">Manage Events</a>
-            <a href="{% url 'booking:manage_venues' %}" class="list-group-item list-group-item-action">Manage Venues</a>
-            <a href="{% url 'booking:organizer_analytics' %}"
-                class="list-group-item list-group-item-action active">Analytics</a>
-        </div>
-    </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics Overview | ShowSphere Partner</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
 
-    <div class="col-md-9">
-        <h2>Analytics Overview</h2>
+        :root {
+            --primary-color: #8C52FF;
+            --primary-hover: #7b40f2;
+            --text-color: #2D2042;
+            --text-light: #666666;
+            --bg-color: #F9F7FF;
+            --white: #FFFFFF;
+            --success-green: #28a745;
+            --border-radius: 12px;
+            --shadow: 0 10px 25px rgba(140, 82, 255, 0.1);
+        }
 
-        <div class="row g-4 mb-4">
-            <div class="col-md-6">
-                <div class="card bg-primary text-white h-100">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Total Revenue</h5>
-                        <h2 class="fw-bold display-4">₹{{ total_revenue }}</h2>
-                    </div>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Header Styles */
+        .header {
+            background-color: var(--white);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo span {
+            color: var(--primary-color);
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 2rem;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1.1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #ddd;
+            color: var(--text-color);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        /* Navigation Bar */
+        .nav-bar {
+            background: linear-gradient(135deg, #8C52FF 0%, #00BFB2 100%);
+            color: var(--white);
+            padding: 0.8rem 2rem;
+            box-shadow: 0 4px 15px rgba(140, 82, 255, 0.3);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        .nav-links li a {
+            color: white;
+            opacity: 0.8;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* Layout */
+        .main-layout {
+            display: flex;
+            flex: 1;
+            max-width: 1400px;
+            margin: 3rem auto;
+            width: 100%;
+            padding: 0 1rem;
+            gap: 2.5rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            height: fit-content;
+            border: 1px solid #f0edf7;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-item a {
+            padding: 1.2rem 1.8rem;
+            display: block;
+            font-weight: 600;
+            color: var(--text-light);
+            transition: all 0.3s;
+            border-bottom: 1px solid #f0edf7;
+        }
+
+        .sidebar-item:last-child a {
+            border-bottom: none;
+        }
+
+        .sidebar-item a:hover {
+            background: #f8f6ff;
+            color: var(--primary-color);
+            padding-left: 2.2rem;
+        }
+
+        .sidebar-item.active a {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 5px 15px rgba(140, 82, 255, 0.3);
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 2rem;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            padding: 2.5rem 2rem;
+            border-radius: var(--border-radius);
+            color: white;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card.revenue {
+            background-color: #0d6efd;
+        }
+
+        .stat-card.bookings {
+            background-color: #0dcaf0;
+        }
+
+        .stat-label {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            display: block;
+            opacity: 0.9;
+        }
+
+        .stat-value {
+            font-size: 4rem;
+            font-weight: 700;
+        }
+
+        /* Table Section */
+        .table-section {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid #f0edf7;
+        }
+
+        .table-header {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid #f0edf7;
+            background: #fcfbff;
+        }
+
+        .table-header h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f8f7ff;
+            padding: 1rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-color);
+            text-align: left;
+            border-bottom: 1px solid #f0edf7;
+        }
+
+        td {
+            padding: 1.2rem 1rem;
+            font-size: 0.95rem;
+            color: var(--text-light);
+            border-bottom: 1px solid #f0edf7;
+        }
+
+        .booking-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
+            height: 24px;
+            background: #28a745;
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 0.75rem;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #1f2533;
+            color: #abb2bf;
+            padding: 5rem 2rem 3rem;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            max-width: 1240px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-logo svg {
+            width: 30px;
+            height: 30px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            justify-content: center;
+        }
+
+        .social-circle {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #2d3139;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .social-circle:hover {
+            background: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        .footer-text {
+            text-align: center;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            border-top: 1px solid #2d3139;
+            padding-top: 3rem;
+        }
+
+        @media (max-width: 992px) {
+            .main-layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-section {
+                overflow-x: auto;
+            }
+
+            table {
+                min-width: 600px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header Section -->
+    <header class="header">
+        <a href="{% url 'booking:home' %}" class="logo">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
+                <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
+                    fill="#8C52FF" />
+            </svg>
+            <span>ShowSphere</span>
+        </a>
+
+
+
+        <div class="auth-buttons">
+            <div id="auth-section" style="display: flex; align-items: center; gap: 10px;">
+                <div
+                    style="background: #f0f0f5; padding: 0.4rem 1rem; border-radius: 6px; display: flex; align-items: center; gap: 8px; color: var(--text-color); font-weight: 600; cursor: pointer;">
+                    {% if user.is_authenticated %}
+                    👤 {{ user.username }} <span style="font-size: 0.8rem; opacity: 0.6;">▼</span>
+                    {% else %}
+                    👤 Guest
+                    {% endif %}
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card bg-info text-white h-100">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Total Bookings</h5>
-                        <h2 class="fw-bold display-4">{{ total_bookings }}</h2>
-                    </div>
-                </div>
-            </div>
         </div>
+    </header>
 
-        <div class="card shadow">
-            <div class="card-header bg-white">
-                <h5 class="mb-0">Top Performing Events</h5>
-            </div>
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Event</th>
-                                <th>Bookings</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for event in event_stats %}
-                            <tr>
-                                <td>{{ event.title }}</td>
-                                <td><span class="badge bg-success rounded-pill">{{ event.booking_count }}</span></td>
-                                <td>{{ event.date|date:"M d, Y" }}</td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="3" class="text-center py-4">No data available yet.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+
+
+    <!-- Main Content Layout -->
+    <main class="main-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li class="sidebar-item"><a href="{% url 'booking:organizer_dashboard' %}">Dashboard</a></li>
+                <li class="sidebar-item"><a href="{% url 'booking:manage_events' %}">Manage Events</a></li>
+                <li class="sidebar-item"><a href="{% url 'booking:manage_venues' %}">Manage Venues</a></li>
+                <li class="sidebar-item active"><a href="{% url 'booking:organizer_analytics' %}">Analytics</a></li>
+                <li class="sidebar-item"><a href="{% url 'booking:scan_ticket' %}">Scan Ticket</a></li>
+            </ul>
+        </aside>
+
+        <!-- Content Area -->
+        <section class="content">
+            <h1 class="page-title">Analytics Overview</h1>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card revenue">
+                    <span class="stat-label">Total Revenue</span>
+                    <div class="stat-value">₹{{ total_revenue }}</div>
+                </div>
+                <div class="stat-card bookings">
+                    <span class="stat-label">Total Bookings</span>
+                    <div class="stat-value">{{ total_bookings }}</div>
                 </div>
             </div>
+
+            <!-- Table Section -->
+            <div class="table-section">
+                <div class="table-header">
+                    <h2>Top Performing Events</h2>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Bookings</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for event in event_stats %}
+                        <tr>
+                            <td style="color: var(--text-color); font-weight: 500;">{{ event.title }}</td>
+                            <td><span class="booking-badge">{{ event.booking_count }}</span></td>
+                            <td>{{ event.date|date:"d/m/Y" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" style="text-align: center; padding: 2rem;">No data available yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
+                    <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
+                        fill="#8C52FF" />
+                </svg>
+                ShowSphere
+            </div>
+
+            <div class="social-links">
+                <div class="social-circle">fb</div>
+                <div class="social-circle">in</div>
+                <div class="social-circle">tw</div>
+                <div class="social-circle">ig</div>
+            </div>
+
+            <p class="footer-text">
+                Copyright 2026 @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
+                <br><br>
+                The content and images used on this site are copyright protected and copyrights vests with the
+                respective owners. The usage of the content and images on this website is intended to promote the works
+                and endorsement of the artist shall be implied. Unauthorized use is prohibited and punishable by law.
+            </p>
         </div>
-    </div>
-</div>
-{% endblock %}
+    </footer>
+
+</body>
+
+</html>
