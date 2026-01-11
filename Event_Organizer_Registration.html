@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reset Password | ShowSphere</title>
+    <title>Event Organizer Registration | ShowSphere</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
 
@@ -16,6 +16,7 @@
             --bg-color: #F9F7FF;
             --white: #FFFFFF;
             --pink-action: #F84464;
+            --dark-gray: #333338;
             --border-radius: 12px;
             --shadow: 0 10px 25px rgba(140, 82, 255, 0.1);
         }
@@ -116,7 +117,7 @@
         }
 
         .btn-red {
-            background-color: var(--primary-color);
+            background-color: var(--pink-action);
             color: white;
             font-weight: 700;
         }
@@ -143,46 +144,61 @@
             font-weight: 500;
         }
 
-        /* Main Area */
+        /* Form Area */
         .main-container {
             flex: 1;
             display: flex;
             justify-content: center;
-            align-items: center;
-            padding: 4rem 1rem;
+            padding: 3rem 1rem;
         }
 
-        .reset-card {
+        .registration-card {
             width: 100%;
-            max-width: 550px;
+            max-width: 900px;
             background: var(--white);
             border-radius: var(--border-radius);
             box-shadow: var(--shadow);
-            padding: 3rem 2.5rem;
-            text-align: center;
+            padding: 3rem;
             border: 1px solid #eee;
+            align-self: flex-start;
         }
 
-        .reset-card h1 {
-            font-size: 1.7rem;
-            font-weight: 700;
+        .card-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .card-header h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
             color: var(--text-color);
-            margin-bottom: 1.5rem;
         }
 
-        .reset-card p {
+        .card-header p {
             color: var(--text-light);
             font-size: 1rem;
-            line-height: 1.6;
-            margin-bottom: 2rem;
+        }
+
+        .form-section-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--text-color);
+            margin: 2rem 0 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem 2.5rem;
         }
 
         .field-group {
-            text-align: left;
-            margin-bottom: 1.5rem;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 8px;
         }
 
         .field-group label {
@@ -192,31 +208,32 @@
         }
 
         .field-group input,
-        .field-group textarea,
-        .field-group select {
+        .field-group textarea {
             padding: 0.8rem 1rem;
-            border: 1px solid #ddd;
+            border: 1px solid #e0e0e0;
             border-radius: 6px;
             outline: none;
-            font-size: 1rem;
-            width: 100%;
+            font-size: 0.95rem;
             background: #fafafa;
+            resize: vertical;
             transition: border-color 0.3s;
         }
 
         .field-group input:focus,
-        .field-group textarea:focus,
-        .field-group select:focus {
+        .field-group textarea:focus {
             border-color: var(--primary-color);
         }
 
-        .text-danger {
-            color: #d9534f;
-            font-size: 0.85rem;
-            margin-top: 5px;
+        .field-group input::placeholder,
+        .field-group textarea::placeholder {
+            color: #bbb;
         }
 
-        .btn-reset {
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .btn-register {
             background-color: var(--pink-action);
             color: white;
             width: 100%;
@@ -225,26 +242,16 @@
             font-size: 1.1rem;
             font-weight: 800;
             border: none;
+            margin-top: 3rem;
             cursor: pointer;
             transition: all 0.3s;
-            margin-bottom: 1.5rem;
             box-shadow: 0 5px 15px rgba(248, 68, 100, 0.2);
         }
 
-        .btn-reset:hover {
+        .btn-register:hover {
             opacity: 0.9;
-            transform: translateY(-1px);
-        }
-
-        .back-link {
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: var(--text-color);
-        }
-
-        .back-link a {
-            color: #007bff;
-            font-weight: 700;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(248, 68, 100, 0.3);
         }
 
         /* Footer */
@@ -258,7 +265,6 @@
         .footer-content {
             max-width: 1240px;
             margin: 0 auto;
-            text-align: center;
         }
 
         .footer-logo {
@@ -311,6 +317,10 @@
         }
 
         @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
             .header {
                 padding: 1rem;
             }
@@ -319,8 +329,8 @@
                 display: none;
             }
 
-            .reset-card {
-                padding: 2.5rem 1.5rem;
+            .main-container {
+                padding: 2rem 1rem;
             }
         }
     </style>
@@ -330,7 +340,7 @@
 
     <!-- Header Section -->
     <header class="header">
-        <a href="{% url 'booking:home' %}" class="logo">
+        <a href="home.html" class="logo">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
                 <path
@@ -346,45 +356,80 @@
         </div>
 
         <div class="auth-buttons">
-            <button class="btn btn-outline" onclick="window.location.href='{% url 'booking:home' %}'">Home</button>
-            <button class="btn btn-red" onclick="window.location.href='{% url 'booking:login' %}'">Sign In</button>
+            <button class="btn btn-outline" onclick="window.location.href='newpartner.html'">New Partner</button>
+            <button class="btn btn-red" onclick="window.location.href='login.html'">Sign In</button>
         </div>
     </header>
 
     <!-- Navigation Bar -->
     <nav class="nav-bar">
         <ul class="nav-links">
-            <li><a href="{% url 'booking:home' %}">Movies</a></li>
-            <li><a href="{% url 'booking:home' %}">Theaters</a></li>
-            <li><a href="{% url 'booking:home' %}">Events</a></li>
-            <li><a href="{% url 'booking:home' %}">Sports</a></li>
+            <li><a href="movies.html">Movies</a></li>
+            <li><a href="theaters.html">Theaters</a></li>
+            <li><a href="events.html">Events</a></li>
+            <li><a href="#">Sports</a></li>
         </ul>
     </nav>
 
     <!-- Main Content -->
     <main class="main-container">
-        <section class="reset-card">
-            <h1>Reset Password</h1>
-            <p>Enter your email address and we'll send you a link to reset your password.</p>
+        <section class="registration-card">
+            <div class="card-header">
+                <h1>Event Organizer Registration</h1>
+                <p>Join ShowSphere to list and manage your events.</p>
+            </div>
 
-            <form method="post">
-                {% csrf_token %}
-
-                {% for field in form %}
-                <div class="field-group">
-                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                    {{ field }}
-                    {% if field.errors %}
-                    <div class="text-danger">{{ field.errors.0 }}</div>
-                    {% endif %}
+            <form>
+                <!-- Account Section -->
+                <div class="form-grid">
+                    <div class="field-group">
+                        <label>Username</label>
+                        <input type="text" placeholder="Username">
+                    </div>
+                    <div class="field-group">
+                        <label>Email</label>
+                        <input type="email" placeholder="Email Address">
+                    </div>
+                    <div class="field-group">
+                        <label>Password</label>
+                        <input type="password" placeholder="Password">
+                    </div>
+                    <div class="field-group">
+                        <label>Confirm Password</label>
+                        <input type="password" placeholder="Confirm Password">
+                    </div>
                 </div>
-                {% endfor %}
 
-                <button type="submit" class="btn-reset">Send Reset Link</button>
-
-                <div class="back-link">
-                    <a href="{% url 'booking:login' %}">Back to Login</a>
+                <!-- Organization Section -->
+                <h2 class="form-section-title">Organization Details</h2>
+                <div class="form-grid">
+                    <div class="field-group full-width">
+                        <label>Organization name</label>
+                        <input type="text" placeholder="Organization Name">
+                    </div>
+                    <div class="field-group full-width">
+                        <label>Contact person</label>
+                        <input type="text" placeholder="Contact Person Name">
+                    </div>
+                    <div class="field-group full-width">
+                        <label>Contact email</label>
+                        <input type="email" placeholder="Contact Email">
+                    </div>
+                    <div class="field-group full-width">
+                        <label>Contact phone</label>
+                        <input type="text" placeholder="Contact Phone">
+                    </div>
+                    <div class="field-group full-width">
+                        <label>City</label>
+                        <input type="text" placeholder="City Name">
+                    </div>
+                    <div class="field-group full-width">
+                        <label>Address</label>
+                        <textarea placeholder="Full Address" rows="4"></textarea>
+                    </div>
                 </div>
+
+                <button type="submit" class="btn-register">Submit Application</button>
             </form>
         </section>
     </main>

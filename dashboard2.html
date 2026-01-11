@@ -274,8 +274,6 @@
             color: var(--text-light);
             transition: all 0.3s;
             border-bottom: 3px solid transparent;
-            background: none;
-            border: none;
         }
 
         .tab.active {
@@ -328,48 +326,6 @@
         .badge.role {
             background: #6c757d;
             color: white;
-        }
-
-        /* Action Buttons */
-        .btn-approve {
-            background-color: var(--green-card);
-            color: white;
-            padding: 0.4rem 0.8rem;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s;
-        }
-
-        .btn-approve:hover {
-            background-color: #218838;
-            text-decoration: none;
-            color: white;
-        }
-
-        .btn-reject {
-            background-color: transparent;
-            color: var(--red-card);
-            padding: 0.4rem 0.8rem;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            border: 1px solid var(--red-card);
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            transition: all 0.3s;
-            margin-left: 0.5rem;
-        }
-
-        .btn-reject:hover {
-            background-color: var(--red-card);
-            color: white;
-            text-decoration: none;
         }
 
         /* Footer */
@@ -484,7 +440,7 @@
 
     <!-- Header Section -->
     <header class="header">
-        <a href="{% url 'booking:home' %}" class="logo">
+        <a href="index.html" class="logo">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
                 <path
@@ -503,7 +459,7 @@
             <button class="btn"
                 style="background:transparent; border:1px solid #ddd; padding:0.4rem 1rem; border-radius:4px; font-weight:500;">Search</button>
             <div class="profile-dropdown">
-                👤 {{ request.user.username }} <span>▼</span>
+                👤 admin <span>▼</span>
             </div>
         </div>
     </header>
@@ -511,9 +467,9 @@
     <!-- Navigation Bar -->
     <nav class="nav-bar">
         <ul class="nav-links">
-            <li><a href="{% url 'booking:home' %}">Movies</a></li>
-            <li><a href="#">Theaters</a></li>
-            <li><a href="#">Events</a></li>
+            <li><a href="movies.html">Movies</a></li>
+            <li><a href="theaters.html">Theaters</a></li>
+            <li><a href="events.html">Events</a></li>
             <li><a href="#">Sports</a></li>
         </ul>
     </nav>
@@ -523,9 +479,9 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <ul class="sidebar-menu">
-                <li class="sidebar-item active"><a href="{% url 'booking:admin_dashboard' %}">Dashboard</a></li>
-                <li class="sidebar-item"><a href="#users">User Management</a></li>
-                <li class="sidebar-item"><a href="#approvals">Pending Approvals</a></li>
+                <li class="sidebar-item active"><a href="#">Dashboard</a></li>
+                <li class="sidebar-item"><a href="#">User Management</a></li>
+                <li class="sidebar-item"><a href="#">Pending Approvals</a></li>
                 <li class="sidebar-item"><a href="#">Reports & Analytics</a></li>
             </ul>
         </aside>
@@ -540,100 +496,49 @@
             <div class="stats-grid">
                 <div class="stat-card blue">
                     <div class="stat-label">Total Users</div>
-                    <div class="stat-value">{{ total_users }}</div>
+                    <div class="stat-value">2</div>
                 </div>
                 <div class="stat-card green">
                     <div class="stat-label">Bookings</div>
-                    <div class="stat-value">{{ total_bookings }}</div>
+                    <div class="stat-value">3</div>
                 </div>
                 <div class="stat-card yellow">
                     <div class="stat-label">Revenue</div>
-                    <div class="stat-value">₹{{ total_revenue|floatformat:0 }}</div>
+                    <div class="stat-value">₹12200</div>
                 </div>
                 <div class="stat-card red">
                     <div class="stat-label">Pending Items</div>
-                    <div class="stat-value">{{ pending_approvals }}</div>
+                    <div class="stat-value">1</div>
                 </div>
             </div>
 
             <!-- Pending Approvals Section -->
             <div class="section-container">
-                <h2 class="section-title" id="approvals">Pending Approvals</h2>
+                <h2 class="section-title">Pending Approvals</h2>
                 <div class="tabs">
-                    <button class="tab active" onclick="switchTab(event, 'organizers')">Organizers</button>
-                    <button class="tab" onclick="switchTab(event, 'theatres')">Theatres</button>
+                    <div class="tab active">Organizers</div>
+                    <div class="tab">Theatres</div>
                 </div>
-
-                <!-- Organizers Tab -->
-                <div id="organizers" style="display: block;">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Organization</th>
-                                <th>Contact</th>
-                                <th>Email</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for organizer in pending_organizers %}
-                            <tr>
-                                <td>{{ organizer.organization_name }}</td>
-                                <td>{{ organizer.contact_person }}</td>
-                                <td>{{ organizer.user.email }}</td>
-                                <td>
-                                    <a href="{% url 'booking:approve_organizer' organizer.id %}"
-                                        class="btn-approve">Approve</a>
-                                    <a href="{% url 'booking:reject_organizer' organizer.id %}"
-                                        class="btn-reject">Reject</a>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="4" class="empty-state">No pending organizer requests.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Theatres Tab -->
-                <div id="theatres" style="display: none;">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Theatre Chain</th>
-                                <th>Owner</th>
-                                <th>Email</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for theatre in pending_theatres %}
-                            <tr>
-                                <td>{{ theatre.theatre_chain_name }}</td>
-                                <td>{{ theatre.owner_name }}</td>
-                                <td>{{ theatre.user.email }}</td>
-                                <td>
-                                    <a href="{% url 'booking:approve_theatre_owner' theatre.id %}"
-                                        class="btn-approve">Approve</a>
-                                    <a href="{% url 'booking:reject_theatre_owner' theatre.id %}"
-                                        class="btn-reject">Reject</a>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="4" class="empty-state">No pending theatre requests.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Organization</th>
+                            <th>Contact</th>
+                            <th>Email</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td colspan="4" class="empty-state">No pending organizer requests.</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
             <!-- Recent Users Section -->
             <div class="section-container">
-                <h2 class="section-title" id="users">Recent Users</h2>
+                <h2 class="section-title">Recent Users</h2>
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -644,14 +549,36 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for user in recent_users %}
                         <tr>
-                            <td>{{ user.username }}</td>
-                            <td><span class="badge role">{{ user.get_role_display }}</span></td>
-                            <td>{{ user.email }}</td>
-                            <td>{{ user.date_joined|date:"d M Y" }}</td>
+                            <td>zoro@404@</td>
+                            <td><span class="badge role">Customer</span></td>
+                            <td>zoro403404@gmail.com</td>
+                            <td>11 Jan 2026</td>
                         </tr>
-                        {% endfor %}
+                        <tr>
+                            <td>Het</td>
+                            <td><span class="badge role">Theatre Owner</span></td>
+                            <td>zoro403404@gmail.com</td>
+                            <td>11 Jan 2026</td>
+                        </tr>
+                        <tr>
+                            <td>customer</td>
+                            <td><span class="badge role">Customer</span></td>
+                            <td>customer@showsphere.com</td>
+                            <td>10 Jan 2026</td>
+                        </tr>
+                        <tr>
+                            <td>theatre</td>
+                            <td><span class="badge role">Theatre Owner</span></td>
+                            <td>theatre@showsphere.com</td>
+                            <td>10 Jan 2026</td>
+                        </tr>
+                        <tr>
+                            <td>organizer</td>
+                            <td><span class="badge role">Event Organizer</span></td>
+                            <td>organizer@showsphere.com</td>
+                            <td>10 Jan 2026</td>
+                        </tr>
                     </tbody>
                 </table>
             </div>
@@ -707,22 +634,21 @@
     </footer>
 
     <script>
-        function switchTab(event, tabName) {
-            // Hide all tabs
-            document.getElementById('organizers').style.display = 'none';
-            document.getElementById('theatres').style.display = 'none';
+        // Tab switching logic
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
 
-            // Remove active class from all tabs
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
+                // For demonstration, just change the empty state text
+                const emptyState = document.querySelector('.empty-state');
+                if (tab.innerText === 'Theatres') {
+                    emptyState.innerText = 'No pending theatre owner requests.';
+                } else {
+                    emptyState.innerText = 'No pending organizer requests.';
+                }
             });
-
-            // Show selected tab
-            document.getElementById(tabName).style.display = 'block';
-
-            // Add active class to clicked tab
-            event.target.classList.add('active');
-        }
+        });
     </script>
 </body>
 
