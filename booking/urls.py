@@ -13,7 +13,8 @@ urlpatterns = [
     
     # Authentication
     path('login/', views.user_login, name='login'),
-    path('login/verify/', views.verify_login_otp, name='verify_login_otp'),
+    # path('login/verify/', views.verify_login_otp, name='verify_login_otp'), # Removed per request
+    path('register/verify/', views.verify_registration_otp, name='verify_registration_otp'),
     path('logout/', views.user_logout, name='logout'),
     path('register/', views.customer_register, name='customer_register'),
     path('register/organizer/', views.organizer_register, name='organizer_register'),

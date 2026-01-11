@@ -6,9 +6,9 @@
     <div class="col-md-5">
         <div class="card shadow">
             <div class="card-body p-5">
-                <h3 class="text-center mb-4">Verify Login</h3>
+                <h3 class="text-center mb-4">{{ title|default:"Verify OTP" }}</h3>
                 <p class="text-center text-muted mb-4">
-                    Please enter the 6-digit verification code sent to <strong>{{ email }}</strong>
+                    {{ subtitle|default:"Please enter the 6-digit verification code sent to your email." }}
                 </p>
 
                 <form method="post">

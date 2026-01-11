@@ -178,7 +178,7 @@ def movie_detail(request, movie_id):
 # ============= AUTHENTICATION =============
 
 def user_login(request):
-    """User login with OTP"""
+    """User login"""
     if request.user.is_authenticated:
         return _redirect_after_login(request.user)
     
@@ -187,29 +187,30 @@ def user_login(request):
         if form.is_valid():
             user = form.get_user()
             
-            # Step 1: Generate OTP
-            otp_code = generate_otp(user, 'login')
-            
-            # Step 2: Send Email
-            send_otp_email(user, otp_code, 'login')
-            
-            # Step 3: Store user ID in session
-            request.session['login_otp_user_id'] = user.id
-            messages.info(request, f'OTP sent to {user.email}. Please verify.')
-            
-            return redirect('booking:verify_login_otp')
+            # Check if user is active (email verified)
+            if not user.is_active:
+                # Resend OTP if needed
+                otp_code = generate_otp(user, 'registration')
+                send_otp_email(user, otp_code, 'registration')
+                request.session['registration_user_id'] = user.id
+                messages.info(request, 'Your account is not verified. A new verification code has been sent.')
+                return redirect('booking:verify_registration_otp')
+                
+            login(request, user)
+            messages.success(request, f'Welcome back, {user.username}!')
+            return _redirect_after_login(user)
     else:
         form = LoginForm()
     
     return render(request, 'auth/login.html', {'form': form})
 
 
-def verify_login_otp(request):
-    """Verify OTP for login"""
-    user_id = request.session.get('login_otp_user_id')
+def verify_registration_otp(request):
+    """Verify OTP for new account registration"""
+    user_id = request.session.get('registration_user_id')
     if not user_id:
-        messages.error(request, 'Session expired. Please login again.')
-        return redirect('booking:login')
+        messages.error(request, 'Session expired. Please register again.')
+        return redirect('booking:customer_register')
         
     user = get_object_or_404(CustomUser, id=user_id)
     
@@ -219,23 +220,35 @@ def verify_login_otp(request):
             otp_code = form.cleaned_data['otp_code']
             
             # Check OTP
-            otp = OTP.objects.filter(user=user, otp_code=otp_code, purpose='login', is_used=False).first()
+            otp = OTP.objects.filter(user=user, otp_code=otp_code, purpose='registration', is_used=False).first()
             
             if otp and otp.is_valid():
                 otp.is_used = True
                 otp.save()
                 
-                # Login User
-                login(request, user)
-                del request.session['login_otp_user_id']
-                messages.success(request, f'Welcome back, {user.username}!')
+                # Activate User
+                user.is_active = True
+                user.email_verified = True
+                user.save()
+                
+                del request.session['registration_user_id']
+                
+                # Log them in automatically? Or ask to login?
+                # Let's log them in for smoother experience
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                messages.success(request, 'Account verified successfully!')
                 return _redirect_after_login(user)
             else:
                 messages.error(request, 'Invalid or expired OTP.')
     else:
         form = OTPVerifyForm()
     
-    return render(request, 'auth/verify_otp.html', {'form': form, 'email': user.email})
+    return render(request, 'auth/verify_otp.html', {
+        'form': form, 
+        'email': user.email,
+        'title': 'Verify Registration',
+        'subtitle': f'Please enter the 6-digit code sent to {user.email} to verify your account.'
+    })
 
 
 def _redirect_after_login(user):
@@ -264,11 +277,16 @@ def customer_register(request):
         form = CustomerRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.is_active = False  # Deactivate until email verified
+            user.is_active = False  # Deactivate until OTP verified
             user.save()
-            send_verification_email(user, request)
-            messages.success(request, 'Registration successful! Please check your email to verify your account.')
-            return redirect('booking:login')
+            
+            # Generate & Send OTP
+            otp_code = generate_otp(user, 'registration')
+            send_otp_email(user, otp_code, 'registration')
+            
+            request.session['registration_user_id'] = user.id
+            messages.success(request, 'Registration successful! Please verify your email.')
+            return redirect('booking:verify_registration_otp')
     else:
         form = CustomerRegistrationForm()
     
@@ -286,7 +304,7 @@ def organizer_register(request):
                 email=form.cleaned_data['email'],
                 password=form.cleaned_data['password1'],
                 role='organizer',
-                is_active=False  # Deactivate until email verified
+                is_active=False  # Deactivate until OTP verified
             )
             
             # Create organizer profile
@@ -294,9 +312,13 @@ def organizer_register(request):
             profile.user = user
             profile.save()
             
-            send_verification_email(user, request)
-            messages.success(request, 'Registration submitted! Your account is pending approval. Please check your email to verify.')
-            return redirect('booking:login')
+            # Generate & Send OTP
+            otp_code = generate_otp(user, 'registration')
+            send_otp_email(user, otp_code, 'registration')
+            
+            request.session['registration_user_id'] = user.id
+            messages.success(request, 'Registration submitted! Please verify your email.')
+            return redirect('booking:verify_registration_otp')
     else:
         form = OrganizerRegistrationForm()
     
@@ -314,7 +336,7 @@ def theatre_register(request):
                 email=form.cleaned_data['email'],
                 password=form.cleaned_data['password1'],
                 role='theatre_owner',
-                is_active=False  # Deactivate until email verified
+                is_active=False  # Deactivate until OTP verified
             )
             
             # Create theatre owner profile
@@ -322,9 +344,13 @@ def theatre_register(request):
             profile.user = user
             profile.save()
             
-            send_verification_email(user, request)
-            messages.success(request, 'Registration submitted! Your account is pending approval. Please check your email to verify.')
-            return redirect('booking:login')
+            # Generate & Send OTP
+            otp_code = generate_otp(user, 'registration')
+            send_otp_email(user, otp_code, 'registration')
+            
+            request.session['registration_user_id'] = user.id
+            messages.success(request, 'Registration submitted! Please verify your email.')
+            return redirect('booking:verify_registration_otp')
     else:
         form = TheatreOwnerRegistrationForm()
     
@@ -332,7 +358,7 @@ def theatre_register(request):
 
 
 def verify_email(request, token):
-    """Verify email address"""
+    """Verify email address (Legacy - can be removed or kept for backward compatibility)"""
     try:
         user = CustomUser.objects.get(verification_token=token)
         user.email_verified = True

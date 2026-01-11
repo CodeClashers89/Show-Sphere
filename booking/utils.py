@@ -274,6 +274,9 @@ def send_otp_email(user, otp_code, purpose):
     if purpose == 'login':
         subject = 'Login Verification Code - ShowSphere'
         action = 'log in to'
+    elif purpose == 'registration':
+        subject = 'Account Verification Code - ShowSphere'
+        action = 'verify your new'
     else:
         subject = 'Password Reset Code - ShowSphere'
         action = 'reset your password for'

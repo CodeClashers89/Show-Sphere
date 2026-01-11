@@ -448,6 +448,7 @@ class OTP(models.Model):
     PURPOSE_CHOICES = [
         ('login', 'Login'),
         ('reset_password', 'Reset Password'),
+        ('registration', 'Registration'),
     ]
     
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='otps')
