@@ -1,7 +1,7 @@
-Django==4.2.7
-Pillow==10.1.0
-qrcode==7.4.2
-python-decouple==3.8
+Django
+Pillow
+qrcode
+python-decouple
 gunicorn
 whitenoise
 dj-database-url
