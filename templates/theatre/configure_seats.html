@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configure Seats | ShowSphere Partner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
 
@@ -365,13 +366,15 @@
             align-items: center;
             justify-content: center;
             color: white;
-            font-weight: 700;
+            text-decoration: none;
             transition: all 0.3s;
         }
 
         .social-circle:hover {
             background: var(--primary-color);
             transform: translateY(-3px);
+            color: white;
+            box-shadow: 0 5px 15px rgba(140, 82, 255, 0.4);
         }
 
         .footer-text {
@@ -524,28 +527,27 @@
         </section>
     </main>
 
-    <!-- Footer Area -->
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-logo">
-                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
-                    <path
-                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
-                        fill="#8C52FF" />
-                </svg>
+                <img src="{% static 'css/showspere.png' %}" alt="ShowSphere Logo" width="50" height="50"
+                    fetchpriority="high" loading="eager">
                 ShowSphere
             </div>
 
             <div class="social-links">
-                <div class="social-circle">fb</div>
-                <div class="social-circle">in</div>
-                <div class="social-circle">tw</div>
-                <div class="social-circle">ig</div>
+                <a href="https://www.facebook.com" target="_blank" class="social-circle"><i
+                        class="fab fa-facebook-f"></i></a>
+                <a href="https://www.linkedin.com" target="_blank" class="social-circle"><i
+                        class="fab fa-linkedin-in"></i></a>
+                <a href="https://www.twitter.com" target="_blank" class="social-circle"><i
+                        class="fab fa-twitter"></i></a>
+                <a href="https://www.instagram.com" target="_blank" class="social-circle"><i
+                        class="fab fa-instagram"></i></a>
             </div>
 
             <p class="footer-text">
-                Copyright 2026 @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
+                Copyright {% now "Y" %} @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
                 <br><br>
                 The content and images used on this site are copyright protected and copyrights vests with the
                 respective owners. The usage of the content and images on this website is intended to promote the works

@@ -4,9 +4,6 @@
 
 {% block extra_css %}
 <style>
-    /* Global Styles from 1.html adapted */
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
-
     :root {
         --primary-color: #8C52FF;
         --primary-hover: #7b40f2;
@@ -23,9 +20,10 @@
 
     body {
         background-color: var(--bg-color);
+        color: var(--text-color);
     }
 
-    /* Navbar Styles specific to this page override */
+    /* Header Styles (Matching Premium Design) */
     .header {
         background-color: var(--white);
         padding: 1rem 2rem;
@@ -45,10 +43,42 @@
         align-items: center;
         gap: 0.5rem;
         text-decoration: none;
+        color: var(--text-color);
     }
 
     .logo span {
         color: var(--primary-color);
+    }
+
+    .search-bar {
+        flex: 1;
+        max-width: 500px;
+        margin: 0 2rem;
+        position: relative;
+    }
+
+    .search-bar input {
+        width: 100%;
+        padding: 0.6rem 1rem 0.6rem 2.5rem;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        background: #f8f9fa;
+        outline: none;
+        transition: all 0.3s ease;
+    }
+
+    .search-bar input:focus {
+        border-color: var(--primary-color);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(140, 82, 255, 0.1);
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-light);
     }
 
     .auth-buttons {
@@ -58,10 +88,10 @@
     }
 
     .btn-custom {
-        padding: 0.5rem 1.5rem;
-        border-radius: 4px;
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
         cursor: pointer;
-        font-weight: 500;
+        font-weight: 600;
         transition: all 0.3s;
         font-size: 0.9rem;
         text-decoration: none;
@@ -75,26 +105,22 @@
     }
 
     .btn-custom-primary:hover {
-        color: white;
         background-color: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(140, 82, 255, 0.3);
     }
 
     .btn-custom-outline {
-        background-color: transparent;
-        border: 1px solid #ddd;
+        background-color: white;
+        border: 1px solid #e0e0e0;
         color: var(--text-color);
-    }
-
-    .btn-custom-outline:hover {
-        color: var(--primary-color);
-        border-color: var(--primary-color);
     }
 
     /* Navigation Bar */
     .nav-bar {
         background: linear-gradient(135deg, #8C52FF 0%, #00BFB2 100%);
         color: var(--white);
-        padding: 1rem 2rem;
+        padding: 0.8rem 2rem;
         box-shadow: 0 4px 15px rgba(140, 82, 255, 0.3);
     }
 
@@ -102,341 +128,359 @@
         display: flex;
         justify-content: center;
         gap: 3rem;
-        font-size: 1rem;
         list-style: none;
-        /* reset */
         margin: 0;
-        padding: 0;
     }
 
     .nav-links li a {
-        opacity: 0.8;
-        transition: opacity 0.3s;
         color: white;
+        opacity: 0.9;
+        font-weight: 500;
         text-decoration: none;
     }
 
-    .nav-links li a:hover {
-        opacity: 1;
-        color: var(--white);
-    }
-
-    /* Seat Selection Content */
-    .seat-selection-container {
-        max-width: 1000px;
-        margin: 2rem auto;
-        background: var(--white);
-        padding: 2rem;
-        border-radius: var(--border-radius);
+    /* Seat Selection Main */
+    .selection-board {
+        max-width: 1200px;
+        margin: 3rem auto;
+        padding: 3rem;
+        background: white;
+        border-radius: 30px;
         box-shadow: var(--shadow);
-        overflow-x: auto;
+        border: 1px solid #f0edf7;
     }
 
-    .screen-header {
+    .board-header {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
+        align-items: flex-end;
+        margin-bottom: 4rem;
+        border-bottom: 2px solid #f8f6ff;
+        padding-bottom: 2rem;
     }
 
-    .movie-title {
-        font-size: 1.5rem;
-        font-weight: 700;
+    .movie-info h1 {
+        font-size: 2.5rem;
+        font-weight: 900;
         color: var(--text-color);
-        margin: 0;
+        margin-bottom: 0.5rem;
     }
 
-    .movie-meta {
+    .movie-info p {
+        font-weight: 600;
         color: var(--text-light);
-        margin: 0;
+        font-size: 1.1rem;
+    }
+
+    .time-slot {
+        text-align: right;
+    }
+
+    .time-slot .time {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--primary-color);
+        display: block;
+    }
+
+    .time-slot .date {
+        font-weight: 600;
+        color: var(--text-light);
+    }
+
+    /* Seat Grid */
+    .grid-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 1.5rem;
+        overflow-x: auto;
+        padding: 2rem 0;
     }
 
     .seat-row {
         display: flex;
         align-items: center;
-        margin-bottom: 0.8rem;
-        justify-content: center;
+        gap: 1.5rem;
     }
 
     .row-label {
         width: 30px;
-        font-size: 0.9rem;
-        color: var(--text-light);
+        font-weight: 800;
+        color: #d1d1d1;
         text-align: center;
-        margin-right: 1rem;
-        font-weight: 500;
     }
 
-    .seat-group {
+    .seats-bundle {
         display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        justify-content: center;
+        gap: 10px;
     }
 
     .seat {
-        width: 35px;
-        height: 35px;
-        border: 1px solid #ACACAC;
-        border-radius: 4px;
+        width: 38px;
+        height: 38px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
         display: flex;
-        justify-content: center;
         align-items: center;
-        font-size: 0.8rem;
+        justify-content: center;
+        font-size: 0.85rem;
+        font-weight: 700;
         color: var(--text-light);
         cursor: pointer;
-        transition: all 0.2s;
-        background-color: var(--white);
-        user-select: none;
+        transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        background: white;
     }
 
-    .seat:hover:not(.sold):not(.locked):not(.booked) {
+    .seat:hover:not(.booked):not(.sold):not(.locked) {
         border-color: var(--primary-color);
         color: var(--primary-color);
-        transform: scale(1.1);
+        transform: scale(1.15) translateY(-2px);
+        box-shadow: 0 5px 15px rgba(140, 82, 255, 0.1);
     }
 
     .seat.selected {
-        background-color: var(--primary-color);
+        background: var(--primary-color);
         border-color: var(--primary-color);
-        color: var(--white);
+        color: white;
+        box-shadow: 0 8px 15px rgba(140, 82, 255, 0.3);
     }
 
+    .seat.booked,
     .seat.sold,
-    .seat.booked {
-        background-color: var(--sold-grey);
-        border-color: var(--sold-grey);
-        color: #fff;
-        cursor: not-allowed;
-    }
-
     .seat.locked {
-        background-color: var(--sold-grey);
-        border-color: var(--sold-grey);
-        color: #fff;
+        background: #f0f0f0;
+        border-color: #f0f0f0;
+        color: #acacac;
         cursor: not-allowed;
     }
 
-    .screen-area {
-        margin-top: 4rem;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+    /* Screen Area */
+    .screen-container {
+        margin-top: 5rem;
+        text-align: center;
     }
 
-    .screen-shape {
-        border-bottom: 40px solid #f0e6ff;
-        border-left: 25px solid transparent;
-        border-right: 25px solid transparent;
-        height: 0;
-        width: 500px;
-        /* Max width */
-        max-width: 100%;
-        margin-bottom: 1rem;
-        position: relative;
+    .screen-curve {
+        height: 12px;
+        width: 80%;
+        max-width: 600px;
+        background: linear-gradient(to bottom, #8C52FF 0%, rgba(140, 82, 255, 0) 100%);
+        border-radius: 50%;
+        margin: 0 auto 1.5rem;
+        box-shadow: 0 -10px 20px rgba(140, 82, 255, 0.2);
     }
 
-    .screen-text {
+    .screen-label {
         font-size: 0.8rem;
-        color: var(--primary-color);
-        margin-top: 0.5rem;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 5px;
+        color: #b2b2b2;
+        font-weight: 800;
     }
 
-    .footer-action {
-        margin-top: 3rem;
+    /* Legend & Pricing */
+    .board-footer {
+        margin-top: 4rem;
+        padding-top: 3rem;
+        border-top: 2px solid #f8f6ff;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-top: 1px solid #eee;
-        padding-top: 2rem;
-        flex-wrap: wrap;
-        gap: 1rem;
     }
 
     .legend {
         display: flex;
-        gap: 1.5rem;
+        gap: 2rem;
     }
 
     .legend-item {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        font-size: 0.9rem;
+        gap: 0.8rem;
+        font-weight: 600;
         color: var(--text-light);
+        font-size: 0.95rem;
     }
 
-    .legend-box {
-        width: 25px;
-        height: 25px;
-        border-radius: 4px;
-        border: 1px solid #ACACAC;
+    .legend-indicator {
+        width: 20px;
+        height: 20px;
+        border-radius: 6px;
+        border: 2px solid #e0e0e0;
     }
 
-    .legend-box.selected {
-        background-color: var(--primary-color);
+    .indicator-selected {
+        background: var(--primary-color);
         border-color: var(--primary-color);
     }
 
-    .legend-box.sold {
-        background-color: var(--sold-grey);
-        border-color: var(--sold-grey);
+    .indicator-booked {
+        background: #f0f0f0;
+        border-color: #f0f0f0;
     }
 
-    .btn-pay {
-        background-color: var(--primary-color);
-        color: white;
-        padding: 1rem 3rem;
-        border: none;
-        border-radius: 8px;
+    .booking-call {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .price-total {
+        text-align: right;
+    }
+
+    .price-total .label {
+        display: block;
+        font-size: 0.85rem;
         font-weight: 700;
-        cursor: pointer;
+        color: #b2b2b2;
+        text-transform: uppercase;
+    }
+
+    .price-total .val {
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: var(--text-color);
+    }
+
+    .btn-book {
+        padding: 1.2rem 3rem;
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 16px;
         font-size: 1.1rem;
-        box-shadow: 0 4px 15px rgba(140, 82, 255, 0.4);
-        transition: 0.2s;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 10px 20px rgba(140, 82, 255, 0.2);
     }
 
-    .btn-pay:hover:not(:disabled) {
-        background-color: var(--primary-hover);
-        transform: translateY(-2px);
+    .btn-book:hover:not(:disabled) {
+        background: var(--primary-hover);
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(140, 82, 255, 0.3);
     }
 
-    .btn-pay:disabled {
-        background-color: #ccc;
+    .btn-book:disabled {
+        background: #eee;
+        color: #acacac;
         box-shadow: none;
         cursor: not-allowed;
+    }
+
+    .container,
+    .container-fluid {
+        max-width: 100% !important;
+        padding: 0 !important;
     }
 </style>
 {% endblock %}
 
 {% block navbar %}
-<!-- Header from 1.html -->
 <header class="header">
     <a href="{% url 'booking:home' %}" class="logo">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
-                fill="#8C52FF" />
-        </svg>
+        <img src="{% static 'css/showspere.png' %}" alt="Logo" width="40" height="40">
         <span>ShowSphere</span>
     </a>
+
+    <form class="search-bar" action="{% url 'booking:search' %}" method="get">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" name="q" placeholder="Search for Movies, Events, Sports...">
+    </form>
+
     <div class="auth-buttons">
         {% if user.is_authenticated %}
-        <!-- Show Profile / Logout tailored to 1.html style -->
-        {% if user.role == 'customer' %}
         <a href="{% url 'booking:customer_dashboard' %}" class="btn-custom btn-custom-outline">My Profile</a>
-        {% elif user.role == 'organizer' %}
-        <a href="{% url 'booking:organizer_dashboard' %}" class="btn-custom btn-custom-outline">Dashboard</a>
-        {% elif user.role == 'theatre_owner' %}
-        <a href="{% url 'booking:theatre_dashboard' %}" class="btn-custom btn-custom-outline">Dashboard</a>
-        {% elif user.role == 'admin' %}
-        <a href="{% url 'booking:admin_dashboard' %}" class="btn-custom btn-custom-outline">Admin</a>
-        {% endif %}
         <a href="{% url 'booking:logout' %}" class="btn-custom btn-custom-primary">Logout</a>
-        {% else %}
-        <a href="{% url 'booking:organizer_register' %}" class="btn-custom btn-custom-outline">New Partner</a>
-        <a href="{% url 'booking:login' %}" class="btn-custom btn-custom-primary">Sign In</a>
         {% endif %}
     </div>
 </header>
-
-<!-- Navbar from 1.html -->
 <nav class="nav-bar">
     <ul class="nav-links">
         <li><a href="{% url 'booking:browse' %}">Movies</a></li>
         <li><a href="{% url 'booking:browse' %}?category=events">Events</a></li>
         <li><a href="{% url 'booking:browse' %}?category=sports">Sports</a></li>
-        <!-- Added Theaters if available otherwise optional -->
-        <!-- <li><a href="#">Theaters</a></li> -->
     </ul>
 </nav>
 {% endblock %}
 
 {% block content %}
-<div class="seat-selection-container">
-    <!-- Header Info -->
-    <div class="screen-header">
-        <div>
-            {% if show.show_type == 'movie' %}
-            <h1 class="movie-title">{{ show.movie.title }}</h1>
-            <p class="movie-meta">{{ show.screen.theatre.name }}</p>
-            {% else %}
-            <h1 class="movie-title">{{ show.event.title }}</h1>
-            <p class="movie-meta">{{ show.venue.name }}</p>
-            {% endif %}
+<div class="selection-board">
+    <div class="board-header">
+        <div class="movie-info">
+            <h1>
+                {% if show.show_type == 'movie' %}
+                {{ show.movie.title }}
+                {% else %}
+                {{ show.event.title }}
+                {% endif %}
+            </h1>
+            <p><i class="fas fa-map-marker-alt me-2" style="color: var(--primary-color);"></i>
+                {% if show.venue %}
+                {{ show.venue.name }}
+                {% else %}
+                {{ show.screen.theatre.name }} | {{ show.screen.name }}
+                {% endif %}
+            </p>
         </div>
-        <div style="text-align: right;">
-            <p class="movie-meta">{{ show.show_time|time:"h:i A" }}</p>
-            <p class="movie-meta">{{ show.show_date|date:"l, d M" }}</p>
+        <div class="time-slot">
+            <span class="time">{{ show.show_time|time:"H:i" }}</span>
+            <span class="date">{{ show.show_date|date:"l, d M" }}</span>
         </div>
     </div>
 
-    <!-- Seat Grid -->
-    <!-- Seat Grid -->
     <form id="bookingForm" action="{% url 'booking:payment' show.id %}" method="get">
-        {% regroup seats by row as row_list %}
-
-        {% for row in row_list %}
-        <!-- Price Category Header -->
-        {% with first_seat=row.list.0 %}
-        {% ifchanged first_seat.price %}
-        <div class="row">
-            <div class="col-12">
-                <h6 class="text-secondary mt-3 mb-2 small fw-bold text-uppercase" style="margin-left: 50px;">
-                    Rs. {{ first_seat.price }}
-                    {% if first_seat.price >= 300 %}Premium
-                    {% elif first_seat.price >= 200 %}Executive
-                    {% else %}Normal{% endif %}
-                </h6>
-            </div>
-        </div>
-        {% endifchanged %}
-        {% endwith %}
-
-        <div class="seat-row">
-            <div class="row-label">{{ row.grouper }}</div>
-            <div class="seat-group">
-                {% for seat in row.list %}
-                {% with status=seat_status|get_item:seat.id %}
-                <div class="seat 
-                        {% if status == 'booked' %}sold{% elif status == 'locked' %}locked{% elif status == 'my_lock' %}selected{% endif %}"
-                    style="{% if seat.seat_number == '4' or seat.seat_number == '10' %}margin-right: 40px;{% endif %}"
-                    data-seat-id="{{ seat.id }}" data-price="{{ seat.price }}"
-                    title="{{ seat.row }}{{ seat.seat_number }} - ₹{{ seat.price }}">
-                    {{ seat.seat_number }}
+        <div class="grid-container">
+            {% regroup seats by row as row_list %}
+            {% for row in row_list %}
+            <div class="seat-row">
+                <div class="row-label">{{ row.grouper }}</div>
+                <div class="seats-bundle">
+                    {% for seat in row.list %}
+                    {% with status=seat_status|get_item:seat.id %}
+                    <div class="seat {% if status == 'booked' or status == 'locked' or status == 'sold' %}booked{% elif status == 'my_lock' %}selected{% endif %}"
+                        data-seat-id="{{ seat.id }}" data-price="{{ seat.price }}"
+                        title="{{ seat.row }}{{ seat.seat_number }} - ₹{{ seat.price }}">
+                        {{ seat.seat_number }}
+                    </div>
+                    {% if status == 'my_lock' %}
+                    <input type="hidden" name="seats" value="{{ seat.id }}">
+                    {% endif %}
+                    {% endwith %}
+                    {% endfor %}
                 </div>
-                {% if status == 'my_lock' %}
-                <input type="hidden" name="seats" value="{{ seat.id }}">
-                {% endif %}
-                {% endwith %}
-                {% endfor %}
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </form>
 
-    <!-- Screen Widget -->
-    <div class="screen-area">
-        <div class="screen-shape"></div>
-        <div class="screen-text">All eyes this way please!</div>
+    <div class="screen-container">
+        <div class="screen-curve"></div>
+        <div class="screen-label">Cinema Screen</div>
     </div>
 
-    <!-- Footer Action Area -->
-    <div class="footer-action">
+    <div class="board-footer">
         <div class="legend">
             <div class="legend-item">
-                <div class="legend-box"></div> Available
+                <div class="legend-indicator"></div> Available
             </div>
             <div class="legend-item">
-                <div class="legend-box selected"></div> Selected
+                <div class="legend-indicator indicator-selected"></div> Selected
             </div>
             <div class="legend-item">
-                <div class="legend-box sold"></div> Sold
+                <div class="legend-indicator indicator-booked"></div> Booked
             </div>
         </div>
-        <button id="bookButton" class="btn-pay" disabled>Pay Rs. 0</button>
+
+        <div class="booking-call">
+            <div class="price-total">
+                <span class="label">Total Amount</span>
+                <span class="val" id="totalDisplay">₹0</span>
+            </div>
+            <button id="bookButton" class="btn-book" disabled>Confirm Seats</button>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -445,11 +489,12 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const bookButton = document.getElementById('bookButton');
+        const totalDisplay = document.getElementById('totalDisplay');
         const form = document.getElementById('bookingForm');
         let selectedSeats = new Set();
         let totalAmount = 0;
 
-        // Initialize already selected (my_lock) seats
+        // Initialize already selected
         document.querySelectorAll('.seat.selected').forEach(seat => {
             const id = seat.dataset.seatId;
             const price = parseFloat(seat.dataset.price);
@@ -458,13 +503,9 @@
         });
         updateUI();
 
-        // Seat Click Event
         document.querySelectorAll('.seat').forEach(seat => {
             seat.addEventListener('click', function () {
-                // Ignore if sold, booked, or locked
-                if (this.classList.contains('sold') || this.classList.contains('booked') || this.classList.contains('locked')) {
-                    return;
-                }
+                if (this.classList.contains('booked')) return;
 
                 const id = this.dataset.seatId;
                 const price = parseFloat(this.dataset.price);
@@ -485,21 +526,12 @@
         });
 
         function updateUI() {
-            bookButton.textContent = 'Pay Rs. ' + totalAmount.toFixed(0);
-            if (selectedSeats.size > 0) {
-                bookButton.disabled = false;
-                bookButton.classList.remove('disabled');
-            } else {
-                bookButton.disabled = true;
-                bookButton.classList.add('disabled');
-            }
+            totalDisplay.textContent = '₹' + totalAmount.toFixed(0);
+            bookButton.disabled = selectedSeats.size === 0;
         }
 
         function updateFormInputs() {
-            // Clear existing inputs
             form.querySelectorAll('input[name="seats"]').forEach(el => el.remove());
-
-            // Add new inputs
             selectedSeats.forEach(id => {
                 const input = document.createElement('input');
                 input.type = 'hidden';
@@ -509,40 +541,9 @@
             });
         }
 
-        bookButton.addEventListener('click', function () {
-            if (selectedSeats.size > 0) {
-                form.submit();
-            }
+        bookButton.addEventListener('click', () => {
+            if (selectedSeats.size > 0) form.submit();
         });
-
-        // Polling to check availability periodically
-        setInterval(checkAvailability, 10000);
-
-        function checkAvailability() {
-            fetch("{% url 'booking:check_seat_availability' show.id %}")
-                .then(response => response.json())
-                .then(data => {
-                    const availableIds = data.available_seats;
-
-                    document.querySelectorAll('.seat').forEach(seat => {
-                        const id = parseInt(seat.dataset.seatId);
-
-                        // Only update if I haven't selected it locally
-                        if (!selectedSeats.has(String(id))) {
-                            if (availableIds.includes(id)) {
-                                seat.classList.remove('sold', 'booked', 'locked');
-                                // By default it's available (white bg)
-                            } else {
-                                // If it's not available, mark it locked/sold
-                                if (!seat.classList.contains('sold') && !seat.classList.contains('booked')) {
-                                    seat.classList.add('locked');
-                                }
-                            }
-                        }
-                    });
-                })
-                .catch(err => console.error('Error fetching availability:', err));
-        }
     });
 </script>
 {% endblock %}

@@ -3,9 +3,6 @@
 
 {% block extra_css %}
 <style>
-    /* Global Styles from 1.html */
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;800&display=swap');
-
     :root {
         --primary-color: #8C52FF;
         --primary-hover: #7b40f2;
@@ -14,7 +11,7 @@
         --bg-color: #F9F7FF;
         --white: #FFFFFF;
         --border-radius: 20px;
-        --shadow: 0 10px 25px rgba(140, 82, 255, 0.15);
+        --shadow: 0 10px 25px rgba(140, 82, 255, 0.1);
     }
 
     body {
@@ -22,7 +19,7 @@
         color: var(--text-color);
     }
 
-    /* Navbar Styles specific to this page override */
+    /* Header Styles (Matching Premium Design) */
     .header {
         background-color: var(--white);
         padding: 1rem 2rem;
@@ -42,10 +39,42 @@
         align-items: center;
         gap: 0.5rem;
         text-decoration: none;
+        color: var(--text-color);
     }
 
     .logo span {
         color: var(--primary-color);
+    }
+
+    .search-bar {
+        flex: 1;
+        max-width: 500px;
+        margin: 0 2rem;
+        position: relative;
+    }
+
+    .search-bar input {
+        width: 100%;
+        padding: 0.6rem 1rem 0.6rem 2.5rem;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        background: #f8f9fa;
+        outline: none;
+        transition: all 0.3s ease;
+    }
+
+    .search-bar input:focus {
+        border-color: var(--primary-color);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(140, 82, 255, 0.1);
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-light);
     }
 
     .auth-buttons {
@@ -55,10 +84,10 @@
     }
 
     .btn-custom {
-        padding: 0.5rem 1.5rem;
-        border-radius: 4px;
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
         cursor: pointer;
-        font-weight: 500;
+        font-weight: 600;
         transition: all 0.3s;
         font-size: 0.9rem;
         text-decoration: none;
@@ -72,26 +101,22 @@
     }
 
     .btn-custom-primary:hover {
-        color: white;
         background-color: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(140, 82, 255, 0.3);
     }
 
     .btn-custom-outline {
-        background-color: transparent;
-        border: 1px solid #ddd;
+        background-color: white;
+        border: 1px solid #e0e0e0;
         color: var(--text-color);
-    }
-
-    .btn-custom-outline:hover {
-        color: var(--primary-color);
-        border-color: var(--primary-color);
     }
 
     /* Navigation Bar */
     .nav-bar {
         background: linear-gradient(135deg, #8C52FF 0%, #00BFB2 100%);
         color: var(--white);
-        padding: 1rem 2rem;
+        padding: 0.8rem 2rem;
         box-shadow: 0 4px 15px rgba(140, 82, 255, 0.3);
     }
 
@@ -99,254 +124,237 @@
         display: flex;
         justify-content: center;
         gap: 3rem;
-        font-size: 1rem;
         list-style: none;
         margin: 0;
-        padding: 0;
     }
 
     .nav-links li a {
-        opacity: 0.8;
-        transition: opacity 0.3s;
         color: white;
+        opacity: 0.9;
+        font-weight: 500;
         text-decoration: none;
     }
 
-    .nav-links li a:hover {
-        opacity: 1;
-        color: var(--white);
-    }
-
-    /* Page Layout Styles */
-    .payment-layout {
-        display: flex;
-        gap: 2rem;
+    /* Layout */
+    .payment-container {
         max-width: 1200px;
-        margin: 2rem auto;
-        padding: 0 1rem;
-        align-items: flex-start;
+        margin: 4rem auto;
+        padding: 0 1.5rem;
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 3rem;
     }
 
-    .booking-summary-section {
-        flex: 2;
-    }
-
-    .payment-section {
-        flex: 1;
-    }
-
-    .section-title {
-        font-size: 1.8rem;
-        font-weight: 700;
-        margin-bottom: 1.5rem;
-        color: var(--text-color);
-    }
-
-    .card-box {
+    .premium-card {
         background: var(--white);
-        border-radius: var(--border-radius);
+        border-radius: 24px;
         box-shadow: var(--shadow);
-        border: 1px solid #eee;
+        border: 1px solid #f0edf7;
         overflow: hidden;
     }
 
-    /* Booking Summary Styles */
-    .summary-header {
-        padding: 1.2rem 1.5rem;
-        border-bottom: 1px solid #f0f0f0;
-        font-weight: 700;
-        color: var(--text-color);
-        background: #fdfdff;
-    }
-
-    .summary-content {
-        padding: 2rem;
-    }
-
-    .movie-title {
-        font-size: 1.8rem;
+    .card-title-bar {
+        padding: 1.5rem 2rem;
+        background: #fcfaff;
+        border-bottom: 1px solid #f0edf7;
         font-weight: 800;
-        margin-bottom: 0.5rem;
+        font-size: 1.1rem;
         color: var(--text-color);
     }
 
-    .venue-info {
-        color: var(--text-light);
+    .card-inner {
+        padding: 2.5rem;
+    }
+
+    .movie-header {
+        margin-bottom: 2rem;
+    }
+
+    .movie-main-title {
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
+        letter-spacing: -0.5px;
+    }
+
+    .movie-meta-info {
         display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 1.5rem;
+        gap: 1.5rem;
+        color: var(--text-light);
+        font-weight: 600;
         font-size: 1rem;
     }
 
-    .show-tag {
-        background: #f4efff;
-        color: var(--primary-color);
-        padding: 0.5rem 1rem;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        display: inline-block;
-        margin-right: 1rem;
-        font-weight: 600;
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
+    .meta-item i {
+        color: var(--primary-color);
+    }
+
+    /* Summary Table */
     .summary-table {
         width: 100%;
-        margin-top: 2rem;
         border-collapse: collapse;
+        margin: 2rem 0;
     }
 
     .summary-table th {
         text-align: left;
-        color: var(--text-light);
-        font-weight: 600;
         padding-bottom: 1rem;
-        font-size: 0.9rem;
+        color: #b2b2b2;
+        font-size: 0.8rem;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 1px;
     }
 
     .summary-table td {
-        padding: 1rem 0;
-        border-top: 1px solid #f8f8f8;
-        color: var(--text-color);
-        font-weight: 500;
+        padding: 1.2rem 0;
+        border-top: 1px solid #f0edf7;
+        font-weight: 700;
     }
 
-    .price-row {
+    /* Bill Box */
+    .bill-box {
+        background: #f8f6ff;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-top: 1rem;
+    }
+
+    .bill-row {
         display: flex;
         justify-content: space-between;
-        padding: 0.8rem 0;
-        color: var(--text-light);
-        font-size: 1rem;
-    }
-
-    .price-row.total {
-        background: #fdfdff;
-        margin: 1.5rem -2rem -2rem -2rem;
-        padding: 1.5rem 2rem;
-        color: var(--text-color);
-        font-weight: 800;
-        border-top: 1px solid #f0f0f0;
-        align-items: center;
-    }
-
-    /* Payment Section Styles */
-    .payment-header {
-        background: #1f2533;
-        color: white;
-        padding: 1.2rem 1.5rem;
-        font-weight: 700;
-    }
-
-    .payment-content {
-        padding: 2rem;
-    }
-
-    .payment-option {
-        border: 1px solid #eee;
-        padding: 1.2rem;
-        border-radius: 12px;
         margin-bottom: 1rem;
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        width: 100%;
-        /* Ensure label takes full width */
-    }
-
-    .payment-option:hover {
-        border-color: var(--primary-color);
-        background: #fdfbfe;
-    }
-
-    .payment-option input[type="radio"] {
-        margin-right: 1.2rem;
-        accent-color: var(--primary-color);
-        width: 1.2rem;
-        height: 1.2rem;
-    }
-
-    .payment-label {
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
+        color: var(--text-light);
         font-weight: 600;
-        color: var(--text-color);
-        font-size: 1.05rem;
     }
 
-    .pay-btn {
+    .bill-row.grand-total {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 2px dashed #d1c4e9;
+        color: var(--text-color);
+        font-size: 1.5rem;
+        font-weight: 900;
+        margin-bottom: 0;
+    }
+
+    /* Payment Methods */
+    .method-list {
+        display: grid;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .method-item {
+        border: 2px solid #f0edf7;
+        border-radius: 16px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 1.2rem;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .method-item:hover {
+        border-color: var(--primary-color);
+        background: #fcfaff;
+    }
+
+    .method-item input[type="radio"] {
+        width: 20px;
+        height: 20px;
+        accent-color: var(--primary-color);
+    }
+
+    .method-label {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .method-icon {
+        width: 40px;
+        height: 40px;
+        background: white;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        font-size: 1.2rem;
+    }
+
+    .btn-pay {
+        width: 100%;
+        padding: 1.2rem;
         background: var(--primary-color);
         color: white;
-        width: 100%;
-        padding: 1.2rem;
         border: none;
-        border-radius: 12px;
+        border-radius: 16px;
         font-size: 1.2rem;
-        font-weight: 700;
+        font-weight: 800;
         cursor: pointer;
-        margin-top: 1.5rem;
-        box-shadow: 0 5px 15px rgba(140, 82, 255, 0.3);
-        transition: all 0.3s ease;
+        transition: all 0.3s;
+        box-shadow: 0 10px 20px rgba(140, 82, 255, 0.2);
     }
 
-    .pay-btn:hover {
+    .btn-pay:hover {
         background: var(--primary-hover);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(140, 82, 255, 0.4);
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(140, 82, 255, 0.3);
     }
 
-    .secure-note {
-        text-align: center;
-        color: var(--text-light);
-        font-size: 0.9rem;
-        margin-top: 1.5rem;
+    .security-badge {
         display: flex;
-        justify-content: center;
         align-items: center;
-        gap: 0.5rem;
+        justify-content: center;
+        gap: 0.6rem;
+        margin-top: 1.5rem;
+        color: #acacac;
+        font-size: 0.9rem;
+        font-weight: 600;
     }
 
     @media (max-width: 992px) {
-        .payment-layout {
-            flex-direction: column;
+        .payment-container {
+            grid-template-columns: 1fr;
         }
+    }
 
-        .booking-summary-section,
-        .payment-section {
-            width: 100%;
-        }
+    .container,
+    .container-fluid {
+        max-width: 100% !important;
+        padding: 0 !important;
     }
 </style>
 {% endblock %}
 
 {% block navbar %}
-<!-- Reuse Header from seat_selection.html for consistency -->
 <header class="header">
     <a href="{% url 'booking:home' %}" class="logo">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
-                fill="#8C52FF" />
-        </svg>
+        <img src="{% static 'css/showspere.png' %}" alt="Logo" width="40" height="40">
         <span>ShowSphere</span>
     </a>
+
+    <form class="search-bar" action="{% url 'booking:search' %}" method="get">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" name="q" placeholder="Search for Movies, Events, Sports...">
+    </form>
+
     <div class="auth-buttons">
         {% if user.is_authenticated %}
-        {% if user.role == 'customer' %}
         <a href="{% url 'booking:customer_dashboard' %}" class="btn-custom btn-custom-outline">My Profile</a>
-        {% elif user.role == 'organizer' %}
-        <a href="{% url 'booking:organizer_dashboard' %}" class="btn-custom btn-custom-outline">Dashboard</a>
-        {% elif user.role == 'theatre_owner' %}
-        <a href="{% url 'booking:theatre_dashboard' %}" class="btn-custom btn-custom-outline">Dashboard</a>
-        {% elif user.role == 'admin' %}
-        <a href="{% url 'booking:admin_dashboard' %}" class="btn-custom btn-custom-outline">Admin</a>
-        {% endif %}
         <a href="{% url 'booking:logout' %}" class="btn-custom btn-custom-primary">Logout</a>
         {% else %}
-        <a href="{% url 'booking:organizer_register' %}" class="btn-custom btn-custom-outline">New Partner</a>
         <a href="{% url 'booking:login' %}" class="btn-custom btn-custom-primary">Sign In</a>
         {% endif %}
     </div>
@@ -361,35 +369,40 @@
 {% endblock %}
 
 {% block content %}
-<div class="payment-layout">
-    <!-- Left Column: Booking Summary -->
-    <div class="booking-summary-section">
-        <h2 class="section-title">Confirm Booking</h2>
-        <div class="card-box">
-            <div class="summary-header">Booking Summary</div>
-            <div class="summary-content">
-                {% if show.show_type == 'movie' %}
-                <div class="movie-title">{{ show.movie.title }}</div>
-                <div class="venue-info">
-                    <span>📍</span> {{ show.screen.theatre.name }} | {{ show.screen.name }}
-                </div>
-                {% else %}
-                <div class="movie-title">{{ show.event.title }}</div>
-                <div class="venue-info">
-                    <span>📍</span> {{ show.venue.name }} | {{ show.venue.city.name }}
-                </div>
-                {% endif %}
-
-                <div style="margin-bottom: 2rem;">
-                    <span class="show-tag">{{ show.show_date|date:"D, d M Y" }}</span>
-                    <span class="show-tag">{{ show.show_time|time:"H:i" }}</span>
+<div class="payment-container">
+    <!-- Summary Column -->
+    <div class="summary-col">
+        <h2 style="font-size: 2.5rem; font-weight: 900; margin-bottom: 2rem;">Checkout</h2>
+        <div class="premium-card">
+            <div class="card-title-bar">Step 1: Confirm Booking Details</div>
+            <div class="card-inner">
+                <div class="movie-header">
+                    <h1 class="movie-main-title">
+                        {% if show.show_type == 'movie' %}
+                        {{ show.movie.title }}
+                        {% else %}
+                        {{ show.event.title }}
+                        {% endif %}
+                    </h1>
+                    <div class="movie-meta-info">
+                        <div class="meta-item"><i class="far fa-calendar-alt"></i>{{ show.show_date|date:"D, d M" }}
+                        </div>
+                        <div class="meta-item"><i class="far fa-clock"></i>{{ show.show_time|time:"H:i" }}</div>
+                        <div class="meta-item"><i class="fas fa-map-marker-alt"></i>
+                            {% if show.venue %}
+                            {{ show.venue.name }}
+                            {% else %}
+                            {{ show.screen.theatre.name }}
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
 
                 <table class="summary-table">
                     <thead>
                         <tr>
                             <th>Seat</th>
-                            <th style="text-align: center;">Type</th>
+                            <th>Category</th>
                             <th style="text-align: right;">Price</th>
                         </tr>
                     </thead>
@@ -397,79 +410,81 @@
                         {% for seat in seats %}
                         <tr>
                             <td>{{ seat.row }}{{ seat.seat_number }}</td>
-                            <td style="text-align: center;">{{ seat.get_seat_type_display }}</td>
+                            <td>{{ seat.get_seat_type_display }}</td>
                             <td style="text-align: right;">₹{{ seat.price }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
 
-                <div style="margin-top: 1.5rem; border-top: 1px solid #eee; padding-top: 1rem;">
-                    <div class="price-row">
-                        <span>Subtotal</span>
+                <div class="bill-box">
+                    <div class="bill-row">
+                        <span>Base Amount</span>
                         <span>₹{{ total_amount }}</span>
                     </div>
-                    <div class="price-row">
+                    <div class="bill-row">
                         <span>Convenience Fee (2%)</span>
                         <span>₹{{ convenience_fee }}</span>
                     </div>
-                </div>
-
-                <div class="price-row total">
-                    <span>Amount Payable</span>
-                    <span style="font-size: 1.5rem;">₹{{ grand_total }}</span>
+                    <div class="bill-row grand-total">
+                        <span>Total Payable</span>
+                        <span>₹{{ grand_total }}</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Right Column: Payment -->
-    <div class="payment-section">
-        <br><br> <!-- Spacing to align with card below title -->
-        <div class="card-box">
-            <div class="payment-header">Payment</div>
-            <div class="payment-content">
+    <!-- Payment Column -->
+    <div class="payment-col">
+        <div style="height: 60px;"></div> <!-- Spacing -->
+        <div class="premium-card">
+            <div class="card-title-bar">Step 2: Payment Method</div>
+            <div class="card-inner">
                 <form method="post">
                     {% csrf_token %}
                     {% for seat in seats %}
                     <input type="hidden" name="seats" value="{{ seat.id }}">
                     {% endfor %}
 
-                    <p style="margin-bottom: 1.5rem; color: var(--text-color); font-weight: 700;">Select Payment Method
-                    </p>
+                    <div class="method-list">
+                        <label class="method-item">
+                            <input type="radio" name="payment_method" value="upi" checked>
+                            <div class="method-label">
+                                <div class="method-icon" style="color: #00BFB2;"><i class="fas fa-mobile-alt"></i></div>
+                                UPI (GPay, PhonePe)
+                            </div>
+                        </label>
+                        <label class="method-item">
+                            <input type="radio" name="payment_method" value="card">
+                            <div class="method-label">
+                                <div class="method-icon" style="color: #8C52FF;"><i class="fas fa-credit-card"></i>
+                                </div>
+                                Credit / Debit Card
+                            </div>
+                        </label>
+                        <label class="method-item">
+                            <input type="radio" name="payment_method" value="wallet">
+                            <div class="method-label">
+                                <div class="method-icon" style="color: #FFB800;"><i class="fas fa-wallet"></i></div>
+                                Online Wallets
+                            </div>
+                        </label>
+                    </div>
 
-                    <label class="payment-option">
-                        <input type="radio" name="payment_method" value="upi" checked>
-                        <div class="payment-label">
-                            <span>📱</span> UPI
-                        </div>
-                    </label>
+                    <button type="submit" class="btn-pay">Pay ₹{{ grand_total }}</button>
 
-                    <label class="payment-option">
-                        <input type="radio" name="payment_method" value="card">
-                        <div class="payment-label">
-                            <span>💳</span> Credit/Debit Card
-                        </div>
-                    </label>
-
-                    <label class="payment-option">
-                        <input type="radio" name="payment_method" value="wallet">
-                        <div class="payment-label">
-                            <span>📁</span> Wallet
-                        </div>
-                    </label>
-
-                    <button type="submit" class="pay-btn">Pay ₹{{ grand_total }}</button>
-
-                    <div class="secure-note">
-                        <span>🔒</span> Secure Payment Simulation
+                    <div class="security-badge">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>Secure 256-bit SSL Encrypted</span>
                     </div>
                 </form>
             </div>
         </div>
 
-        <div style="margin-top: 1rem; text-align: center; color: #666; font-size: 0.9rem;">
-            <i class="fas fa-hourglass-half me-1"></i> Seats are locked for 10 minutes.
+        <div
+            style="margin-top: 1.5rem; text-align: center; color: var(--text-light); font-size: 0.85rem; font-weight: 600;">
+            <i class="fas fa-clock-rotate-left me-1"></i> These seats are reserved for 10 minutes.
         </div>
     </div>
 </div>

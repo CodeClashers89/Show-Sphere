@@ -199,6 +199,26 @@ def user_login(request):
             login(request, user)
             messages.success(request, f'Welcome back, {user.username}!')
             return _redirect_after_login(user)
+        else:
+            # If form is not valid, check if it's due to an inactive user
+            username = request.POST.get('username')
+            password = request.POST.get('password')
+            
+            if username and password:
+                # Try to authenticate manually to distinguish between wrong credentials and inactive user
+                # authenticate() returns None for inactive users by default.
+                # We check manually if the user exists and has correct password.
+                try:
+                    check_user = CustomUser.objects.get(username=username)
+                    if not check_user.is_active and check_user.check_password(password):
+                        # Correct credentials but account inactive
+                        otp_code = generate_otp(check_user, 'registration')
+                        send_otp_email(check_user, otp_code, 'registration')
+                        request.session['registration_user_id'] = check_user.id
+                        messages.info(request, 'Your account is not verified. A new verification code has been sent.')
+                        return redirect('booking:verify_registration_otp')
+                except CustomUser.DoesNotExist:
+                    pass # User does not exist, let the form errors handle it
     else:
         form = LoginForm()
     

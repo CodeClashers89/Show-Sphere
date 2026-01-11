@@ -1,20 +1,17 @@
+{% extends 'base.html' %}
 {% load static %}
 
 {% block extra_css %}
 <style>
-    /* Global Styles from 1.html */
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
-
     :root {
         --primary-color: #8C52FF;
         --primary-hover: #7b40f2;
-        --accent-blue: #0076fe;
-        --text-color: #212529;
-        --text-light: #6c757d;
-        --bg-color: #f8f9fa;
+        --text-color: #2D2042;
+        --text-light: #666666;
+        --bg-color: #F9F7FF;
         --white: #FFFFFF;
         --border-radius: 12px;
-        --shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        --shadow: 0 10px 25px rgba(140, 82, 255, 0.1);
     }
 
     body {
@@ -22,7 +19,7 @@
         color: var(--text-color);
     }
 
-    /* Navbar Styles specific to this page override */
+    /* Header Styles (Matching Premium Design) */
     .header {
         background-color: var(--white);
         padding: 1rem 2rem;
@@ -33,7 +30,6 @@
         position: sticky;
         top: 0;
         z-index: 1000;
-        margin-bottom: 0;
     }
 
     .logo {
@@ -43,10 +39,42 @@
         align-items: center;
         gap: 0.5rem;
         text-decoration: none;
+        color: var(--text-color);
     }
 
     .logo span {
         color: var(--primary-color);
+    }
+
+    .search-bar {
+        flex: 1;
+        max-width: 500px;
+        margin: 0 2rem;
+        position: relative;
+    }
+
+    .search-bar input {
+        width: 100%;
+        padding: 0.6rem 1rem 0.6rem 2.5rem;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        background: #f8f9fa;
+        outline: none;
+        transition: all 0.3s ease;
+    }
+
+    .search-bar input:focus {
+        border-color: var(--primary-color);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(140, 82, 255, 0.1);
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-light);
     }
 
     .auth-buttons {
@@ -56,10 +84,10 @@
     }
 
     .btn-custom {
-        padding: 0.5rem 1.5rem;
-        border-radius: 4px;
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
         cursor: pointer;
-        font-weight: 500;
+        font-weight: 600;
         transition: all 0.3s;
         font-size: 0.9rem;
         text-decoration: none;
@@ -73,19 +101,21 @@
     }
 
     .btn-custom-primary:hover {
-        color: white;
         background-color: var(--primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(140, 82, 255, 0.3);
     }
 
     .btn-custom-outline {
-        background-color: transparent;
-        border: 1px solid #ddd;
+        background-color: white;
+        border: 1px solid #e0e0e0;
         color: var(--text-color);
     }
 
     .btn-custom-outline:hover {
-        color: var(--primary-color);
         border-color: var(--primary-color);
+        color: var(--primary-color);
+        background: #f8f6ff;
     }
 
     /* Navigation Bar */
@@ -100,323 +130,290 @@
         display: flex;
         justify-content: center;
         gap: 3rem;
-        font-size: 1rem;
         list-style: none;
         margin: 0;
-        padding: 0;
     }
 
     .nav-links li a {
-        opacity: 0.8;
-        transition: opacity 0.3s;
         color: white;
+        opacity: 0.9;
+        font-weight: 500;
         text-decoration: none;
+        transition: all 0.3s;
     }
 
     .nav-links li a:hover {
         opacity: 1;
-        color: var(--white);
+        transform: translateY(-1px);
     }
 
     /* Dashboard Layout */
-    .dashboard-container {
+    .main-layout {
         display: flex;
         max-width: 1400px;
-        margin: 4rem auto;
+        margin: 3rem auto;
         width: 100%;
-        padding: 0 1rem;
-        gap: 2rem;
-        /* Decreased gap as requested */
-        align-items: flex-start;
+        padding: 0 1.5rem;
+        gap: 2.5rem;
     }
 
-
-    /* Sidebar Styles */
-    .sidebar {
-        width: 300px;
+    /* Sidebar */
+    .dash-sidebar {
+        width: 280px;
         background: var(--white);
-        border-radius: 8px;
+        border-radius: var(--border-radius);
         box-shadow: var(--shadow);
-        height: fit-content;
         overflow: hidden;
+        height: fit-content;
+        border: 1px solid #f0edf7;
+        flex-shrink: 0;
         position: sticky;
-        top: 140px;
-        margin-left: 0;
-        /* visually centered beside tickets */
+        top: 100px;
     }
 
-
-    .sidebar-menu {
+    .dash-sidebar-menu {
         list-style: none;
-        margin: 0 !important;
-        padding: 0 !important;
+        padding: 0;
+        margin: 0;
     }
 
-    .sidebar-item {
-        margin: 0 !important;
-        padding: 0 !important;
-        display: block;
+    .dash-nav-item a {
+        padding: 1.2rem 1.8rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        font-weight: 600;
+        color: var(--text-light);
+        transition: all 0.3s;
+        border-bottom: 1px solid #f0edf7;
+        text-decoration: none;
     }
 
-    .sidebar-link {
+    .dash-nav-item:last-child a {
+        border-bottom: none;
+    }
+
+    .dash-nav-item a:hover {
+        background: #f8f6ff;
+        color: var(--primary-color);
+        padding-left: 2.2rem;
+    }
+
+    .dash-nav-item.active a {
+        background: var(--primary-color);
+        color: white;
+        box-shadow: 0 5px 15px rgba(140, 82, 255, 0.3);
+    }
+
+    /* Dashboard Content */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+        padding: 2rem;
+        background: var(--white);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        border: 1px solid #f0edf7;
+        text-align: center;
+        transition: transform 0.3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .stat-icon {
+        width: 50px;
+        height: 50px;
+        background: #f8f6ff;
+        color: var(--primary-color);
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        /* Center content horizontally */
-        gap: 1rem;
-        padding: 1.2rem 2rem;
+        font-size: 1.5rem;
+        margin: 0 auto 1rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--text-color);
+        display: block;
+    }
+
+    .stat-label {
         color: var(--text-light);
-        font-weight: 600;
-        border-bottom: 1px solid #f8f9fa;
-        text-decoration: none;
-        width: 100%;
-        box-sizing: border-box;
+        font-size: 0.9rem;
+        font-weight: 500;
     }
 
-    .sidebar-link:hover {
-        text-decoration: none;
-        color: var(--primary-color);
-    }
-
-    .sidebar-link.active {
-        background-color: var(--accent-blue);
-        color: white;
-    }
-
-    .sidebar-link.active:hover {
-        color: white;
-    }
-
-    .sidebar-link.logout {
-        color: #ff4b68;
-    }
-
-    /* Content Styles */
-    .main-content {
-        flex: 1;
+    .empty-card {
         background: var(--white);
-        border-radius: 8px;
-        box-shadow: var(--shadow);
-        padding: 1.2rem 1.5rem 1.5rem 1.5rem;
-        /* Further reduced padding */
+        padding: 4rem 2rem;
+        border-radius: 20px;
+        text-align: center;
+        border: 2px dashed #e0e0e0;
     }
 
-    .welcome-title {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 1.5rem;
+    /* Content Area */
+    .content {
+        flex: 1;
     }
 
-    .section-title {
-        font-size: 1.8rem;
-        font-weight: 700;
-        margin-bottom: 2rem;
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: var(--text-color);
+        margin-bottom: 0.5rem;
     }
 
-    /* Card Grid */
+    .page-subtitle {
+        color: var(--text-light);
+        margin-bottom: 2.5rem;
+        font-size: 1.1rem;
+    }
+
+    /* Cards */
     .shows-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
         gap: 2rem;
     }
 
     .show-card {
-        background: white;
-        border-radius: 10px;
+        background: var(--white);
+        border-radius: var(--border-radius);
         overflow: hidden;
-        border: 1px solid #eeeeee;
-        display: block;
-        /* Reset display */
-        padding: 0;
-        /* Reset padding */
+        box-shadow: var(--shadow);
+        transition: transform 0.3s;
+        border: 1px solid #f0edf7;
     }
 
-    .card-header-styled {
-        background-color: #007bff;
-        /* Bright blue header */
+    .show-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #8C52FF 0%, #7b40f2 100%);
         color: white;
-        padding: 0.8rem 1.5rem;
+        padding: 1.2rem 1.5rem;
         display: flex;
         justify-content: space-between;
-        font-size: 1rem;
-        font-weight: 600;
+        align-items: center;
     }
 
-    .card-body-styled {
-        padding: 1.5rem;
-        text-align: left;
+    .card-date {
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .card-time {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+    }
+
+    .card-body {
+        padding: 1.8rem;
     }
 
     .card-movie {
-        font-size: 1.6rem;
-        font-weight: 700;
-        margin-bottom: 0.8rem;
-        color: #333;
+        font-size: 1.4rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        color: var(--text-color);
+        line-height: 1.3;
     }
 
-    .card-location {
+    .card-info {
         display: flex;
         align-items: center;
-        gap: 0.6rem;
+        gap: 0.8rem;
         color: var(--text-light);
-        font-size: 1rem;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.6rem;
+        font-size: 0.95rem;
     }
 
-    .card-id {
-        font-size: 0.9rem;
-        color: var(--text-light);
-        /* Lighter text for ID */
-        margin-bottom: 0;
+    .card-info i {
+        color: var(--primary-color);
+        width: 16px;
     }
 
-    .card-footer-styled {
-        padding: 1rem 1.5rem;
-        border-top: 1px solid #f0f0f0;
-        /* Light divider */
-        text-align: center;
-        background: transparent;
+    .card-footer {
+        padding: 1.2rem 1.8rem;
+        background: #fcfaff;
+        border-top: 1px solid #f0edf7;
     }
 
     .btn-view {
         width: 100%;
+        padding: 0.8rem;
+        border-radius: 8px;
         background: white;
-        border: 1px solid #007bff;
-        /* Blue outline */
-        color: #007bff;
-        /* Blue text */
-        padding: 0.6rem;
-        border-radius: 6px;
-        font-weight: 600;
-        cursor: pointer;
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+        font-weight: 700;
         transition: all 0.3s;
-        display: inline-block;
+        text-align: center;
+        display: block;
         text-decoration: none;
-        font-size: 0.95rem;
     }
 
     .btn-view:hover {
-        background-color: #007bff;
+        background: var(--primary-color);
         color: white;
+        box-shadow: 0 5px 15px rgba(140, 82, 255, 0.2);
     }
 
-
-
-    /* Footer Section (custom for this page to match 1.html) */
-    .footer {
-        background-color: #1f2533;
-        color: white;
-        padding: 4rem 2rem 2rem;
-        margin-top: 5rem;
+    .empty-state {
+        text-align: center;
+        padding: 5rem 2rem;
+        background: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
     }
 
-    .footer-content {
-        max-width: 1200px;
-        margin: 0 auto;
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 4rem;
-    }
-
-    .footer-section h4 {
+    .empty-icon {
+        font-size: 4rem;
+        color: #ddd;
         margin-bottom: 1.5rem;
-        font-weight: 700;
-        font-size: 1.1rem;
     }
 
-    .footer-logo {
-        font-size: 1.5rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
+    /* Hide base footer only if we use custom one, but here we use base footer */
+    body>footer {
+        display: block !important;
     }
 
-    .footer-social {
-        display: flex;
-        gap: 1rem;
-        margin-top: 1rem;
-    }
-
-    .social-circle {
-        width: 35px;
-        height: 35px;
-        border-radius: 50%;
-        background: #2d3139;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.9rem;
-    }
-
-    .footer a {
-        color: white;
-        text-decoration: none;
-        opacity: 0.8;
-        transition: opacity 0.3s;
-    }
-
-    .footer a:hover {
-        opacity: 1;
-    }
-
-    @media (max-width: 992px) {
-        .dashboard-container {
-            flex-direction: column;
-            align-items: stretch;
-        }
-
-        .sidebar {
-            width: 100%;
-        }
-
-        .footer-content {
-            grid-template-columns: 1fr;
-            gap: 2rem;
-            text-align: center;
-        }
-
-        .footer-social {
-            justify-content: center;
-        }
-    }
-
-    /* BREAK OUT OF BASE CONTAINER */
     .container,
     .container-fluid {
         max-width: 100% !important;
-        padding-left: 0 !important;
-        padding-right: 0 !important;
-    }
-</style>
-<style>
-    /* Hide base footer only on this page */
-    body>footer {
-        display: none !important;
+        padding: 0 !important;
     }
 </style>
 {% endblock %}
 
 {% block navbar %}
-<!-- Reuse Header from booking flow for consistency -->
 <header class="header">
     <a href="{% url 'booking:home' %}" class="logo">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
-                fill="#8C52FF" />
-        </svg>
+        <img src="{% static 'css/showspere.png' %}" alt="Logo" width="40" height="40">
         <span>ShowSphere</span>
     </a>
+
+    <form class="search-bar" action="{% url 'booking:search' %}" method="get">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" name="q" placeholder="Search for Movies, Events, Sports...">
+    </form>
+
     <div class="auth-buttons">
         {% if user.is_authenticated %}
-        {% if user.role == 'customer' %}
         <a href="{% url 'booking:customer_dashboard' %}" class="btn-custom btn-custom-outline">My Profile</a>
-        {% elif user.role == 'organizer' %}
-        <a href="{% url 'booking:organizer_dashboard' %}" class="btn-custom btn-custom-outline">Dashboard</a>
-        {% elif user.role == 'theatre_owner' %}
-        <a href="{% url 'booking:theatre_dashboard' %}" class="btn-custom btn-custom-outline">Dashboard</a>
-        {% elif user.role == 'admin' %}
-        <a href="{% url 'booking:admin_dashboard' %}" class="btn-custom btn-custom-outline">Admin</a>
-        {% endif %}
         <a href="{% url 'booking:logout' %}" class="btn-custom btn-custom-primary">Logout</a>
         {% else %}
         <a href="{% url 'booking:organizer_register' %}" class="btn-custom btn-custom-outline">New Partner</a>
@@ -434,62 +431,91 @@
 {% endblock %}
 
 {% block content %}
-<div class="dashboard-container">
+<div class="main-layout">
     <!-- Sidebar -->
-    <aside class="sidebar">
-        <ul class="sidebar-menu">
-            <li class="sidebar-item">
-                <a href="{% url 'booking:customer_dashboard' %}" class="sidebar-link active">
-                    🏠 Dashboard
+    <aside class="dash-sidebar">
+        <ul class="dash-sidebar-menu">
+            <li class="dash-nav-item active">
+                <a href="{% url 'booking:customer_dashboard' %}">
+                    <i class="fas fa-th-large"></i> Dashboard
                 </a>
             </li>
-            <li class="sidebar-item">
-                <a href="{% url 'booking:my_tickets' %}" class="sidebar-link">
-                    🎫 My Tickets
+            <li class="dash-nav-item">
+                <a href="{% url 'booking:my_tickets' %}">
+                    <i class="fas fa-ticket-alt"></i> My Tickets
                 </a>
             </li>
-            <li class="sidebar-item">
-                <a href="{% url 'booking:booking_history' %}" class="sidebar-link">
-                    🕒 Booking History
+            <li class="dash-nav-item">
+                <a href="{% url 'booking:booking_history' %}">
+                    <i class="fas fa-history"></i> Booking History
                 </a>
             </li>
-            <li class="sidebar-item">
-                <a href="{% url 'booking:logout' %}" class="sidebar-link logout">
-                    🚪 Logout
+            <li class="dash-nav-item">
+                <a href="{% url 'booking:logout' %}" style="color: #ff4b68;">
+                    <i class="fas fa-sign-out-alt"></i> Logout
                 </a>
             </li>
         </ul>
     </aside>
 
     <!-- Content Area -->
-    <main class="main-content">
-        <h1 class="welcome-title">Welcome, {{ user.first_name }}!</h1>
+    <main class="content">
+        <h1 class="page-title">Welcome back, {{ user.first_name|default:user.username }}! 👋</h1>
+        <p class="page-subtitle">Manage your bookings and explore upcoming shows.</p>
 
-        <h2 class="section-title">Upcoming Shows</h2>
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-ticket-alt"></i></div>
+                <span class="stat-value">{{ upcoming_bookings_count|default:"0" }}</span>
+                <span class="stat-label">Active Tickets</span>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-history"></i></div>
+                <span class="stat-value">{{ total_bookings_count|default:"0" }}</span>
+                <span class="stat-label">Total Bookings</span>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon" style="color: #ff4b68; background: #fff5f6;"><i class="fas fa-heart"></i></div>
+                <span class="stat-value">0</span>
+                <span class="stat-label">Saved Events</span>
+            </div>
+        </div>
+
+        <h2 class="section-title" style="font-size: 1.5rem; margin-bottom: 1.5rem;">Upcoming Shows</h2>
 
         {% if upcoming_bookings %}
         <div class="shows-grid">
             {% for booking in upcoming_bookings %}
             <div class="show-card">
-                <div class="card-header-styled">
-                    <span>{{ booking.show.show_date|date:"d M Y" }}</span>
-                    <span>{{ booking.show.show_time|time:"H:i" }}</span>
+                <div class="card-header">
+                    <span class="card-date"><i class="far fa-calendar-alt me-2"></i>{{ booking.show.show_date|date:"d M
+                        Y" }}</span>
+                    <span class="card-time">{{ booking.show.show_time|time:"H:i" }}</span>
                 </div>
-                <div class="card-body-styled">
+                <div class="card-body">
                     {% if booking.show.show_type == 'movie' %}
                     <div class="card-movie">{{ booking.show.movie.title }}</div>
-                    <div class="card-location">
-                        📹 {{ booking.show.screen.theatre.name }}
+                    <div class="card-info">
+                        <i class="fas fa-film"></i> {{ booking.show.screen.theatre.name }}
+                    </div>
+                    <div class="card-info">
+                        <i class="fas fa-map-marker-alt"></i> {{ booking.show.screen.theatre.city }}
                     </div>
                     {% else %}
                     <div class="card-movie">{{ booking.show.event.title }}</div>
-                    <div class="card-location">
-                        📹 {{ booking.show.venue.name }}
+                    <div class="card-info">
+                        <i class="fas fa-star"></i> {{ booking.show.venue.name }}
+                    </div>
+                    <div class="card-info">
+                        <i class="fas fa-map-marker-alt"></i> {{ booking.show.venue.city }}
                     </div>
                     {% endif %}
-                    <div class="card-id">Booking ID: {{ booking.booking_id }}</div>
+                    <div class="card-info" style="margin-top: 1rem; font-family: monospace; font-size: 0.85rem;">
+                        ID: {{ booking.booking_id }}
+                    </div>
                 </div>
-                <div class="card-footer-styled">
+                <div class="card-footer">
                     <a href="{% url 'booking:ticket_detail' booking.tickets.first.id %}" class="btn-view">View
                         Ticket</a>
                 </div>
@@ -497,39 +523,19 @@
             {% endfor %}
         </div>
         {% else %}
-        <div class="text-center py-5">
-            <i class="fas fa-ticket-alt fa-4x text-muted mb-3" style="color: #ddd !important;"></i>
-            <h5 class="text-secondary">No upcoming bookings</h5>
-            <p class="text-muted">You haven't booked any upcoming shows yet.</p>
-            <a href="{% url 'booking:home' %}" class="btn-custom btn-custom-primary mt-3">Book Tickets Now</a>
+        <div class="empty-card">
+            <div style="font-size: 4rem; color: #eee; margin-bottom: 1.5rem;">
+                <i class="fas fa-ticket-alt"></i>
+            </div>
+            <h3 style="color: var(--text-color); font-weight: 700;">No upcoming bookings</h3>
+            <p style="color: var(--text-light); margin-bottom: 2rem;">You haven't booked any upcoming shows yet. Ready
+                to catch a movie?</p>
+            <a href="{% url 'booking:browse' %}" class="btn-custom btn-custom-primary" style="text-decoration: none;">
+                Explore Shows
+            </a>
         </div>
         {% endif %}
     </main>
 </div>
-
-<!-- Footer from 1.html -->
-<footer class="footer">
-    <div class="footer-content">
-        <div class="footer-section">
-            <div class="footer-logo">ShowSphere</div>
-            <p>Your go-to platform for booking movies and events.</p>
-            <div class="footer-social">
-                <span class="social-circle">f</span>
-                <span class="social-circle">t</span>
-                <span class="social-circle">i</span>
-                <span class="social-circle">y</span>
-            </div>
-        </div>
-        <div class="footer-section">
-            <h4 style="margin-bottom: 1.5rem;">Quick Links</h4>
-            <p style="margin-bottom: 0.5rem;"><a href="#">Browse All</a></p>
-            <p style="margin-bottom: 0.5rem;"><a href="#">List Your Event</a></p>
-            <p style="margin-bottom: 0.5rem;"><a href="#">Offers</a></p>
-        </div>
-        <div class="footer-section">
-            <h4 style="margin-bottom: 1.5rem;">Connect With Us</h4>
-            <p>© 2026 ShowSphere. All rights reserved.</p>
-        </div>
-    </div>
-</footer>
 {% endblock %}
+```

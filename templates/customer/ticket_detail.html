@@ -3,8 +3,6 @@
 
 {% block extra_css %}
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
-
     :root {
         --primary-color: #8C52FF;
         --primary-hover: #7b40f2;
@@ -16,20 +14,12 @@
         --shadow: 0 10px 25px rgba(140, 82, 255, 0.15);
     }
 
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: 'Roboto', sans-serif;
-    }
-
     body {
         background-color: var(--bg-color);
         color: var(--text-color);
-        min-height: 100vh;
     }
 
-    /* Header Styles */
+    /* Header Styles (Matching Premium Design) */
     .header {
         background-color: var(--white);
         padding: 1rem 2rem;
@@ -48,13 +38,14 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        text-decoration: none;
+        color: var(--text-color);
     }
 
     .logo span {
         color: var(--primary-color);
     }
 
-    /* Search Bar from 1.html */
     .search-bar {
         flex: 1;
         max-width: 500px;
@@ -65,10 +56,17 @@
     .search-bar input {
         width: 100%;
         padding: 0.6rem 1rem 0.6rem 2.5rem;
-        border: 1px solid #ddd;
-        border-radius: 4px;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        background: #f8f9fa;
         outline: none;
         transition: all 0.3s ease;
+    }
+
+    .search-bar input:focus {
+        border-color: var(--primary-color);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(140, 82, 255, 0.1);
     }
 
     .search-icon {
@@ -76,8 +74,7 @@
         left: 10px;
         top: 50%;
         transform: translateY(-50%);
-        display: flex;
-        align-items: center;
+        color: var(--text-light);
     }
 
     .auth-buttons {
@@ -87,13 +84,12 @@
     }
 
     .btn-custom {
-        padding: 0.5rem 1.5rem;
-        border-radius: 4px;
+        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
         cursor: pointer;
-        font-weight: 500;
+        font-weight: 600;
         transition: all 0.3s;
         font-size: 0.9rem;
-        border: none;
         text-decoration: none;
         display: inline-block;
     }
@@ -101,16 +97,18 @@
     .btn-custom-primary {
         background-color: var(--primary-color);
         color: var(--white);
+        border: none;
     }
 
     .btn-custom-primary:hover {
         background-color: var(--primary-hover);
-        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(140, 82, 255, 0.3);
     }
 
     .btn-custom-outline {
-        background-color: transparent;
-        border: 1px solid #ddd;
+        background-color: white;
+        border: 1px solid #e0e0e0;
         color: var(--text-color);
     }
 
@@ -127,225 +125,236 @@
         justify-content: center;
         gap: 3rem;
         list-style: none;
+        margin: 0;
     }
 
     .nav-links li a {
         color: white;
-        opacity: 0.8;
-        font-size: 0.95rem;
+        opacity: 0.9;
         font-weight: 500;
-        transition: opacity 0.3s;
+        text-decoration: none;
     }
 
-    .nav-links li a:hover {
-        opacity: 1;
-    }
-
-    /* Ticket Content */
-    .ticket-container {
+    /* Ticket Container */
+    .ticket-view {
         display: flex;
         justify-content: center;
-        padding: 3rem 1rem;
+        padding: 4rem 1.5rem;
     }
 
-    .ticket-card {
+    .ticket-box {
         background: var(--white);
         width: 100%;
         max-width: 500px;
-        border-radius: var(--border-radius);
+        border-radius: 30px;
         box-shadow: var(--shadow);
         overflow: hidden;
+        border: 1px solid #f0edf7;
+        position: relative;
+    }
+
+    .ticket-box::before,
+    .ticket-box::after {
+        content: '';
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        background: var(--bg-color);
+        border-radius: 50%;
+        top: 60%;
+        z-index: 2;
+    }
+
+    .ticket-box::before {
+        left: -15px;
+    }
+
+    .ticket-box::after {
+        right: -15px;
+    }
+
+    .ticket-top {
+        background: linear-gradient(135deg, #1A1A1A 0%, #333 100%);
+        padding: 1.5rem;
+        color: white;
         text-align: center;
-        border: 1px solid #eee;
-    }
-
-    .ticket-header {
-        background: #212529;
-        color: var(--white);
-        padding: 1.2rem;
-        font-weight: 700;
-        font-size: 1.1rem;
-        letter-spacing: 1.5px;
+        font-weight: 800;
+        letter-spacing: 2px;
         text-transform: uppercase;
+        font-size: 0.9rem;
     }
 
-    .ticket-body {
+    .ticket-main {
         padding: 3rem 2.5rem;
+        text-align: center;
     }
 
-    .movie-title {
-        font-size: 2.2rem;
+    .movie-headline {
+        font-size: 2.5rem;
         font-weight: 900;
-        margin-bottom: 0.4rem;
         color: var(--text-color);
+        margin-bottom: 0.5rem;
+        line-height: 1.2;
     }
 
-    .cinema-name {
+    .location-sub {
         font-size: 1.1rem;
         color: var(--text-light);
         margin-bottom: 2.5rem;
+        font-weight: 600;
     }
 
     .info-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 2rem;
-        margin-bottom: 2.5rem;
         text-align: left;
+        margin-bottom: 2.5rem;
     }
 
-    .info-item label {
+    .info-unit label {
         display: block;
-        font-size: 0.85rem;
-        color: var(--text-light);
-        margin-bottom: 0.6rem;
-        font-weight: 500;
+        font-size: 0.75rem;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        color: #b2b2b2;
+        font-weight: 700;
+        margin-bottom: 0.4rem;
     }
 
-    .info-item span {
-        display: block;
-        font-size: 1.15rem;
-        font-weight: 700;
+    .info-unit span {
+        font-weight: 800;
+        font-size: 1.2rem;
         color: var(--text-color);
     }
 
-    .seat-number {
+    .seat-highlight {
         color: var(--primary-color) !important;
     }
 
-    .divider {
-        height: 1px;
-        background: #f0f0ff;
+    .dashed-line {
+        border-top: 2px dashed #f0edf7;
         margin-bottom: 2.5rem;
+        position: relative;
     }
 
-    .qr-section {
-        margin-bottom: 1.5rem;
+    .qr-area {
+        margin-bottom: 2rem;
     }
 
-    .qr-placeholder {
-        width: 180px;
-        height: 180px;
-        margin: 0 auto 1.2rem;
-        background: var(--white);
-        padding: 12px;
-        border: 1px solid #f0f0ff;
-        border-radius: 12px;
+    .qr-frame {
+        width: 200px;
+        height: 200px;
+        margin: 0 auto 1.5rem;
+        padding: 15px;
+        border: 2px solid #f0edf7;
+        border-radius: 20px;
+        background: white;
     }
 
-    .qr-placeholder img {
+    .qr-frame img {
         width: 100%;
         height: 100%;
         object-fit: contain;
     }
 
-    .ticket-id {
-        font-size: 0.85rem;
-        color: var(--text-light);
-        margin-bottom: 3rem;
-        font-weight: 500;
-        background: #f8f9fa;
-        padding: 0.4rem 1rem;
-        border-radius: 20px;
-        display: inline-block;
-    }
-
-    /* Action Buttons */
-    .actions {
-        display: flex;
-        gap: 1.2rem;
-        justify-content: center;
-    }
-
-    .btn-ticket {
-        flex: 1;
-        padding: 0.9rem;
-        border-radius: 10px;
+    .ticket-serial {
+        background: #f8f6ff;
+        padding: 0.5rem 1.5rem;
+        border-radius: 30px;
+        font-family: monospace;
         font-weight: 700;
-        cursor: pointer;
-        font-size: 1rem;
+        color: var(--primary-color);
+        font-size: 0.9rem;
+    }
+
+    .action-row {
+        padding: 2rem 2.5rem;
+        display: flex;
+        gap: 1.5rem;
+        background: #fcfaff;
+        border-top: 1px solid #f0edf7;
+    }
+
+    .btn-action {
+        flex: 1;
+        padding: 1rem;
+        border-radius: 12px;
+        font-weight: 800;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 0.6rem;
-        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        gap: 0.8rem;
+        transition: all 0.3s;
         text-decoration: none;
     }
 
-    .btn-print {
-        background-color: var(--white);
+    .btn-secondary {
+        background: white;
+        border: 1px solid #e0e0e0;
         color: var(--text-light);
-        border: 1px solid #ddd;
     }
 
-    .btn-print:hover {
+    .btn-secondary:hover {
         border-color: var(--primary-color);
         color: var(--primary-color);
-        background: #fafafa;
     }
 
-    .btn-download {
-        background-color: var(--primary-color);
-        color: var(--white);
+    .btn-primary {
+        background: var(--primary-color);
+        color: white;
         border: none;
         box-shadow: 0 5px 15px rgba(140, 82, 255, 0.3);
     }
 
-    .btn-download:hover {
-        background-color: var(--primary-hover);
+    .btn-primary:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 20px rgba(140, 82, 255, 0.4);
-        color: var(--white);
     }
 
-    .btn-disabled {
-        background-color: #ccc;
-        cursor: not-allowed;
-        color: #fff;
-    }
+    @media print {
 
-    @media (max-width: 480px) {
-        .info-grid {
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
+        .header,
+        .nav-bar,
+        .action-row,
+        footer {
+            display: none !important;
+        }
+
+        .ticket-view {
+            padding: 0;
+        }
+
+        .ticket-box {
+            box-shadow: none;
+            border: 1px solid #000;
         }
     }
-</style>
-<style>
-    /* Hide base footer if consistent with other standalone pages */
-    body>footer {
-        display: none !important;
+
+    .container,
+    .container-fluid {
+        max-width: 100% !important;
+        padding: 0 !important;
     }
 </style>
 {% endblock %}
 
 {% block navbar %}
-<!-- Reuse Header for consistency with 1.html -->
 <header class="header">
     <a href="{% url 'booking:home' %}" class="logo">
-        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
-                fill="#8C52FF" />
-        </svg>
+        <img src="{% static 'css/showspere.png' %}" alt="Logo" width="40" height="40">
         <span>ShowSphere</span>
     </a>
 
-    <div class="search-bar">
-        <span class="search-icon">🔍</span>
-        <input type="text" placeholder="Search for Movies, Events, Plays, Sports and Activities">
-    </div>
+    <form class="search-bar" action="{% url 'booking:search' %}" method="get">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" name="q" placeholder="Search for Movies, Events, Sports...">
+    </form>
 
     <div class="auth-buttons">
         {% if user.is_authenticated %}
-        <span style="font-weight: 700; color: var(--primary-color);">Hi, {{ user.first_name|default:user.username
-            }}</span>
-        <a href="{% url 'booking:customer_dashboard' %}" class="btn-custom btn-custom-outline">Dashboard</a>
+        <a href="{% url 'booking:customer_dashboard' %}" class="btn-custom btn-custom-outline">My Profile</a>
         <a href="{% url 'booking:logout' %}" class="btn-custom btn-custom-primary">Logout</a>
         {% else %}
-        <a href="{% url 'booking:organizer_register' %}" class="btn-custom btn-custom-outline">New Partner</a>
         <a href="{% url 'booking:login' %}" class="btn-custom btn-custom-primary">Sign In</a>
         {% endif %}
     </div>
@@ -359,73 +368,73 @@
 </nav>
 {% endblock %}
 
-
 {% block content %}
-<div class="ticket-container">
-    <div class="ticket-card">
-        <div class="ticket-header">E-Ticket</div>
+<div class="ticket-view">
+    <div class="ticket-box">
+        <div class="ticket-top">E-Ticket Summary</div>
 
-        <div class="ticket-body">
+        <div class="ticket-main">
             {% if ticket.booking.show.show_type == 'movie' %}
-            <h1 class="movie-title">{{ ticket.booking.show.movie.title }}</h1>
-            <p class="cinema-name">{{ ticket.booking.show.screen.theatre.name }}</p>
+            <h1 class="movie-headline">{{ ticket.booking.show.movie.title }}</h1>
+            <p class="location-sub"><i class="fas fa-film me-2"></i>{{ ticket.booking.show.screen.theatre.name }}</p>
             {% else %}
-            <h1 class="movie-title">{{ ticket.booking.show.event.title }}</h1>
-            <p class="cinema-name">{{ ticket.booking.show.venue.name }}</p>
+            <h1 class="movie-headline">{{ ticket.booking.show.event.title }}</h1>
+            <p class="location-sub"><i class="fas fa-star me-2"></i>{{ ticket.booking.show.venue.name }}</p>
             {% endif %}
 
             <div class="info-grid">
-                <div class="info-item">
+                <div class="info-unit">
                     <label>Date</label>
                     <span>{{ ticket.booking.show.show_date|date:"D, d M Y" }}</span>
                 </div>
-                <div class="info-item">
+                <div class="info-unit">
                     <label>Time</label>
                     <span>{{ ticket.booking.show.show_time|time:"H:i" }}</span>
                 </div>
-                <div class="info-item">
-                    <label>Screen/Venue</label>
+                <div class="info-unit">
+                    <label>Row/Screen</label>
                     {% if ticket.booking.show.show_type == 'movie' %}
                     <span>{{ ticket.booking.show.screen.name }}</span>
                     {% else %}
-                    <span>{{ ticket.booking.show.venue.name }}</span>
+                    <span>Main Arena</span>
                     {% endif %}
                 </div>
-                <div class="info-item">
+                <div class="info-unit">
                     <label>Seat</label>
-                    <span class="seat-number">{{ ticket.seat.row }}{{ ticket.seat.seat_number }}</span>
+                    <span class="seat-highlight">{{ ticket.seat.row }}{{ ticket.seat.seat_number }}</span>
                 </div>
             </div>
 
-            <div class="divider"></div>
+            <div class="dashed-line"></div>
 
-            <div class="qr-section">
-                <div class="qr-placeholder">
+            <div class="qr-area">
+                <div class="qr-frame">
                     {% if ticket.qr_code %}
                     <img src="{{ ticket.qr_code.url }}" alt="QR Code">
                     {% else %}
-                    <div style="display:flex; align-items:center; justify-content:center; height:100%; color:#666;">
-                        <small>Generating...</small>
+                    <div
+                        style="height: 100%; display: flex; align-items: center; justify-content: center; color: #ccc;">
+                        <i class="fas fa-qrcode fa-4x"></i>
                     </div>
                     {% endif %}
                 </div>
-                <p class="ticket-id">Ticket ID: {{ ticket.ticket_id }}</p>
+                <span class="ticket-serial">ID: {{ ticket.ticket_id }}</span>
             </div>
+        </div>
 
-            <div class="actions">
-                <button class="btn-ticket btn-print" onclick="window.print()">
-                    <span>🖨️</span> Print
-                </button>
-                {% if ticket.qr_code %}
-                <a href="{{ ticket.qr_code.url }}" download class="btn-ticket btn-download">
-                    <span>📥</span> Download
-                </a>
-                {% else %}
-                <button class="btn-ticket btn-disabled" disabled>
-                    <span>📥</span> Download
-                </button>
-                {% endif %}
-            </div>
+        <div class="action-row">
+            <button class="btn-action btn-secondary" onclick="window.print()">
+                <i class="fas fa-print"></i> Print
+            </button>
+            {% if ticket.qr_code %}
+            <a href="{{ ticket.qr_code.url }}" download class="btn-action btn-primary">
+                <i class="fas fa-download"></i> Download
+            </a>
+            {% else %}
+            <button class="btn-action btn-secondary" disabled title="QR pending generation">
+                <i class="fas fa-hourglass-half"></i> Processing
+            </button>
+            {% endif %}
         </div>
     </div>
 </div>

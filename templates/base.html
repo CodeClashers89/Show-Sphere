@@ -106,38 +106,32 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Footer -->
-    <footer class="mt-5">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4">
-                    <h5><i class="fas fa-ticket-alt me-2"></i>ShowSphere</h5>
-                    <p class="text-muted-light">Your go-to platform for booking movies, events, sports, and plays
-                        online.</p>
-                </div>
-                <div class="col-md-4">
-                    <h5>Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{% url 'booking:browse' %}" class="text-decoration-none text-muted-light">Browse
-                                All</a></li>
-                        <li><a href="#" class="text-decoration-none text-muted-light">List Your Event</a></li>
-                        <li><a href="#" class="text-decoration-none text-muted-light">Offers</a></li>
-                        <li><a href="#" class="text-decoration-none text-muted-light">Contact Us</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h5>Connect With Us</h5>
-                    <div class="social-icons">
-                        <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="text-white"><i class="fab fa-youtube"></i></a>
-                    </div>
-                    <div class="mt-3">
-                        <small class="text-muted-light">&copy; {% now "Y" %} ShowSphere. All rights reserved.</small>
-                    </div>
-                </div>
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="{% static 'css/showspere.png' %}" alt="ShowSphere Logo" width="50" height="50"
+                    fetchpriority="high" loading="eager">
+                ShowSphere
             </div>
+
+            <div class="social-links">
+                <a href="https://www.facebook.com" target="_blank" class="social-circle"><i
+                        class="fab fa-facebook-f"></i></a>
+                <a href="https://www.linkedin.com" target="_blank" class="social-circle"><i
+                        class="fab fa-linkedin-in"></i></a>
+                <a href="https://www.twitter.com" target="_blank" class="social-circle"><i
+                        class="fab fa-twitter"></i></a>
+                <a href="https://www.instagram.com" target="_blank" class="social-circle"><i
+                        class="fab fa-instagram"></i></a>
+            </div>
+
+            <p class="footer-text">
+                Copyright {% now "Y" %} @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
+                <br><br>
+                The content and images used on this site are copyright protected and copyrights vests with the
+                respective owners. The usage of the content and images on this website is intended to promote the works
+                and endorsement of the artist shall be implied. Unauthorized use is prohibited and punishable by law.
+            </p>
         </div>
     </footer>
 

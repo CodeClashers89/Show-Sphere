@@ -6,6 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Movie | ShowSphere</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
 
@@ -327,20 +328,23 @@
         }
 
         .social-circle {
-            width: 40px;
-            height: 40px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             background: #2d3139;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-weight: 700;
+            text-decoration: none;
             transition: all 0.3s;
         }
 
         .social-circle:hover {
             background: var(--primary-color);
+            transform: translateY(-3px);
+            color: white;
+            box-shadow: 0 5px 15px rgba(140, 82, 255, 0.4);
         }
 
         .footer-text {
@@ -438,7 +442,8 @@
                     <div class="form-group">
                         <label class="form-label" for="{{ form.director.id_for_label }}">Director</label>
                         {{ form.director }}
-                        {% if form.director.errors %}<div class="text-danger">{{ form.director.errors.0 }}</div>{% endif%}
+                        {% if form.director.errors %}<div class="text-danger">{{ form.director.errors.0 }}</div>{%
+                        endif%}
                         <p class="helper-text">Director of the movie</p>
                     </div>
 
@@ -452,13 +457,15 @@
                     <div class="form-group">
                         <label class="form-label" for="{{ form.language.id_for_label }}">Language</label>
                         {{ form.language }}
-                        {% if form.language.errors %}<div class="text-danger">{{ form.language.errors.0 }}</div>{% endif%}
+                        {% if form.language.errors %}<div class="text-danger">{{ form.language.errors.0 }}</div>{%
+                        endif%}
                     </div>
 
                     <div class="form-group">
                         <label class="form-label" for="{{ form.duration.id_for_label }}">Duration</label>
                         {{ form.duration }}
-                        {% if form.duration.errors %}<div class="text-danger">{{ form.duration.errors.0 }}</div>{% endif%}
+                        {% if form.duration.errors %}<div class="text-danger">{{ form.duration.errors.0 }}</div>{%
+                        endif%}
                         <p class="helper-text">Duration in minutes</p>
                     </div>
 
@@ -500,7 +507,8 @@
                         <label class="form-label" for="{{ form.trailer_url.id_for_label }}">Trailer URL</label>
                         {{ form.trailer_url }}
                         <p class="helper-text">YouTube promo/trailer URL</p>
-                        {% if form.trailer_url.errors %}<div class="text-danger">{{ form.trailer_url.errors.0 }}</div>{%endif %}
+                        {% if form.trailer_url.errors %}<div class="text-danger">{{ form.trailer_url.errors.0 }}</div>
+                        {%endif %}
                     </div>
 
                     <div class="form-actions">
@@ -512,24 +520,33 @@
         </div>
     </main>
 
-    <!-- Footer -->
     <footer class="footer">
-        <div class="footer-logo">ShowSphere</div>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="{% static 'css/showspere.png' %}" alt="ShowSphere Logo" width="50" height="50"
+                    fetchpriority="high" loading="eager">
+                ShowSphere
+            </div>
 
-        <div class="social-links">
-            <a href="#" class="social-circle">fb</a>
-            <a href="#" class="social-circle">in</a>
-            <a href="#" class="social-circle">tw</a>
-            <a href="#" class="social-circle">ig</a>
+            <div class="social-links">
+                <a href="https://www.facebook.com" target="_blank" class="social-circle"><i
+                        class="fab fa-facebook-f"></i></a>
+                <a href="https://www.linkedin.com" target="_blank" class="social-circle"><i
+                        class="fab fa-linkedin-in"></i></a>
+                <a href="https://www.twitter.com" target="_blank" class="social-circle"><i
+                        class="fab fa-twitter"></i></a>
+                <a href="https://www.instagram.com" target="_blank" class="social-circle"><i
+                        class="fab fa-instagram"></i></a>
+            </div>
+
+            <p class="footer-text">
+                Copyright {% now "Y" %} @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
+                <br><br>
+                The content and images used on this site are copyright protected and copyrights vests with the
+                respective owners. The usage of the content and images on this website is intended to promote the works
+                and endorsement of the artist shall be implied. Unauthorized use is prohibited and punishable by law.
+            </p>
         </div>
-
-        <p class="footer-text">
-            Copyright 2026 @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
-            <br><br>
-            The content and images used on this site are copyright protected and copyrights vests with the respective
-            owners. The usage of the content and images on this website is intended to promote the works and endorsement
-            of the artist shall be implied. Unauthorized use is prohibited and punishable by law.
-        </p>
     </footer>
 
 </body>
