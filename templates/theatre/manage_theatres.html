@@ -1,53 +1,597 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block content %}
-<div class="container my-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Manage Theatres & Screens</h2>
-        <a href="{% url 'booking:create_theatre' %}" class="btn btn-primary"><i class="fas fa-plus me-2"></i> Add New
-            Theatre</a>
-    </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Theatres | ShowSphere Partner</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
 
-    {% for theatre in theatres %}
-    <div class="card mb-4 shadow-sm">
-        <div class="card-header bg-light d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">{{ theatre.name }} <small class="text-muted fw-normal">({{ theatre.city.name }})</small>
-            </h5>
-            <div>
-                <a href="{% url 'booking:edit_theatre' theatre.id %}" class="btn btn-sm btn-outline-secondary me-2">Edit
-                    Details</a>
-                <a href="{% url 'booking:create_screen' theatre.id %}" class="btn btn-sm btn-outline-primary">Add
-                    Screen</a>
+        :root {
+            --primary-color: #8C52FF;
+            --primary-hover: #7b40f2;
+            --text-color: #2D2042;
+            --text-light: #666666;
+            --bg-color: #F9F7FF;
+            --white: #FFFFFF;
+            --success-green: #28a745;
+            --border-radius: 12px;
+            --shadow: 0 10px 25px rgba(140, 82, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Header Styles */
+        .header {
+            background-color: var(--white);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo span {
+            color: var(--primary-color);
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 2rem;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1.1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #ddd;
+            color: var(--text-color);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        /* Navigation Bar */
+        .nav-bar {
+            background: linear-gradient(135deg, #8C52FF 0%, #00BFB2 100%);
+            color: var(--white);
+            padding: 0.8rem 2rem;
+            box-shadow: 0 4px 15px rgba(140, 82, 255, 0.3);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        .nav-links li a {
+            color: white;
+            opacity: 0.8;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* Layout */
+        .main-layout {
+            display: flex;
+            flex: 1;
+            max-width: 1400px;
+            margin: 3rem auto;
+            width: 100%;
+            padding: 0 1rem;
+            gap: 2.5rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            height: fit-content;
+            border: 1px solid #f0edf7;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-item a {
+            padding: 1.2rem 1.8rem;
+            display: block;
+            font-weight: 600;
+            color: var(--text-light);
+            transition: all 0.3s;
+            border-bottom: 1px solid #f0edf7;
+        }
+
+        .sidebar-item:last-child a {
+            border-bottom: none;
+        }
+
+        .sidebar-item a:hover {
+            background: #f8f6ff;
+            color: var(--primary-color);
+            padding-left: 2.2rem;
+        }
+
+        .sidebar-item.active a {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 5px 15px rgba(140, 82, 255, 0.3);
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .page-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--text-color);
+        }
+
+        .btn-add {
+            background-color: #FF527B;
+            color: white;
+            padding: 0.8rem 1.8rem;
+            border-radius: 8px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 5px 15px rgba(255, 82, 123, 0.3);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Theatre Card */
+        .theatre-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid #f0edf7;
+            margin-bottom: 2rem;
+        }
+
+        .theatre-header {
+            padding: 1.5rem 1.8rem;
+            border-bottom: 1px solid #f0edf7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fcfbff;
+        }
+
+        .theatre-name {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--text-color);
+        }
+
+        .theatre-name span {
+            color: var(--text-light);
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-sm {
+            padding: 0.4rem 1rem;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-action-outline {
+            border: 1px solid #ddd;
+            background: white;
+            color: var(--text-light);
+        }
+
+        .btn-action-outline:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-action-primary {
+            border: 1.5px solid var(--primary-color);
+            background: transparent;
+            color: var(--primary-color);
+        }
+
+        .btn-action-primary:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .theatre-body {
+            padding: 1.8rem;
+        }
+
+        .location-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-light);
+            font-weight: 600;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+
+        .screens-section h3 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            color: var(--text-color);
+        }
+
+        .screens-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .screen-card {
+            background: #f9f9ff;
+            padding: 1.5rem;
+            border-radius: 10px;
+            border: 1px solid #eee;
+            transition: all 0.3s;
+        }
+
+        .screen-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-3px);
+            background: white;
+            box-shadow: 0 5px 15px rgba(140, 82, 255, 0.1);
+        }
+
+        .screen-name {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+        }
+
+        .screen-seats {
+            font-size: 0.95rem;
+            color: var(--text-light);
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .btn-edit-screen {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-edit-screen:hover {
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #1f2533;
+            color: #abb2bf;
+            padding: 5rem 2rem 3rem;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            max-width: 1240px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-logo svg {
+            width: 30px;
+            height: 30px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            justify-content: center;
+        }
+
+        .social-circle {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #2d3139;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .social-circle:hover {
+            background: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        .footer-text {
+            text-align: center;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            border-top: 1px solid #2d3139;
+            padding-top: 3rem;
+        }
+
+        @media (max-width: 992px) {
+            .main-layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .theatre-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header Section -->
+    <header class="header">
+        <a href="{% url 'booking:home' %}" class="logo">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
+                <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
+                    fill="#8C52FF" />
+            </svg>
+            <span>ShowSphere</span>
+        </a>
+
+
+
+        <div class="auth-buttons">
+            {% if user.is_authenticated %}
+            <div id="auth-section" style="display: flex; align-items: center; gap: 10px;">
+                <div style="background: #f0f0f5; padding: 0.4rem 1rem; border-radius: 6px; display: flex; align-items: center; gap: 8px; color: var(--text-color); font-weight: 600; cursor: pointer;"
+                    onclick="window.location.href='{% url 'booking:logout' %}'">
+                    👤 {{ user.username }} <span
+                        style="font-size: 0.8rem; opacity: 0.6; margin-left:5px;">(Logout)</span>
+                </div>
             </div>
+            {% else %}
+            <a href="{% url 'booking:login' %}" class="btn btn-primary">Sign In</a>
+            {% endif %}
         </div>
-        <div class="card-body">
-            <p class="text-muted"><i class="fas fa-map-marker-alt me-2"></i> {{ theatre.address }}</p>
+    </header>
 
-            <h6 class="border-bottom pb-2 mb-3">Screens</h6>
-            <div class="row row-cols-1 row-cols-md-3 g-3">
-                {% for screen in theatre.screens.all %}
-                <div class="col">
-                    <div class="card h-100 bg-light border-0">
-                        <div class="card-body">
-                            <h6 class="card-title">{{ screen.name }}</h6>
-                            <p class="card-text small text-muted">Total Seats: {{ screen.total_seats }}</p>
-                        </div>
-                        <div class="card-footer bg-transparent border-0 pt-0">
-                            <a href="{% url 'booking:edit_screen' screen.id %}"
-                                class="btn btn-sm btn-link text-decoration-none px-0">Edit Screen</a>
+    <!-- Navigation Bar -->
+
+
+    <!-- Main Content Layout -->
+    <main class="main-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li class="sidebar-item"><a href="{% url 'booking:theatre_dashboard' %}">Dashboard</a></li>
+                <li class="sidebar-item"><a href="{% url 'booking:manage_movies' %}">Manage Movies</a></li>
+                <li class="sidebar-item active"><a href="{% url 'booking:manage_theatres' %}">Manage Theatres</a></li>
+                <li class="sidebar-item"><a href="{% url 'booking:theatre_analytics' %}">Analytics</a></li>
+                <li class="sidebar-item"><a href="{% url 'booking:scan_ticket' %}" style="color: #dc3545;">Scan
+                        Ticket</a></li>
+            </ul>
+        </aside>
+
+        <!-- Management Area -->
+        <section class="content">
+            <div class="page-header">
+                <h1 class="page-title">Manage Theatres & Screens</h1>
+                <a href="{% url 'booking:create_theatre' %}" class="btn btn-add">
+                    <span>+</span> Add New Theatre
+                </a>
+            </div>
+
+            {% for theatre in theatres %}
+            <!-- Theatre Card -->
+            <div class="theatre-card">
+                <div class="theatre-header">
+                    <h2 class="theatre-name">{{ theatre.name }} <span>({{ theatre.city.name }})</span></h2>
+                    <div class="header-actions">
+                        <a href="{% url 'booking:edit_theatre' theatre.id %}" class="btn-sm btn-action-outline">Edit
+                            Details</a>
+                        <a href="{% url 'booking:create_screen' theatre.id %}" class="btn-sm btn-action-primary">Add
+                            Screen</a>
+                    </div>
+                </div>
+                <div class="theatre-body">
+                    <div class="location-info">
+                        <span>📍</span> {{ theatre.address }}
+                    </div>
+
+                    <div class="screens-section">
+                        <h3>Screens</h3>
+                        <div class="screens-grid">
+                            {% for screen in theatre.screens.all %}
+                            <div class="screen-card">
+                                <h4 class="screen-name">{{ screen.name }}</h4>
+                                <span class="screen-seats">Total Seats: {{ screen.total_seats }}</span>
+                                <a href="{% url 'booking:edit_screen' screen.id %}" class="btn-edit-screen">Edit
+                                    Screen</a>
+                            </div>
+                            {% empty %}
+                            <div class="empty-state"
+                                style="grid-column: 1/-1; padding: 1rem; color: var(--text-light); background: #f9f9ff; border-radius: 8px;">
+                                No screens added yet. Add a screen to start scheduling shows.
+                            </div>
+                            {% endfor %}
                         </div>
                     </div>
                 </div>
-                {% empty %}
-                <div class="col-12">
-                    <p class="text-muted fst-italic">No screens added yet.</p>
-                </div>
-                {% endfor %}
             </div>
+            {% empty %}
+            <div class="empty-state"
+                style="text-align: center; padding: 4rem; color: var(--text-light); background: var(--white); border-radius: var(--border-radius); box-shadow: var(--shadow);">
+                <h3>No Theatres Found</h3>
+                <p>Start by adding your first theatre property.</p>
+            </div>
+            {% endfor %}
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
+                    <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
+                        fill="#8C52FF" />
+                </svg>
+                ShowSphere
+            </div>
+
+            <div class="social-links">
+                <div class="social-circle">fb</div>
+                <div class="social-circle">in</div>
+                <div class="social-circle">tw</div>
+                <div class="social-circle">ig</div>
+            </div>
+
+            <p class="footer-text">
+                Copyright {% now "Y" %} @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
+                <br><br>
+                The content and images used on this site are copyright protected and copyrights vests with the
+                respective owners. The usage of the content and images on this website is intended to promote the works
+                and endorsement of the artist shall be implied. Unauthorized use is prohibited and punishable by law.
+            </p>
         </div>
-    </div>
-    {% empty %}
-    <div class="alert alert-info">You haven't added any theatres yet.</div>
-    {% endfor %}
-</div>
-{% endblock %}
+    </footer>
+
+    <script>
+        // Persistence Logic
+        document.addEventListener('DOMContentLoaded', () => {
+            // Logic for theatre-specific persistence if needed
+        });
+    </script>
+</body>
+
+</html>

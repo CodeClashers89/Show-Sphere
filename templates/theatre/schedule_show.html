@@ -1,51 +1,460 @@
-{% extends 'base.html' %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block content %}
-<div class="row justify-content-center my-5">
-    <div class="col-md-8">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">Schedule Show for {{ movie.title }}</h4>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Show | ShowSphere Partner</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
+
+        :root {
+            --primary-color: #8C52FF;
+            --primary-hover: #7b40f2;
+            --text-color: #2D2042;
+            --text-light: #666666;
+            --bg-color: #F9F7FF;
+            --white: #FFFFFF;
+            --blue-header: #007bff;
+            --pink-action: #FF527B;
+            --border-radius: 12px;
+            --shadow: 0 10px 25px rgba(140, 82, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Header Styles */
+        .header {
+            background-color: var(--white);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo span {
+            color: var(--primary-color);
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 2rem;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1.1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        /* Navigation Bar */
+        .nav-bar {
+            background: linear-gradient(135deg, #8C52FF 0%, #00BFB2 100%);
+            color: var(--white);
+            padding: 0.8rem 2rem;
+            box-shadow: 0 4px 15px rgba(140, 82, 255, 0.3);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        .nav-links li a {
+            color: white;
+            opacity: 0.8;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* Main Container */
+        .main-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 3rem 1rem;
+        }
+
+        /* Schedule Card */
+        .schedule-card {
+            width: 100%;
+            max-width: 750px;
+            background: var(--white);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid #eee;
+        }
+
+        .card-header {
+            background-color: #007bff;
+            color: white;
+            padding: 1.2rem 2rem;
+        }
+
+        .card-header h1 {
+            font-size: 1.4rem;
+            font-weight: 700;
+        }
+
+        .form-content {
+            padding: 2.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-light);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+        }
+
+        .sub-label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-light);
+            margin-top: 0.5rem;
+            margin-bottom: 2.5rem;
+            display: block;
+        }
+
+        .form-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .btn-schedule {
+            background-color: #FF527B;
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 5px 15px rgba(255, 82, 122, 0.2);
+        }
+
+        .btn-cancel {
+            background-color: transparent;
+            color: var(--text-light);
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            width: 100%;
+            text-align: center;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #1f2533;
+            color: #abb2bf;
+            padding: 5rem 2rem 3rem;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            max-width: 1240px;
+            margin: 0 auto;
+        }
+
+        .footer-grid {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 4rem;
+            gap: 3rem;
+        }
+
+        .footer-section h3 {
+            color: white;
+            margin-bottom: 1.5rem;
+            font-size: 1.1rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 0.8rem;
+            font-size: 0.9rem;
+        }
+
+        .footer-logo {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            justify-content: center;
+        }
+
+        .social-circle {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #2d3139;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .footer-text {
+            text-align: center;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            border-top: 1px solid #2d3139;
+            padding-top: 3rem;
+        }
+
+        @media (max-width: 768px) {
+            .footer-grid {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .schedule-card {
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header Section -->
+    <header class="header">
+        <a href="{% url 'booking:home' %}" class="logo">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
+                <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
+                    fill="#8C52FF" />
+            </svg>
+            <span>ShowSphere</span>
+        </a>
+
+        <div class="auth-buttons">
+            {% if user.is_authenticated %}
+            <div id="auth-section" style="display: flex; align-items: center; gap: 10px;">
+                <div style="background: #f0f0f5; padding: 0.4rem 1rem; border-radius: 6px; display: flex; align-items: center; gap: 8px; color: var(--text-color); font-weight: 600; cursor: pointer;"
+                    onclick="window.location.href='{% url 'booking:logout' %}'">
+                    👤 {{ user.username }} <span
+                        style="font-size: 0.8rem; opacity: 0.6; margin-left:5px;">(Logout)</span>
+                </div>
             </div>
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-
-                    <div class="mb-3">
-                        <label for="screen" class="form-label">Select Screen</label>
-                        <select name="screen" id="screen" class="form-select" required>
-                            <option value="">Choose a screen...</option>
-                            {% for theatre in theatres %}
-                            <optgroup label="{{ theatre.name }}">
-                                {% for screen in theatre.screens.all %}
-                                <option value="{{ screen.id }}">{{ screen.name }} ({{ screen.total_seats }} seats)
-                                </option>
-                                {% endfor %}
-                            </optgroup>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    {% for field in form %}
-                    <div class="mb-3">
-                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.help_text %}
-                        <div class="form-text">{{ field.help_text }}</div>
-                        {% endif %}
-                        {% if field.errors %}
-                        <div class="text-danger small">{{ field.errors.0 }}</div>
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">Schedule Show</button>
-                        <a href="{% url 'booking:manage_movies' %}" class="btn btn-outline-secondary">Cancel</a>
-                    </div>
-                </form>
-            </div>
+            {% else %}
+            <a href="{% url 'booking:login' %}" class="btn btn-primary">Sign In</a>
+            {% endif %}
         </div>
-    </div>
-</div>
-{% endblock %}
+    </header>
+
+
+
+    <!-- Main Schedule Content -->
+    <main class="main-container">
+        <div class="schedule-card">
+            <header class="card-header">
+                <h1>Schedule Show for {{ movie.title }}</h1>
+            </header>
+
+            <form method="post" class="form-content">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="screen" class="form-label">Select Screen</label>
+                    <select name="screen" id="screen" class="form-control" required>
+                        <option value="">Choose a screen...</option>
+                        {% for theatre in theatres %}
+                        <optgroup label="{{ theatre.name }}">
+                            {% for screen in theatre.screens.all %}
+                            <option value="{{ screen.id }}">{{ screen.name }} ({{ screen.total_seats }} seats)</option>
+                            {% endfor %}
+                        </optgroup>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">{{ form.show_date.label }}</label>
+                    {{ form.show_date }}
+                    {% if form.show_date.errors %}
+                    <div class="error-message">{{ form.show_date.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">{{ form.show_time.label }}</label>
+                    {{ form.show_time }}
+                    {% if form.show_time.errors %}
+                    <div class="error-message">{{ form.show_time.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">{{ form.end_time.label }}</label>
+                    {{ form.end_time }}
+                    {% if form.end_time.errors %}
+                    <div class="error-message">{{ form.end_time.errors.0 }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">{{ form.base_price.label }}</label>
+                    {{ form.base_price }}
+                    {% if form.base_price.errors %}
+                    <div class="error-message">{{ form.base_price.errors.0 }}</div>
+                    {% endif %}
+                    <label class="sub-label">Starting price per seat</label>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-schedule">Schedule Show</button>
+                    <a href="{% url 'booking:manage_movies' %}" class="btn-cancel">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Footer Area -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <div class="footer-logo">ShowSphere</div>
+                    <p style="font-size: 0.9rem; line-height: 1.6; max-width: 300px;">
+                        Your go-to platform for booking movies, events, sports, and plays online.
+                    </p>
+                </div>
+                <div class="footer-section">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="{% url 'booking:browse' %}">Browse All</a></li>
+                        <li><a href="{% url 'booking:organizer_register' %}">List Your Event</a></li>
+                        <li><a href="#">Offers</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Connect With Us</h3>
+                    <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                        <span>fb</span> <span>tw</span> <span>ig</span> <span>yt</span>
+                    </div>
+                </div>
+            </div>
+
+            <p class="footer-text">
+                © {% now "Y" %} ShowSphere. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+</body>
+
+</html>

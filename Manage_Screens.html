@@ -1,4 +1,3 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -116,7 +115,6 @@
             font-size: 0.9rem;
             border: none;
             transition: all 0.3s;
-            display: inline-block;
         }
 
         .btn-outline {
@@ -194,7 +192,6 @@
             color: #666;
             cursor: pointer;
             transition: all 0.3s;
-            display: inline-block;
         }
 
         .btn-back:hover {
@@ -214,11 +211,6 @@
             align-items: center;
             gap: 8px;
             box-shadow: 0 4px 10px rgba(248, 68, 100, 0.2);
-            text-decoration: none;
-        }
-
-        .btn-add:hover {
-            opacity: 0.9;
         }
 
         /* Screen Grid */
@@ -278,21 +270,11 @@
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s;
-            display: inline-block;
         }
 
         .btn-edit-card:hover {
             border-color: var(--primary-color);
             color: var(--primary-color);
-        }
-
-        .empty-state {
-            grid-column: 1 / -1;
-            text-align: center;
-            padding: 3rem;
-            background: white;
-            border-radius: var(--border-radius);
-            color: var(--text-light);
         }
 
         /* Footer */
@@ -368,7 +350,7 @@
 
     <!-- Header Section -->
     <header class="header">
-        <a href="{% url 'booking:home' %}" class="logo">
+        <a href="index.html" class="logo">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
                 <path
@@ -378,53 +360,88 @@
             <span>ShowSphere</span>
         </a>
 
+        <div class="search-bar">
+            <span class="search-icon">🔍</span>
+            <input type="text" placeholder="Search for Movies, Events, Plays, Sports and Activities">
+        </div>
+
         <div class="auth-buttons">
             <button class="btn btn-outline">New Partner</button>
             <div class="profile-dropdown">
-                {% if user.is_authenticated %}
-                👤 {{ user.username }} <span>▼</span>
-                {% else %}
-                👤 Guest
-                {% endif %}
+                👤 theatre <span>▼</span>
             </div>
         </div>
     </header>
 
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+        <ul class="nav-links">
+            <li><a href="movies.html">Movies</a></li>
+            <li><a href="theaters.html">Theaters</a></li>
+            <li><a href="events.html">Events</a></li>
+            <li><a href="#">Sports</a></li>
+        </ul>
+    </nav>
 
     <!-- Main Container -->
     <main class="container">
         <div class="page-header">
             <div class="header-left">
                 <h1>Manage Screens</h1>
-                <p>Screens for {{ theatre.name }}</p>
+                <p>Screens for PVR Plaza</p>
             </div>
             <div class="header-actions">
-                <a href="{% url 'booking:manage_theatres' %}" class="btn-back">Back to Theatres</a>
-                <a href="{% url 'booking:create_screen' theatre.id %}" class="btn-add"><span>+</span> Add New Screen</a>
+                <button class="btn-back" onclick="window.history.back()">Back to Theatres</button>
+                <button class="btn-add"><span>+</span> Add New Screen</button>
             </div>
         </div>
 
         <!-- Screens Grid -->
         <div class="screen-grid">
-            {% for screen in screens %}
-            <!-- Screen Card -->
+            <!-- Screen 1 -->
             <div class="screen-card">
-                <h2 class="screen-title">{{ screen.name }}</h2>
-                <p class="screen-formats">{{ screen.screen_type|default:"Standard" }}</p>
-                <span class="seat-badge">{{ screen.total_seats }} Seats</span>
-                <a href="{% url 'booking:edit_screen' screen.id %}" class="btn-edit-card">Edit</a>
+                <h2 class="screen-title">Screen 1</h2>
+                <p class="screen-formats">2D, 3D, 4DX</p>
+                <span class="seat-badge">100 Seats</span>
+                <button class="btn-edit-card">Edit</button>
             </div>
-            {% empty %}
-            <div class="empty-state">
-                <h3>No screens found</h3>
-                <p>Add a screen to get started managing your theatre.</p>
+
+            <!-- Screen 3 -->
+            <div class="screen-card">
+                <h2 class="screen-title">Screen 3</h2>
+                <p class="screen-formats">2D, 3D, 4DX</p>
+                <span class="seat-badge">250 Seats</span>
+                <button class="btn-edit-card">Edit</button>
             </div>
-            {% endfor %}
+
+            <!-- Screen 4 -->
+            <div class="screen-card">
+                <h2 class="screen-title">Screen 4</h2>
+                <p class="screen-formats">2D, 3D, 4DX</p>
+                <span class="seat-badge">300 Seats</span>
+                <button class="btn-edit-card">Edit</button>
+            </div>
+
+            <!-- Screen 5 -->
+            <div class="screen-card">
+                <h2 class="screen-title">Screen 5</h2>
+                <p class="screen-formats">2D, 3D, 4DX</p>
+                <span class="seat-badge">200 Seats</span>
+                <button class="btn-edit-card">Edit</button>
+            </div>
+
+            <!-- Screen 2 -->
+            <div class="screen-card">
+                <h2 class="screen-title">screen 2</h2>
+                <p class="screen-formats">2D, 3D, 4DX</p>
+                <span class="seat-badge">200 Seats</span>
+                <button class="btn-edit-card">Edit</button>
+            </div>
         </div>
     </main>
 
     <!-- Footer -->
-    <footer class="footer">
+   <footer class="footer">
         <div class="footer-logo">ShowSphere</div>
 
         <div class="social-links">
@@ -442,6 +459,20 @@
             of the artist shall be implied. Unauthorized use is prohibited and punishable by law.
         </p>
     </footer>
+
+    <script>
+        // Simple interactivity for demonstration
+        document.querySelectorAll('.btn-edit-card').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const screenName = btn.parentElement.querySelector('.screen-title').innerText;
+                alert(`Redirecting to edit ${screenName}...`);
+            });
+        });
+
+        document.querySelector('.btn-add').addEventListener('click', () => {
+            alert('Opening "Add New Screen" modal...');
+        });
+    </script>
 
 </body>
 

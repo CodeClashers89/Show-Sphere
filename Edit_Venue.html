@@ -1,11 +1,10 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% if form.instance.pk %}Edit Theatre{% else %}Add Theatre{% endif %} | ShowSphere</title>
+    <title>Edit Venue | ShowSphere</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
 
@@ -168,13 +167,7 @@
             color: #333;
         }
 
-        /* Helper to style Django default widgets */
-        .form-control,
-        input[type="text"],
-        input[type="number"],
-        input[type="email"],
-        select,
-        textarea {
+        .form-control {
             width: 100%;
             padding: 0.75rem 1rem;
             border: 1px solid #E5E7EB;
@@ -183,16 +176,9 @@
             outline: none;
             transition: all 0.3s;
             color: #333;
-            background-color: #fff;
-            /* Ensure white bg */
-            box-sizing: border-box;
-            /* Fix padding issues */
         }
 
-        .form-control:focus,
-        input:focus,
-        select:focus,
-        textarea:focus {
+        .form-control:focus {
             border-color: #3B82F6;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
@@ -200,18 +186,6 @@
         textarea.form-control {
             resize: vertical;
             min-height: 100px;
-        }
-
-        .help-text {
-            font-size: 0.85rem;
-            color: #666;
-            margin-top: 5px;
-        }
-
-        .text-danger {
-            color: #dc3545;
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
         }
 
         /* Action Buttons */
@@ -232,9 +206,6 @@
             font-weight: 600;
             cursor: pointer;
             transition: opacity 0.3s;
-            display: inline-block;
-            /* For <a> tag */
-            text-align: center;
         }
 
         .btn-save {
@@ -334,7 +305,7 @@
 
     <!-- Header Section -->
     <header class="header">
-        <a href="{% url 'booking:home' %}" class="logo">
+        <a href="home.html" class="logo">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
                 <path
@@ -344,69 +315,66 @@
             <span>ShowSphere</span>
         </a>
 
-
+        <div class="search-bar">
+            <span class="search-icon">&#128269;</span>
+            <input type="text" placeholder="Search for Movies, Events, Plays, Sports and Activities">
+        </div>
 
         <div class="auth-buttons">
             <div class="organizer-profile">
-                {% if user.is_authenticated %}
-                👤 {{ user.username }} <span style="font-size: 0.7rem; opacity: 0.7;">▼</span>
-                {% else %}
-                👤 Guest
-                {% endif %}
+                👤 organizer <span style="font-size: 0.7rem; opacity: 0.7;">▼</span>
             </div>
         </div>
     </header>
 
-
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+        <ul class="nav-links">
+            <li><a href="movies.html">Movies</a></li>
+            <li><a href="events.html">Events</a></li>
+            <li><a href="sports.html">Sports</a></li>
+        </ul>
+    </nav>
 
     <!-- Main Form Content -->
     <main class="main-container">
         <div class="form-card">
-            <h1 class="form-title">{% if form.instance.pk %}Edit Theatre{% else %}Add Theatre{% endif %}</h1>
+            <h1 class="form-title">Edit Venue</h1>
 
-            <form method="post">
-                {% csrf_token %}
-
-                {% if form.non_field_errors %}
-                <div class="alert alert-danger" style="color: #dc3545; margin-bottom: 1rem;">
-                    {{ form.non_field_errors }}
-                </div>
-                {% endif %}
-
+            <form>
                 <div class="form-group">
-                    <label class="form-label" for="{{ form.name.id_for_label }}">Name</label>
-                    {{ form.name }}
-                    {% if form.name.errors %}<div class="text-danger">{{ form.name.errors.0 }}</div>{% endif %}
+                    <label class="form-label">Name</label>
+                    <input type="text" class="form-control" value="DY Patil Stadium">
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="{{ form.city.id_for_label }}">City</label>
-                    {{ form.city }}
-                    {% if form.city.errors %}<div class="text-danger">{{ form.city.errors.0 }}</div>{% endif %}
+                    <label class="form-label">City</label>
+                    <input type="text" class="form-control" value="Mumbai">
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="{{ form.address.id_for_label }}">Address</label>
-                    {{ form.address }}
-                    {% if form.address.errors %}<div class="text-danger">{{ form.address.errors.0 }}</div>{% endif %}
+                    <label class="form-label">Address</label>
+                    <textarea class="form-control">Nerul, Navi Mumbai</textarea>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="{{ form.total_screens.id_for_label }}">Total Screens</label>
-                    {{ form.total_screens }}
-                    {% if form.total_screens.errors %}<div class="text-danger">{{ form.total_screens.errors.0 }}</div>
-                    {%endif %}
+                    <label class="form-label">Capacity</label>
+                    <input type="text" class="form-control" value="50000">
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label" for="{{ form.facilities.id_for_label }}">Facilities</label>
-                    {{ form.facilities }}
-                    {% if form.facilities.errors %}<div class="text-danger">{{ form.facilities.errors.0 }}</div>{% endif%}
+                    <label class="form-label">Venue type</label>
+                    <input type="text" class="form-control" value="stadium">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Facilities</label>
+                    <textarea class="form-control">Parking, Food Court, etc.</textarea>
                 </div>
 
                 <div class="form-actions">
-                    <a href="{% url 'booking:manage_theatres' %}" class="btn-cancel">Cancel</a>
-                    <button type="submit" class="btn-save">Save Theatre</button>
+                    <button type="button" class="btn-cancel">Cancel</button>
+                    <button type="button" class="btn-save">Save Venue</button>
                 </div>
             </form>
         </div>

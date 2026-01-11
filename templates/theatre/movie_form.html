@@ -1,35 +1,537 @@
-{% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block content %}
-<div class="row justify-content-center my-5">
-    <div class="col-md-8">
-        <div class="card shadow">
-            <div class="card-body p-5">
-                <h3 class="mb-4">{{ title }}</h3>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Movie | ShowSphere</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
 
+        :root {
+            --primary-color: #8C52FF;
+            --primary-hover: #7b40f2;
+            --text-color: #2D2042;
+            --text-light: #666666;
+            --bg-color: #F8F9FA;
+            --white: #FFFFFF;
+            --pink-action: #F84464;
+            --border-radius: 8px;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Global Header Styles */
+        .header {
+            background-color: var(--white);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo span {
+            color: var(--primary-color);
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 2rem;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1.1rem;
+            align-items: center;
+        }
+
+        .organizer-profile {
+            background: #f0f0f5;
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-color);
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        /* Navigation Bar */
+        .nav-bar {
+            background: linear-gradient(135deg, #8C52FF 0%, #00BFB2 100%);
+            color: var(--white);
+            padding: 0.8rem 2rem;
+            box-shadow: 0 4px 15px rgba(140, 82, 255, 0.3);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        .nav-links li a {
+            color: white;
+            opacity: 0.9;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* Main Content Container */
+        .main-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            padding: 3rem 1rem;
+        }
+
+        /* Form Card */
+        .card-header {
+            background: linear-gradient(135deg, #8C52FF 0%, #00BFB2 100%);
+            color: white;
+            padding: 1.5rem 2.5rem;
+            /* Increased padding */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .form-card {
+            width: 100%;
+            max-width: 850px;
+            background: var(--white);
+            padding: 0;
+            /* Removing padding from card wrapper */
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            border: 1px solid #eee;
+            overflow: hidden;
+            /* Ensures header corners are clipped */
+        }
+
+        .card-body-content {
+            padding: 2.5rem;
+            /* Moving padding here */
+        }
+
+        .form-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            color: var(--text-color);
+        }
+
+        .form-group {
+            margin-bottom: 1.8rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.6rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #333;
+        }
+
+        /* Helper for Django Widgets */
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"],
+        input[type="url"],
+        input[type="date"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s;
+            color: #333;
+            background-color: #fff;
+            box-sizing: border-box;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #3B82F6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        textarea.form-control,
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .helper-text {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 0.4rem;
+        }
+
+        /* Error messages */
+        .text-danger {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .file-input-container {
+            padding: 0.5rem;
+            border: 1px solid #E5E7EB;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-btn {
+            background: #F3F4F6;
+            border: 1px solid #D1D5DB;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .file-name {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        /* Simple file input override */
+        input[type="file"] {
+            padding: 0.5rem;
+            background: none;
+            border: none;
+        }
+
+        /* Action Buttons */
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2.5rem;
+        }
+
+        .btn-cancel {
+            background-color: #6c757d;
+            color: white;
+            padding: 0.6rem 2rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-save {
+            background-color: var(--pink-action);
+            color: white;
+            padding: 0.6rem 2rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(248, 68, 100, 0.3);
+            transition: opacity 0.3s;
+        }
+
+        .btn-cancel:hover,
+        .btn-save:hover {
+            opacity: 0.9;
+        }
+
+        /* Global Footer */
+        .footer {
+            background-color: #1f2533;
+            color: #abb2bf;
+            padding: 4rem 2rem 3rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer-logo {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .social-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #2d3139;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .social-circle:hover {
+            background: var(--primary-color);
+        }
+
+        .footer-text {
+            font-size: 0.9rem;
+            line-height: 1.8;
+            border-top: 1px solid #2d3139;
+            padding-top: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+
+            .search-bar {
+                display: none;
+            }
+
+            .nav-links {
+                gap: 1.2rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .btn-cancel,
+            .btn-save {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header Section -->
+    <header class="header">
+        <a href="{% url 'booking:home' %}" class="logo">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
+                <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
+                    fill="#8C52FF" />
+            </svg>
+            <span>ShowSphere</span>
+        </a>
+
+
+
+        <div class="auth-buttons">
+            <div class="organizer-profile">
+                {% if user.is_authenticated %}
+                👤 {{ user.username }} <span style="font-size: 0.7rem; opacity: 0.7;">▼</span>
+                {% else %}
+                👤 Guest
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <div class="form-card">
+            <h1 class="card-header">{% if form.instance.pk %}Edit Movie{% else %}Add Movie{% endif %}</h1>
+
+            <div class="card-body-content">
                 <form method="post" enctype="multipart/form-data">
                     {% csrf_token %}
 
-                    {% for field in form %}
-                    <div class="mb-3">
-                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.help_text %}
-                        <div class="form-text text-muted">{{ field.help_text }}</div>
-                        {% endif %}
-                        {% if field.errors %}
-                        <div class="text-danger small">{{ field.errors.0 }}</div>
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                    {% endif %}
+
+                    <!-- Top Half -->
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.title.id_for_label }}">Title</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}<div class="text-danger">{{ form.title.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.description.id_for_label }}">Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}<div class="text-danger">{{ form.description.errors.0 }}</div>
+                        {%endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.director.id_for_label }}">Director</label>
+                        {{ form.director }}
+                        {% if form.director.errors %}<div class="text-danger">{{ form.director.errors.0 }}</div>{% endif%}
+                        <p class="helper-text">Director of the movie</p>
+                    </div>
+
+                    <!-- Bottom Half -->
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.genre.id_for_label }}">Genre</label>
+                        {{ form.genre }}
+                        {% if form.genre.errors %}<div class="text-danger">{{ form.genre.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.language.id_for_label }}">Language</label>
+                        {{ form.language }}
+                        {% if form.language.errors %}<div class="text-danger">{{ form.language.errors.0 }}</div>{% endif%}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.duration.id_for_label }}">Duration</label>
+                        {{ form.duration }}
+                        {% if form.duration.errors %}<div class="text-danger">{{ form.duration.errors.0 }}</div>{% endif%}
+                        <p class="helper-text">Duration in minutes</p>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.release_date.id_for_label }}">Release Date</label>
+                        {{ form.release_date }}
+                        <!-- Fallback for browsers that don't support type="date" widget defaults -->
+                        <p class="helper-text">Format: YYYY-MM-DD</p>
+                        {% if form.release_date.errors %}<div class="text-danger">{{ form.release_date.errors.0 }}</div>
                         {% endif %}
                     </div>
-                    {% endfor %}
 
-                    <div class="d-flex justify-content-between mt-4">
-                        <a href="{% url 'booking:manage_movies' %}" class="btn btn-secondary">Cancel</a>
-                        <button type="submit" class="btn btn-primary">Save Movie</button>
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.cast.id_for_label }}">Cast</label>
+                        {{ form.cast }}
+                        <p class="helper-text">Main cast members</p>
+                        {% if form.cast.errors %}<div class="text-danger">{{ form.cast.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.certification.id_for_label }}">Certification</label>
+                        {{ form.certification }}
+                        {% if form.certification.errors %}<div class="text-danger">{{ form.certification.errors.0 }}
+                        </div>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.poster.id_for_label }}">Poster</label>
+                        <div class="file-input-container" style="display: block;">
+                            {{ form.poster }}
+                            {% if form.poster.value %}
+                            <p class="helper-text">Currently: {{ form.poster.value }}</p>
+                            {% endif %}
+                        </div>
+                        {% if form.poster.errors %}<div class="text-danger">{{ form.poster.errors.0 }}</div>{% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="{{ form.trailer_url.id_for_label }}">Trailer URL</label>
+                        {{ form.trailer_url }}
+                        <p class="helper-text">YouTube promo/trailer URL</p>
+                        {% if form.trailer_url.errors %}<div class="text-danger">{{ form.trailer_url.errors.0 }}</div>{%endif %}
+                    </div>
+
+                    <div class="form-actions">
+                        <a href="{% url 'booking:manage_movies' %}" class="btn-cancel">Cancel</a>
+                        <button type="submit" class="btn-save">Save Movie</button>
                     </div>
                 </form>
             </div>
         </div>
-    </div>
-</div>
-{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-logo">ShowSphere</div>
+
+        <div class="social-links">
+            <a href="#" class="social-circle">fb</a>
+            <a href="#" class="social-circle">in</a>
+            <a href="#" class="social-circle">tw</a>
+            <a href="#" class="social-circle">ig</a>
+        </div>
+
+        <p class="footer-text">
+            Copyright 2026 @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
+            <br><br>
+            The content and images used on this site are copyright protected and copyrights vests with the respective
+            owners. The usage of the content and images on this website is intended to promote the works and endorsement
+            of the artist shall be implied. Unauthorized use is prohibited and punishable by law.
+        </p>
+    </footer>
+
+</body>
+
+</html>

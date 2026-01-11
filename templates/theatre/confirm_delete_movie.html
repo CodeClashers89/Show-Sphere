@@ -1,24 +1,359 @@
-{% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block content %}
-<div class="row justify-content-center my-5">
-    <div class="col-md-6">
-        <div class="card shadow border-danger">
-            <div class="card-body p-5 text-center">
-                <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
-                <h3>Delete Movie?</h3>
-                <p class="text-muted">Are you sure you want to delete "<strong>{{ object.title }}</strong>"? This cannot
-                    be undone.</p>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Movie | ShowSphere</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
 
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="d-flex justify-content-center gap-2 mt-4">
-                        <a href="{% url 'booking:manage_movies' %}" class="btn btn-secondary">Cancel</a>
-                        <button type="submit" class="btn btn-danger">Confirm Delete</button>
-                    </div>
-                </form>
+        :root {
+            --primary-color: #8C52FF;
+            --primary-hover: #7b40f2;
+            --text-color: #2D2042;
+            --text-light: #666666;
+            --bg-color: #F8F9FA;
+            --white: #FFFFFF;
+            --pink-action: #F84464;
+            --danger-color: #dc3545;
+            --border-radius: 8px;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Global Header Styles */
+        .header {
+            background-color: var(--white);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo span {
+            color: var(--primary-color);
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 2rem;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1.1rem;
+            align-items: center;
+        }
+
+        .organizer-profile {
+            background: #f0f0f5;
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-color);
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        /* Navigation Bar */
+        .nav-bar {
+            background: linear-gradient(135deg, #8C52FF 0%, #00BFB2 100%);
+            color: var(--white);
+            padding: 0.8rem 2rem;
+            box-shadow: 0 4px 15px rgba(140, 82, 255, 0.3);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        .nav-links li a {
+            color: white;
+            opacity: 0.9;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* Main Content Container */
+        .main-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Center horizontally and vertically */
+            padding: 3rem 1rem;
+        }
+
+        /* Form Card */
+        .form-card {
+            width: 100%;
+            max-width: 600px;
+            /* Smaller width for confirmation */
+            background: var(--white);
+            padding: 3rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            border: 1px solid #eee;
+            text-align: center;
+        }
+
+        .warning-icon {
+            font-size: 4rem;
+            color: var(--danger-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        .form-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-light);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+        }
+
+        /* Action Buttons */
+        .form-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn-cancel {
+            background-color: #6c757d;
+            color: white;
+            padding: 0.8rem 2.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            display: inline-block;
+        }
+
+        .btn-delete {
+            background-color: var(--danger-color);
+            color: white;
+            padding: 0.8rem 2.5rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+            transition: opacity 0.3s;
+        }
+
+        .btn-cancel:hover,
+        .btn-delete:hover {
+            opacity: 0.9;
+        }
+
+        /* Global Footer */
+        .footer {
+            background-color: #1f2533;
+            color: #abb2bf;
+            padding: 4rem 2rem 3rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer-logo {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .social-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #2d3139;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .social-circle:hover {
+            background: var(--primary-color);
+        }
+
+        .footer-text {
+            font-size: 0.9rem;
+            line-height: 1.8;
+            border-top: 1px solid #2d3139;
+            padding-top: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 1rem;
+            }
+
+            .search-bar {
+                display: none;
+            }
+
+            .nav-links {
+                gap: 1.5rem;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .btn-cancel,
+            .btn-delete {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header Section -->
+    <header class="header">
+        <a href="{% url 'booking:home' %}" class="logo">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
+                <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
+                    fill="#8C52FF" />
+            </svg>
+            <span>ShowSphere</span>
+        </a>
+
+
+        <div class="auth-buttons">
+            <div class="organizer-profile">
+                {% if user.is_authenticated %}
+                👤 {{ user.username }} <span style="font-size: 0.7rem; opacity: 0.7;">▼</span>
+                {% else %}
+                👤 Guest
+                {% endif %}
             </div>
         </div>
-    </div>
-</div>
-{% endblock %}
+    </header>
+
+
+
+    <!-- Main Content -->
+    <main class="main-container">
+        <div class="form-card">
+            <div class="warning-icon">⚠️</div>
+            <h1 class="form-title">Delete Movie?</h1>
+            <p class="form-subtitle">Are you sure you want to delete <strong>"{{ object.title }}"</strong>?<br>This
+                action cannot be undone.</p>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-actions">
+                    <a href="{% url 'booking:manage_movies' %}" class="btn-cancel">Cancel</a>
+                    <button type="submit" class="btn-delete">Confirm Delete</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Footer Area -->
+    <footer class="footer">
+        <div class="footer-logo">ShowSphere</div>
+
+        <div class="social-links">
+            <a href="#" class="social-circle">fb</a>
+            <a href="#" class="social-circle">in</a>
+            <a href="#" class="social-circle">tw</a>
+            <a href="#" class="social-circle">ig</a>
+        </div>
+
+        <p class="footer-text">
+            Copyright 2026 @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
+            <br><br>
+            The content and images used on this site are copyright protected and copyrights vests with the respective
+            owners. The usage of the content and images on this website is intended to promote the works and endorsement
+            of the artist shall be implied. Unauthorized use is prohibited and punishable by law.
+        </p>
+    </footer>
+
+</body>
+
+</html>

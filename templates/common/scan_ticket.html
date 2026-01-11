@@ -1,160 +1,654 @@
-{% extends 'base.html' %}
-{% load static %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block content %}
-<div class="row justify-content-center my-5">
-    <div class="col-md-6">
-        <div class="card shadow">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0"><i class="fas fa-qrcode me-2"></i>Scan Ticket</h4>
-            </div>
-            <div class="card-body text-center">
-                <div id="reader" style="width: 100%;"></div>
-                <div id="result" class="mt-4" style="display: none;">
-                    <div class="alert" id="scan-status-alert"></div>
-                    <div class="card border-0 bg-light p-3 text-start">
-                        <h5 class="card-title mb-3 border-bottom pb-2">Ticket Details</h5>
-                        <p><strong>Status:</strong> <span id="ticket-status" class="badge"></span></p>
-                        <p><strong>Ticket ID:</strong> <span id="ticket-id"></span></p>
-                        <p><strong>Event/Movie:</strong> <span id="ticket-event"></span></p>
-                        <p><strong>Seat:</strong> <span id="ticket-seat"></span></p>
-                        <p><strong>Booking ID:</strong> <span id="booking-id"></span></p>
-                        <p><strong>User:</strong> <span id="ticket-user"></span></p>
-                    </div>
-                    <button class="btn btn-primary mt-3" onclick="resetScanner()">Scan Another</button>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Ticket | ShowSphere Partner</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
+
+        :root {
+            --primary-color: #8C52FF;
+            --primary-hover: #7b40f2;
+            --text-color: #2D2042;
+            --text-light: #666666;
+            --bg-color: #F9F7FF;
+            --white: #FFFFFF;
+            --success-green: #28a745;
+            --error-red: #dc3545;
+            --border-radius: 12px;
+            --shadow: 0 10px 25px rgba(140, 82, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Header Styles */
+        .header {
+            background-color: var(--white);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo span {
+            color: var(--primary-color);
+        }
+
+        .search-bar {
+            flex: 1;
+            max-width: 500px;
+            margin: 0 2rem;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 0.6rem 1rem 0.6rem 2.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1.1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Navigation Bar */
+        .nav-bar {
+            background: linear-gradient(135deg, #8C52FF 0%, #00BFB2 100%);
+            color: var(--white);
+            padding: 0.8rem 2rem;
+            box-shadow: 0 4px 15px rgba(140, 82, 255, 0.3);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        .nav-links li a {
+            color: white;
+            opacity: 0.8;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* Layout */
+        .main-layout {
+            display: flex;
+            flex: 1;
+            max-width: 1400px;
+            margin: 3rem auto;
+            width: 100%;
+            padding: 0 1rem;
+            gap: 2.5rem;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            height: fit-content;
+            border: 1px solid #f0edf7;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-item a {
+            padding: 1.2rem 1.8rem;
+            display: block;
+            font-weight: 600;
+            color: var(--text-light);
+            transition: all 0.3s;
+            border-bottom: 1px solid #f0edf7;
+        }
+
+        .sidebar-item:last-child a {
+            border-bottom: none;
+        }
+
+        .sidebar-item a:hover {
+            background: #f8f6ff;
+            color: var(--primary-color);
+            padding-left: 2.2rem;
+        }
+
+        .sidebar-item.active a {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 5px 15px rgba(140, 82, 255, 0.3);
+        }
+
+        .sidebar-item.active-danger a {
+            background: var(--error-red);
+            color: white;
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+        }
+
+        .page-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--text-color);
+            margin-bottom: 2.5rem;
+        }
+
+        /* Scanner Card */
+        .scanner-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: 1px solid #f0edf7;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .scanner-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #f0edf7;
+            background: #fcfbff;
+            text-align: center;
+        }
+
+        .scanner-header h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-color);
+        }
+
+        .scanner-body {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        #reader {
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .scan-instruction {
+            margin-top: 1rem;
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        /* Result Styles */
+        .result-container {
+            display: none;
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .ticket-details {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .detail-value {
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .status-valid {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-invalid {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .alert-message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #1f2533;
+            color: #abb2bf;
+            padding: 5rem 2rem 3rem;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            max-width: 1240px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .footer-logo svg {
+            width: 30px;
+            height: 30px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            justify-content: center;
+        }
+
+        .social-circle {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #2d3139;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .social-circle:hover {
+            background: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        .footer-text {
+            text-align: center;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            border-top: 1px solid #2d3139;
+            padding-top: 3rem;
+        }
+
+        @media (max-width: 992px) {
+            .main-layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            .scanner-card {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header Section -->
+    <header class="header">
+        <a href="{% url 'booking:home' %}" class="logo">
+            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
+                <path
+                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
+                    fill="#8C52FF" />
+            </svg>
+            <span>ShowSphere</span>
+        </a>
+
+
+
+        <div class="auth-buttons">
+            {% if user.is_authenticated %}
+            <div id="auth-section" style="display: flex; align-items: center; gap: 10px;">
+                <div style="background: #f0f0f5; padding: 0.4rem 1rem; border-radius: 6px; display: flex; align-items: center; gap: 8px; color: var(--text-color); font-weight: 600; cursor: pointer;"
+                    onclick="window.location.href='{% url 'booking:logout' %}'">
+                    👤 {{ user.username }} <span
+                        style="font-size: 0.8rem; opacity: 0.6; margin-left:5px;">(Logout)</span>
                 </div>
-                <div id="scanner-controls" class="mt-3">
-                    <p class="text-muted">Point your camera at the ticket QR code.</p>
-                </div>
             </div>
+            {% else %}
+            <a href="{% url 'booking:login' %}" class="btn btn-primary">Sign In</a>
+            {% endif %}
         </div>
-    </div>
-</div>
+    </header>
 
-<!-- Include html5-qrcode library -->
-<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <!-- Navigation Bar -->
 
-<script>
-    let html5QrcodeScanner;
-    let isScanning = true;
 
-    function onScanSuccess(decodedText, decodedResult) {
-        if (!isScanning) return;
+    <!-- Main Content -->
+    <main class="main-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <ul class="sidebar-menu">
+                <li class="sidebar-item"><a href="{% url 'booking:theatre_dashboard' %}">Dashboard</a></li>
+                <li class="sidebar-item"><a href="{% url 'booking:manage_movies' %}">Manage Movies</a></li>
+                <li class="sidebar-item"><a href="{% url 'booking:manage_theatres' %}">Manage Theatres</a></li>
+                <li class="sidebar-item"><a href="{% url 'booking:theatre_analytics' %}">Analytics</a></li>
+                <li class="sidebar-item active-danger"><a href="{% url 'booking:scan_ticket' %}">Scan Ticket</a></li>
+            </ul>
+        </aside>
 
-        // Stop scanning temporarily
-        isScanning = false;
-        try {
-            html5QrcodeScanner.pause();
-        } catch (e) {
-            // Scanner might not be in a state to pause (e.g. file scan), ignore
-            console.log("Could not pause scanner:", e);
-        }
+        <!-- Right Content -->
+        <section class="content">
+            <h1 class="page-title">Ticket Scanner</h1>
 
-        // Extract Ticket ID from the scanned text
-        // Expected format: "ShowSphere Ticket\nTicket ID: TKT...\n..."
-        let ticketId = null;
-        const lines = decodedText.split('\n');
-        for (const line of lines) {
-            if (line.startsWith('Ticket ID: ')) {
-                ticketId = line.replace('Ticket ID: ', '').trim();
-                break;
+            <div class="scanner-card">
+                <div class="scanner-header">
+                    <h2>Scan QR Code</h2>
+                </div>
+                <div class="scanner-body">
+                    <div id="reader"></div>
+
+                    <div id="scanner-controls">
+                        <p class="scan-instruction">Align the QR code within the frame to scan.</p>
+                    </div>
+
+                    <div id="result" class="result-container">
+                        <div id="scan-status-alert" class="alert-message"></div>
+
+                        <div class="ticket-details">
+                            <div class="detail-row">
+                                <span class="detail-label">Status</span>
+                                <span id="ticket-status" class="status-badge"></span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Ticket ID</span>
+                                <span class="detail-value" id="ticket-id"></span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Event/Movie</span>
+                                <span class="detail-value" id="ticket-event"></span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Seat</span>
+                                <span class="detail-value" id="ticket-seat"></span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">Booking ID</span>
+                                <span class="detail-value" id="booking-id"></span>
+                            </div>
+                            <div class="detail-row">
+                                <span class="detail-label">User</span>
+                                <span class="detail-value" id="ticket-user"></span>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary" style="margin-top: 1.5rem; width: 100%;"
+                            onclick="resetScanner()">Scan Another Ticket</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
+                    <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
+                        fill="#8C52FF" />
+                </svg>
+                ShowSphere
+            </div>
+
+            <div class="social-links">
+                <div class="social-circle">fb</div>
+                <div class="social-circle">in</div>
+                <div class="social-circle">tw</div>
+                <div class="social-circle">ig</div>
+            </div>
+
+            <p class="footer-text">
+                Copyright {% now "Y" %} @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
+                <br><br>
+                The content and images used on this site are copyright protected and copyrights vests with the
+                respective owners. The usage of the content and images on this website is intended to promote the works
+                and endorsement of the artist shall be implied. Unauthorized use is prohibited and punishable by law.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Include html5-qrcode library -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+    <script>
+        let html5QrcodeScanner;
+        let isScanning = true;
+
+        function onScanSuccess(decodedText, decodedResult) {
+            if (!isScanning) return;
+
+            // Stop scanning temporarily
+            isScanning = false;
+            try {
+                html5QrcodeScanner.pause();
+            } catch (e) {
+                console.log("Could not pause scanner:", e);
+            }
+
+            // Extract Ticket ID logic
+            let ticketId = null;
+            const lines = decodedText.split('\n');
+            for (const line of lines) {
+                if (line.startsWith('Ticket ID: ')) {
+                    ticketId = line.replace('Ticket ID: ', '').trim();
+                    break;
+                }
+            }
+
+            if (!ticketId) {
+                if (decodedText.startsWith('TKT')) {
+                    ticketId = decodedText;
+                }
+            }
+
+            if (ticketId) {
+                verifyTicket(ticketId);
+            } else {
+                showError("Invalid QR Code format.");
             }
         }
 
-        if (!ticketId) {
-            // Fallback: try to see if the whole text is the ID (if we change QR format later)
-            if (decodedText.startsWith('TKT')) {
-                ticketId = decodedText;
-            }
+        function onScanFailure(error) {
+            // handle scan failure, usually better to ignore and keep scanning.
         }
 
-        if (ticketId) {
-            verifyTicket(ticketId);
-        } else {
-            showError("Invalid QR Code format.");
+        function verifyTicket(ticketId) {
+            console.log("Verifying ticket:", ticketId);
+            fetch(`{% url 'booking:api_verify_ticket' %}?ticket_id=${encodeURIComponent(ticketId)}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("API Response:", data);
+                    const resultDiv = document.getElementById('result');
+                    const readerDiv = document.getElementById('reader');
+                    const statusAlert = document.getElementById('scan-status-alert');
+                    const scannerControls = document.getElementById('scanner-controls');
+
+                    readerDiv.style.display = 'none';
+                    scannerControls.style.display = 'none';
+                    resultDiv.style.display = 'block';
+
+                    document.getElementById('ticket-id').textContent = data.ticket_id || ticketId;
+                    document.getElementById('ticket-event').textContent = data.show || 'N/A';
+                    document.getElementById('ticket-seat').textContent = data.seat || 'N/A';
+                    document.getElementById('booking-id').textContent = data.booking_id || 'N/A';
+                    document.getElementById('ticket-user').textContent = data.user || 'N/A';
+
+                    const statusBadge = document.getElementById('ticket-status');
+
+                    if (data.valid) {
+                        statusAlert.className = 'alert-message alert-success';
+                        statusAlert.textContent = 'Ticket Verified Successfully!';
+                        statusBadge.className = 'status-badge status-valid';
+                        statusBadge.textContent = 'Valid';
+                    } else {
+                        console.error("Ticket Invalid:", data.error);
+                        statusAlert.className = 'alert-message alert-danger';
+                        statusAlert.textContent = data.error || 'Invalid Ticket';
+                        statusBadge.className = 'status-badge status-invalid';
+                        statusBadge.textContent = 'Invalid';
+                    }
+                })
+                .catch(error => {
+                    console.error("Verify Error:", error);
+                    showError("Error verifying ticket: " + error.message);
+                });
         }
-    }
 
-    function onScanFailure(error) {
-        // handle scan failure, usually better to ignore and keep scanning.
-        // console.warn(`Code scan error = ${error}`);
-    }
+        function showError(msg) {
+            const resultDiv = document.getElementById('result');
+            const readerDiv = document.getElementById('reader');
+            const statusAlert = document.getElementById('scan-status-alert');
+            const scannerControls = document.getElementById('scanner-controls');
 
-    function verifyTicket(ticketId) {
-        console.log("Verifying ticket:", ticketId);
-        fetch(`{% url 'booking:api_verify_ticket' %}?ticket_id=${encodeURIComponent(ticketId)}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error("Network response was not ok");
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log("API Response:", data);
-                const resultDiv = document.getElementById('result');
-                const readerDiv = document.getElementById('reader');
-                const statusAlert = document.getElementById('scan-status-alert');
-                const scannerControls = document.getElementById('scanner-controls');
+            readerDiv.style.display = 'none';
+            scannerControls.style.display = 'none';
+            resultDiv.style.display = 'block';
 
-                readerDiv.style.display = 'none';
-                scannerControls.style.display = 'none';
-                resultDiv.style.display = 'block';
+            statusAlert.className = 'alert-message alert-danger';
+            statusAlert.textContent = msg;
+        }
 
-                document.getElementById('ticket-id').textContent = data.ticket_id || ticketId;
-                document.getElementById('ticket-event').textContent = data.show || 'N/A';
-                document.getElementById('ticket-seat').textContent = data.seat || 'N/A';
-                document.getElementById('booking-id').textContent = data.booking_id || 'N/A';
-                document.getElementById('ticket-user').textContent = data.user || 'N/A';
+        function resetScanner() {
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('reader').style.display = 'block';
+            document.getElementById('scanner-controls').style.display = 'block';
+            isScanning = true;
+            html5QrcodeScanner.resume();
+        }
 
-                const statusBadge = document.getElementById('ticket-status');
+        document.addEventListener('DOMContentLoaded', function () {
+            html5QrcodeScanner = new Html5QrcodeScanner(
+                "reader",
+                { fps: 10, qrbox: { width: 250, height: 250 } },
+                /* verbose= */ false);
+            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+        });
+    </script>
+</body>
 
-                if (data.valid) {
-                    statusAlert.className = 'alert alert-success';
-                    statusAlert.textContent = 'Ticket Verified Successfully!';
-                    statusBadge.className = 'badge bg-success';
-                    statusBadge.textContent = 'Valid';
-                } else {
-                    console.error("Ticket Invalid:", data.error);
-                    statusAlert.className = 'alert alert-danger';
-                    statusAlert.textContent = data.error || 'Invalid Ticket';
-                    statusBadge.className = 'badge bg-danger';
-                    statusBadge.textContent = 'Invalid / Error';
-                }
-            })
-            .catch(error => {
-                console.error("Verify Error:", error);
-                showError("Error verifying ticket: " + error.message);
-            });
-    }
-
-    function showError(msg) {
-        const resultDiv = document.getElementById('result');
-        const readerDiv = document.getElementById('reader');
-        const statusAlert = document.getElementById('scan-status-alert');
-        const scannerControls = document.getElementById('scanner-controls');
-
-        readerDiv.style.display = 'none';
-        scannerControls.style.display = 'none';
-        resultDiv.style.display = 'block';
-
-        statusAlert.className = 'alert alert-danger';
-        statusAlert.textContent = msg;
-    }
-
-    function resetScanner() {
-        document.getElementById('result').style.display = 'none';
-        document.getElementById('reader').style.display = 'block';
-        document.getElementById('scanner-controls').style.display = 'block';
-        isScanning = true;
-        html5QrcodeScanner.resume();
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        html5QrcodeScanner = new Html5QrcodeScanner(
-            "reader",
-            { fps: 10, qrbox: { width: 250, height: 250 } },
-            /* verbose= */ false);
-        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-    });
-</script>
-{% endblock %}
+</html>
