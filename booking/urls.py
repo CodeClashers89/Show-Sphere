@@ -11,6 +11,12 @@ urlpatterns = [
     path('event/<int:event_id>/', views.event_detail, name='event_detail'),
     path('movie/<int:movie_id>/', views.movie_detail, name='movie_detail'),
     
+    # Theatre and Venue browsing
+    path('theatres/', views.theatre_list, name='theatre_list'),
+    path('theatre/<int:theatre_id>/', views.theatre_detail, name='theatre_detail'),
+    path('venues/', views.venue_list, name='venue_list'),
+    path('venue/<int:venue_id>/', views.venue_detail, name='venue_detail'),
+    
     # Authentication
     path('login/', views.user_login, name='login'),
     # path('login/verify/', views.verify_login_otp, name='verify_login_otp'), # Removed per request
@@ -42,6 +48,7 @@ urlpatterns = [
     path('organizer/venues/', views.manage_venues, name='manage_venues'),
     path('organizer/venue/create/', views.create_venue, name='create_venue'),
     path('organizer/venue/<int:venue_id>/edit/', views.edit_venue, name='edit_venue'),
+    path('organizer/venue/<int:venue_id>/layout/', views.configure_venue_layout, name='configure_venue_layout'),
     path('organizer/venue/<int:venue_id>/delete/', views.delete_venue, name='delete_venue'),
     path('organizer/event/<int:event_id>/schedule/', views.schedule_event_show, name='schedule_event_show'),
     path('organizer/show/<int:show_id>/seats/', views.configure_event_seats, name='configure_event_seats'),
@@ -58,8 +65,9 @@ urlpatterns = [
     path('theatre/theatre/<int:theatre_id>/edit/', views.edit_theatre, name='edit_theatre'),
     path('theatre/theatre/<int:theatre_id>/screens/', views.manage_screens, name='manage_screens'),
     path('theatre/screen/create/<int:theatre_id>/', views.create_screen, name='create_screen'),
-    path('theatre/screen/<int:screen_id>/edit/', views.edit_screen, name='edit_screen'),
-    path('theatre/movie/<int:movie_id>/schedule/', views.schedule_movie_show, name='schedule_movie_show'),
+    path('theatre/screen/\u003cint:screen_id\u003e/edit/', views.edit_screen, name='edit_screen'),
+    path('theatre/screen/\u003cint:screen_id\u003e/layout/', views.configure_screen_layout, name='configure_screen_layout'),
+    path('theatre/movie/\u003cint:movie_id\u003e/schedule/', views.schedule_movie_show, name='schedule_movie_show'),
     path('theatre/show/<int:show_id>/seats/', views.configure_movie_seats, name='configure_movie_seats'),
     path('theatre/analytics/', views.theatre_analytics, name='theatre_analytics'),
     

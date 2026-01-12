@@ -562,6 +562,8 @@
                 <div class="tabs">
                     <button class="tab active" onclick="switchTab(event, 'organizers')">Organizers</button>
                     <button class="tab" onclick="switchTab(event, 'theatres')">Theatres</button>
+                    <button class="tab" onclick="switchTab(event, 'events')">Events</button>
+                    <button class="tab" onclick="switchTab(event, 'movies')">Movies</button>
                 </div>
 
                 <!-- Organizers Tab -->
@@ -624,6 +626,76 @@
                             {% empty %}
                             <tr>
                                 <td colspan="4" class="empty-state">No pending theatre requests.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Events Tab -->
+                <div id="events" style="display: none;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Event Title</th>
+                                <th>Organizer</th>
+                                <th>Category</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in pending_events %}
+                            <tr>
+                                <td>{{ event.title }}</td>
+                                <td>{{ event.organizer.organization_name }}</td>
+                                <td>{{ event.category.name }}</td>
+                                <td>{{ event.created_at|date:"d M Y" }}</td>
+                                <td>
+                                    <a href="{% url 'booking:approve_event' event.id %}"
+                                        class="btn-approve">Approve</a>
+                                    <a href="{% url 'booking:reject_event' event.id %}"
+                                        class="btn-reject">Reject</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="empty-state">No pending event requests.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Movies Tab -->
+                <div id="movies" style="display: none;">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Movie Title</th>
+                                <th>Theatre Owner</th>
+                                <th>Language</th>
+                                <th>Release Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for movie in pending_movies %}
+                            <tr>
+                                <td>{{ movie.title }}</td>
+                                <td>{{ movie.theatre_owner.theatre_chain_name }}</td>
+                                <td>{{ movie.language.name }}</td>
+                                <td>{{ movie.release_date|date:"d M Y" }}</td>
+                                <td>
+                                    <a href="{% url 'booking:approve_movie' movie.id %}"
+                                        class="btn-approve">Approve</a>
+                                    <a href="{% url 'booking:reject_movie' movie.id %}"
+                                        class="btn-reject">Reject</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="empty-state">No pending movie requests.</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -711,6 +783,8 @@
             // Hide all tabs
             document.getElementById('organizers').style.display = 'none';
             document.getElementById('theatres').style.display = 'none';
+            document.getElementById('events').style.display = 'none';
+            document.getElementById('movies').style.display = 'none';
 
             // Remove active class from all tabs
             document.querySelectorAll('.tab').forEach(tab => {

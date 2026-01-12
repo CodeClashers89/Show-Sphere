@@ -1,0 +1,730 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configure Seat Layout - {{ venue.name }} | Show Sphere</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #8C52FF;
+            --success: #00BFB2;
+            --bg: #F9F7FF;
+            --white: #fff;
+            --text: #2D2042;
+            --text-light: #666;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+        }
+
+        .header {
+            background: var(--white);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,.05);
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 2rem 3rem;
+        }
+
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 2rem;
+        }
+
+        .config-panel {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(140,82,255,.1);
+            height: fit-content;
+            position: sticky;
+            top: 2rem;
+        }
+
+        .config-panel h2 {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .category-item {
+            background: #f8f6ff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 2px solid #e0e0e0;
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .btn-remove-category {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-add-category {
+            background: var(--success);
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+        }
+
+        .color-picker-wrapper {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .color-picker {
+            width: 50px;
+            height: 36px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .seat-editor {
+            background: var(--white);
+            padding: 3rem 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(140,82,255,.1);
+        }
+
+        .screen-label {
+            text-align: center;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, #8C52FF, #00BFB2);
+            color: white;
+            border-radius: 12px 12px 0 0;
+            margin: 0 auto 3rem;
+            max-width: 80%;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .seats-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .seat-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .row-label {
+            min-width: 35px;
+            font-weight: 700;
+            color: var(--primary);
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .row-seats {
+            display: flex;
+            gap: 0.4rem;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .seat {
+            width: 38px;
+            height: 38px;
+            border-radius: 6px 6px 2px 2px;
+            border: 2px solid;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .seat:hover {
+            transform: scale(1.15);
+            box-shadow: 0 3px 10px rgba(0,0,0,.25);
+            z-index: 10;
+        }
+
+        .seat.removed {
+            background: transparent;
+            border: 2px dashed #ccc;
+            color: #999;
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .seat.blocked {
+            background: #ff6b6b;
+            border-color: #ff5252;
+            color: white;
+            opacity: 0.8;
+            cursor: pointer;
+        }
+
+        .seat.blocked::after {
+            content: '🔒';
+            position: absolute;
+            font-size: 0.6rem;
+            top: 2px;
+            right: 2px;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(140,82,255,.3);
+        }
+
+        .quick-actions {
+            margin-bottom: 1.5rem;
+        }
+
+        .quick-btn {
+            padding: 0.5rem 1rem;
+            background: #f0edf7;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size:0.9rem;
+        }
+
+        .quick-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .stats {
+            background: linear-gradient(135deg, #8C52FF, #00BFB2);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .stats h3 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .legend {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-top: 3rem;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-box {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            border: 2px solid;
+        }
+
+        .category-row-input {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .category-row-input input {
+            width: 50px;
+            padding: 0.4rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .seat-state-info {
+            background: #f8f6ff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+
+        .seat-state-info strong {
+            color: var(--primary);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>Configure Seat Layout - {{ venue.name }}</h1>
+        <p style="color: var(--text-light); margin-top: 0.5rem;">{{ venue.city.name }} • {{ venue.venue_type }}</p>
+    </div>
+
+    <div class="container">
+        <form method="POST" id="layoutForm">
+            {% csrf_token %}
+            <input type="hidden" name="seat_layout" id="seatLayoutInput">
+            <input type="hidden" name="price_tiers" id="priceTiersInput">
+            
+            <div class="layout-grid">
+                <!-- Configuration Panel -->
+                <div class="config-panel">
+                    <h2>Configuration</h2>
+                    
+                    <div class="form-group">
+                        <label>Number of Rows</label>
+                        <input type="number" name="rows" id="numRows" value="{{ venue.rows|default:8 }}" min="5" max="30">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Seats per Row</label>
+                        <input type="number" name="seats_per_row" id="seatsPerRow" value="{{ venue.seats_per_row|default:20 }}" min="5" max="50">
+                    </div>
+
+                    <div class="quick-actions">
+                        <h3 style="font font-size: 1rem; margin-bottom: 0.75rem;">Quick Actions</h3>
+                        <button type="button" class="quick-btn" onclick="generateLayout()">Generate Layout</button>
+                        <button type="button" class="quick-btn" onclick="renumberSeats()">Renumber Seats</button>
+                    </div>
+
+                    <div class="form-group">
+                        <h3 style="font-size: 1rem; margin-bottom: 0.75rem;">Seat Categories</h3>
+                        <div id="categoriesContainer"></div>
+                        <button type="button" class="btn-add-category" onclick="addCategory()">+ Add Category</button>
+                    </div>
+
+                    <div class="stats">
+                        <h3 id="totalSeats">0</h3>
+                        <p>Total Seats</p>
+                    </div>
+
+                    <div style="margin-top: 2rem;">
+                        <button type="submit" class="btn btn-primary">Save Layout</button>
+                    </div>
+                </div>
+
+                <!-- Seat Editor -->
+                <div class="seat-editor">
+                    <div class="screen-label">SCREEN</div>
+                    
+                    <p style="text-align: center; color: var(--text-light); margin-bottom: 2rem;">
+                        <strong>Left-click: Toggle Removed</strong> • <strong>Right-click: Toggle Blocked (Offline Only)</strong>
+                    </p>
+
+                    <div class="seat-state-info">
+                        <strong>Seat States for Customers:</strong><br>
+                        • Active - Available for online booking<br>
+                        • Blocked (🔒) - Shows as "Booked" (offline only)<br>
+                        • Removed - Hidden/Empty seat (not shown)
+                    </div>
+
+                    <div id="seatsContainer" class="seats-grid">
+                        <!-- Seats generated here -->
+                    </div>
+
+                    <div class="legend" id="legendContainer">
+                        <div class="legend-item">
+                            <div class="legend-box" style="background: transparent; border: 2px dashed #ccc;"></div>
+                            <span>Removed (Hidden)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-box" style="background: #ff6b6b; border-color: #ff5252;"></div>
+                            <span>Blocked (Offline) 🔒</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let seatLayout = {};
+        let categories = [
+            {name: 'Premium', color: '#FFD700', fromRow: 'A', toRow: 'C', price: 300},
+            {name: 'Regular', color: '#00BFB2', fromRow: 'D', toRow: 'G', price: 200},
+            {name: 'Budget', color: '#82CAFF', fromRow: 'H', toRow: 'Z', price: 150}
+        ];
+
+        // Seat states: active, blocked (offline only), removed (empty/hidden)
+        function getSeatState(row, seatNum) {
+            if (seatLayout[row].removed.includes(seatNum)) return 'removed';
+            if (seatLayout[row].blocked && seatLayout[row].blocked.includes(seatNum)) return 'blocked';
+            return 'active';
+        }
+
+        function renderCategories() {
+            const container = document.getElementById('categoriesContainer');
+            container.innerHTML = '';
+
+            categories.forEach((cat, index) => {
+                const div = document.createElement('div');
+                div.className = 'category-item';
+                div.style.borderColor = cat.color;
+                div.innerHTML = `
+                    <div class="category-header">
+                        <input type="text" value="${cat.name}" onchange="categories[${index}].name = this.value; updateLegend();" style="flex: 1; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px;">
+                        ${categories.length > 1 ? `<button type="button" class="btn-remove-category" onclick="removeCategory(${index})">×</button>` : ''}
+                    </div>
+                    <div class="color-picker-wrapper">
+                        <input type="color" class="color-picker" value="${cat.color}" onchange="categories[${index}].color = this.value; renderCategories(); generateLayout();">
+                        <label style="font-size: 0.85rem; margin-right: 0.5rem;">₹</label>
+                        <input type="number" value="${cat.price}" onchange="categories[${index}].price = parseInt(this.value);" style="flex: 1; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-weight: 600; font-size: 1rem;" placeholder="Price" min="0">
+                    </div>
+                    <div class="category-row-input">
+                        <label style="font-size: 0.85rem;">Row Range:</label>
+                        <input type="text" value="${cat.fromRow}" maxlength="1" onchange="categories[${index}].fromRow = this.value.toUpperCase(); generateLayout();" placeholder="A">
+                        <span>to</span>
+                        <input type="text" value="${cat.toRow}" maxlength="1" onchange="categories[${index}].toRow = this.value.toUpperCase(); generateLayout();" placeholder="Z">
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            updateLegend();
+        }
+
+        function addCategory() {
+            const lastRow = categories[categories.length - 1].toRow;
+            const nextRow = String.fromCharCode(lastRow.charCodeAt(0) + 1);
+            
+            categories.push({
+                name: 'Category ' + (categories.length + 1),
+                color: '#' + Math.floor(Math.random()*16777215).toString(16),
+                fromRow: nextRow,
+                toRow: 'Z',
+                price: 100
+            });
+            renderCategories();
+            generateLayout();
+        }
+
+        function removeCategory(index) {
+            if (categories.length > 1) {
+                categories.splice(index, 1);
+                renderCategories();
+                generateLayout();
+            }
+        }
+
+        function getCategoryForRow(rowLabel) {
+            for (let cat of categories) {
+                if (rowLabel >= cat.fromRow && rowLabel <= cat.toRow) {
+                    return cat;
+                }
+            }
+            return categories[categories.length - 1]; // Default to last category
+        }
+
+        function generateLayout() {
+            const rows = parseInt(document.getElementById('numRows').value);
+            const seatsPerRow = parseInt(document.getElementById('seatsPerRow').value);
+            
+            const container = document.getElementById('seatsContainer');
+            container.innerHTML = '';
+            
+            // Preserve removed and blocked seats
+            const previouslyRemoved = {};
+            const previouslyBlocked = {};
+            Object.keys(seatLayout).forEach(row => {
+                if (seatLayout[row].removed) {
+                    previouslyRemoved[row] = seatLayout[row].removed;
+                }
+                if (seatLayout[row].blocked) {
+                    previouslyBlocked[row] = seatLayout[row].blocked;
+                }
+            });
+
+            seatLayout = {};
+            
+            for (let i = 0; i < rows; i++) {
+                const rowLabel = String.fromCharCode(65 + i);
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'seat-row';
+                
+                const label = document.createElement('div');
+                label.className = 'row-label';
+                label.textContent = rowLabel;
+                rowDiv.appendChild(label);
+                
+                const rowSeats = document.createElement('div');
+                rowSeats.className = 'row-seats';
+                
+                const category = getCategoryForRow(rowLabel);
+                
+                seatLayout[rowLabel] = {
+                    seats: [],
+                    removed: previouslyRemoved[rowLabel] || [],
+                    blocked: previouslyBlocked[rowLabel] || [],
+                    category: category.name
+                };
+                
+                for (let j = 1; j <= seatsPerRow; j++) {
+                    const seat = document.createElement('div');
+                    seat.className = 'seat';
+                    seat.dataset.row = rowLabel;
+                    seat.dataset.seat = j;
+                    seat.textContent = j;
+                    
+                    const state = getSeatState(rowLabel, j);
+                    
+                    if (state === 'removed') {
+                        seat.classList.add('removed');
+                    } else if (state === 'blocked') {
+                        seat.classList.add('blocked');
+                        seat.style.background = '#ff6b6b';
+                        seat.style.borderColor = '#ff5252';
+                        seat.style.color = 'white';
+                    } else {
+                        seat.style.background = category.color;
+                        seat.style.borderColor = category.color;
+                        seat.style.color = isLightColor(category.color) ? '#333' : '#fff';
+                        seatLayout[rowLabel].seats.push(j);
+                    }
+                    
+                    seat.onclick = () => toggleSeat(rowLabel, j, seat, category);
+                    seat.oncontextmenu = (e) => {
+                        e.preventDefault();
+                        toggleBlocked(rowLabel, j, seat, category);
+                    };
+                    
+                    rowSeats.appendChild(seat);
+                }
+                
+                rowDiv.appendChild(rowSeats);
+                container.appendChild(rowDiv);
+            }
+            
+            updateStats();
+        }
+
+        function toggleSeat(row, seatNum, element, category) {
+            const state = getSeatState(row, seatNum);
+            
+            if (state === 'removed') {
+                // Restore from removed to active
+                seatLayout[row].removed = seatLayout[row].removed.filter(s => s !== seatNum);
+                seatLayout[row].seats.push(seatNum);
+                seatLayout[row].seats.sort((a, b) => a - b);
+                
+                element.classList.remove('removed');
+                element.style.background = category.color;
+                element.style.borderColor = category.color;
+                element.style.color = isLightColor(category.color) ? '#333' : '#fff';
+            } else if (state === 'blocked') {
+                // Can't toggle blocked with left click, use right click
+                return;
+            } else {
+                // Remove seat (active to removed)
+                seatLayout[row].seats = seatLayout[row].seats.filter(s => s !== seatNum);
+                seatLayout[row].removed.push(seatNum);
+                seatLayout[row].removed.sort((a, b) => a - b);
+                
+                element.classList.add('removed');
+                element.style.background = 'transparent';
+                element.style.border = '2px dashed #ccc';
+                element.style.color = '#999';
+            }
+            
+            updateStats();
+        }
+
+        function toggleBlocked(row, seatNum, element, category) {
+            const state = getSeatState(row, seatNum);
+            
+            if (!seatLayout[row].blocked) {
+                seatLayout[row].blocked = [];
+            }
+            
+            if (state === 'blocked') {
+                // Unblock to active
+                seatLayout[row].blocked = seatLayout[row].blocked.filter(s => s !== seatNum);
+                if (!seatLayout[row].seats.includes(seatNum)) {
+                    seatLayout[row].seats.push(seatNum);
+                    seatLayout[row].seats.sort((a, b) => a - b);
+                }
+                
+                element.classList.remove('blocked');
+                element.style.background = category.color;
+                element.style.borderColor = category.color;
+                element.style.color = isLightColor(category.color) ? '#333' : '#fff';
+            } else if (state === 'active') {
+                // Block seat
+                seatLayout[row].seats = seatLayout[row].seats.filter(s => s !== seatNum);
+                seatLayout[row].blocked.push(seatNum);
+                seatLayout[row].blocked.sort((a, b) => a - b);
+                
+                element.classList.add('blocked');
+                element.style.background = '#ff6b6b';
+                element.style.borderColor = '#ff5252';
+                element.style.color = 'white';
+            }
+            
+            updateStats();
+        }
+
+        function renumberSeats() {
+            Object.keys(seatLayout).forEach(row => {
+                const rowSeats = document.querySelectorAll(`[data-row="${row}"]`);
+                let number = 1;
+                
+                rowSeats.forEach(seat => {
+                    const originalSeat = parseInt(seat.dataset.seat);
+                    
+                    if (!seatLayout[row].removed.includes(originalSeat)) {
+                        seat.textContent = number;
+                        number++;
+                    }
+                });
+            });
+        }
+
+        function isLightColor(color) {
+            const hex = color.replace('#', '');
+            const r = parseInt(hex.substr(0, 2), 16);
+            const g = parseInt(hex.substr(2, 2), 16);
+            const b = parseInt(hex.substr(4, 2), 16);
+            const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+            return brightness > 155;
+        }
+
+        function updateStats() {
+            let total = 0;
+            Object.values(seatLayout).forEach(row => {
+                total += row.seats.length;
+            });
+            document.getElementById('totalSeats').textContent = total;
+        }
+
+        function updateLegend() {
+            const legend = document.getElementById('legendContainer');
+            legend.innerHTML = '';
+
+            categories.forEach(cat => {
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                item.innerHTML = `
+                    <div class="legend-box" style="background: ${cat.color}; border-color: ${cat.color};"></div>
+                    <span>${cat.name} - ₹${cat.price}</span>
+                `;
+                legend.appendChild(item);
+            });
+
+            const removedItem = document.createElement('div');
+            removedItem.className = 'legend-item';
+            removedItem.innerHTML = `
+                <div class="legend-box" style="background: transparent; border: 2px dashed #ccc;"></div>
+                <span>Removed (Hidden)</span>
+            `;
+            legend.appendChild(removedItem);
+
+            const blockedItem = document.createElement('div');
+            blockedItem.className = 'legend-item';
+            blockedItem.innerHTML = `
+                <div class="legend-box" style="background: #ff6b6b; border-color: #ff5252;"></div>
+                <span>Blocked (Offline) 🔒</span>
+            `;
+            legend.appendChild(blockedItem);
+        }
+
+        document.getElementById('layoutForm').onsubmit = function() {
+            document.getElementById('seatLayoutInput').value = JSON.stringify(seatLayout);
+            
+            const priceTiers = {};
+            categories.forEach(cat => {
+                priceTiers[cat.name.toLowerCase().replace(' ', '_')] = {
+                    name: cat.name,
+                    price: parseInt(cat.price),
+                    color: cat.color,
+                    fromRow: cat.fromRow,
+                    toRow: cat.toRow
+                };
+            });
+            document.getElementById('priceTiersInput').value = JSON.stringify(priceTiers);
+            
+            return true;
+        };
+
+        // Initialize
+        window.onload = function() {
+            renderCategories();
+            generateLayout();
+        };
+    </script>
+</body>
+</html>

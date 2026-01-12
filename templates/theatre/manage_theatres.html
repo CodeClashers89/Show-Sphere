@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -536,8 +537,11 @@
                             <div class="screen-card">
                                 <h4 class="screen-name">{{ screen.name }}</h4>
                                 <span class="screen-seats">Total Seats: {{ screen.total_seats }}</span>
-                                <a href="{% url 'booking:edit_screen' screen.id %}" class="btn-edit-screen">Edit
-                                    Screen</a>
+                                <span class="screen-seats" style="display: block; margin-bottom: 0.5rem;">{{ screen.screen_type }}</span>
+                                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                    <a href="{% url 'booking:configure_screen_layout' screen.id %}" class="btn-edit-screen" style="color: #00BFB2;">🪑 Configure Layout</a>
+                                    <a href="{% url 'booking:edit_screen' screen.id %}" class="btn-edit-screen">Edit Screen</a>
+                                </div>
                             </div>
                             {% empty %}
                             <div class="empty-state"

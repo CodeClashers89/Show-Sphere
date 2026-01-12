@@ -405,8 +405,7 @@
                 <div class="form-group">
                     <label class="form-label" for="{{ form.facilities.id_for_label }}">Facilities</label>
                     {{ form.facilities }}
-                    {% if form.facilities.errors %}<div class="text-danger">{{ form.facilities.errors.0 }}</div>{%
-                    endif%}
+                    {% if form.facilities.errors %}<div class="text-danger">{{ form.facilities.errors.0 }}</div>{%endif%}
                 </div>
 
                 <div class="form-actions">

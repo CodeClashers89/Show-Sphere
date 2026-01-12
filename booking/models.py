@@ -149,6 +149,13 @@ class Venue(models.Model):
     capacity = models.PositiveIntegerField()
     facilities = models.TextField(blank=True, help_text='Parking, Food Court, etc.')
     venue_type = models.CharField(max_length=50, blank=True, help_text='Stadium, Arena, Hall, etc.')
+    
+    # Seat layout configuration (BookMyShow-style)
+    rows = models.IntegerField(default=8, help_text='Number of rows')
+    seats_per_row = models.IntegerField(default=20, help_text='Average seats per row')
+    seat_layout = models.JSONField(default=dict, blank=True, help_text='Complete seat configuration')
+    price_tiers = models.JSONField(default=dict, blank=True, help_text='Pricing tiers')
+    
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
@@ -182,7 +189,30 @@ class Screen(models.Model):
     theatre = models.ForeignKey(Theatre, on_delete=models.CASCADE, related_name='screens')
     name = models.CharField(max_length=50, help_text='Screen 1, Audi 2, etc.')
     total_seats = models.PositiveIntegerField()
-    screen_type = models.CharField(max_length=50, blank=True, help_text='2D, 3D, IMAX, 4DX, etc.')
+    
+    # Screen can support multiple formats (e.g., "2D,3D,IMAX")
+    SCREEN_FORMAT_CHOICES = [
+        ('2D', '2D'),
+        ('3D', '3D'),
+        ('IMAX', 'IMAX'),
+        ('4DX', '4DX'),
+        ('IMAX_3D', 'IMAX 3D'),
+        ('DOLBY_ATMOS', 'Dolby Atmos'),
+        ('SCREEN_X', 'ScreenX'),
+    ]
+    screen_type = models.CharField(
+        max_length=100,
+        default='2D',
+        blank=True,
+        help_text='Supported formats (comma-separated): 2D, 3D, IMAX, etc.'
+    )
+    
+    # Seat layout configuration (BookMyShow-style)
+    rows = models.IntegerField(default=10, help_text='Number of rows')
+    seats_per_row = models.IntegerField(default=15, help_text='Average seats per row')
+    seat_layout = models.JSONField(default=dict, blank=True, help_text='Complete seat configuration')
+    price_tiers = models.JSONField(default=dict, blank=True, help_text='Pricing tiers')
+    
     is_active = models.BooleanField(default=True)
     
     class Meta:
@@ -286,6 +316,24 @@ class Show(models.Model):
     show_time = models.TimeField()
     end_time = models.TimeField()
     base_price = models.DecimalField(max_digits=10, decimal_places=2, help_text='Starting price')
+    
+    # Show-specific format (must be one of the screen's supported formats)
+    SHOW_FORMAT_CHOICES = [
+        ('2D', '2D'),
+        ('3D', '3D'),
+        ('IMAX', 'IMAX'),
+        ('4DX', '4DX'),
+        ('IMAX_3D', 'IMAX 3D'),
+        ('DOLBY_ATMOS', 'Dolby Atmos'),
+        ('SCREEN_X', 'ScreenX'),
+    ]
+    show_format = models.CharField(
+        max_length=20,
+        choices=SHOW_FORMAT_CHOICES,
+        default='2D',
+        help_text='Format for this specific show'
+    )
+    
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
@@ -293,10 +341,44 @@ class Show(models.Model):
         ordering = ['show_date', 'show_time']
     
     def __str__(self):
-        if self.show_type == 'event':
-            return f"{self.event.title} at {self.venue.name} - {self.show_date} {self.show_time}"
-        else:
-            return f"{self.movie.title} at {self.screen.theatre.name} - {self.show_date} {self.show_time}"
+        if self.show_type == 'movie' and self.movie:
+            return f"{self.movie.title} - {self.show_date} {self.show_time}"
+        elif self.show_type == 'event' and self.event:
+            return f"{self.event.title} - {self.show_date} {self.show_time}"
+        return f"Show {self.id}"
+    
+    def get_seat_layout(self):
+        """Get seat layout from Screen or Venue"""
+        if self.show_type == 'movie' and self.screen:
+            return self.screen.seat_layout if hasattr(self.screen, 'seat_layout') else {}
+        elif self.show_type == 'event' and self.venue:
+            return self.venue.seat_layout if hasattr(self.venue, 'seat_layout') else {}
+        return {}
+    
+    def get_pricing(self):
+        """Get pricing tiers from screen/venue"""
+        if self.show_type == 'movie' and self.screen:
+            return self.screen.price_tiers if hasattr(self.screen, 'price_tiers') else {}
+        elif self.show_type == 'event' and self.venue:
+            return self.venue.price_tiers if hasattr(self.venue, 'price_tiers') else {}
+        return {}
+    
+    def get_total_seats(self):
+        """Calculate total seats from layout"""
+        layout = self.get_seat_layout()
+        total = 0
+        for row_data in layout.values():
+            if isinstance(row_data, dict) and 'seats' in row_data:
+                total += len(row_data['seats'])
+        return total if total > 0 else 0
+    
+    def get_location_name(self):
+        """Get venue/theatre name for display"""
+        if self.show_type == 'movie' and self.screen:
+            return f"{self.screen.theatre.name} - {self.screen.name}"
+        elif self.show_type == 'event' and self.venue:
+            return self.venue.name
+        return "Unknown"
     
     @property
     def available_seats(self):

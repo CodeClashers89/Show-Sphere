@@ -140,39 +140,233 @@ def search(request):
 
 
 def event_detail(request, event_id):
-    """Event detail page"""
+    """Event detail page with date selector and venue grouping"""
     event = get_object_or_404(Event, id=event_id, status='approved')
     
-    # Get upcoming shows for this event
+    # Get selected date or default to today
+    from datetime import datetime, timedelta
+    selected_date_str = request.GET.get('date')
+    if selected_date_str:
+        try:
+            selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            selected_date = timezone.now().date()
+    else:
+        selected_date = timezone.now().date()
+    
+    # Generate date options (next 7 days)
+    date_options = []
+    for i in range(7):
+        date = timezone.now().date() + timedelta(days=i)
+        date_options.append(date)
+    
+    # Get shows for this event on the selected date
     shows = Show.objects.filter(
         event=event,
-        show_date__gte=timezone.now().date(),
+        show_date=selected_date,
         is_active=True
-    ).select_related('venue').order_by('show_date', 'show_time')
+    ).select_related('venue').order_by('venue', 'show_time')
+    
+    # Group shows by venue
+    from collections import defaultdict
+    venues_with_shows = defaultdict(list)
+    for show in shows:
+        venues_with_shows[show.venue].append(show)
     
     context = {
         'event': event,
-        'shows': shows,
+        'venues_with_shows': dict(venues_with_shows),
+        'selected_date': selected_date,
+        'date_options': date_options,
     }
     return render(request, 'event_detail.html', context)
 
 
 def movie_detail(request, movie_id):
-    """Movie detail page"""
+    """Movie detail page with date selector and theatre grouping"""
     movie = get_object_or_404(Movie, id=movie_id, status='approved')
     
-    # Get upcoming shows for this movie
+    # Get selected date or default to today
+    from datetime import datetime, timedelta
+    selected_date_str = request.GET.get('date')
+    if selected_date_str:
+        try:
+            selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            selected_date = timezone.now().date()
+    else:
+        selected_date = timezone.now().date()
+    
+    # Generate date options (next 7 days)
+    date_options = []
+    for i in range(7):
+        date = timezone.now().date() + timedelta(days=i)
+        date_options.append(date)
+    
+    # Get shows for this movie on the selected date
     shows = Show.objects.filter(
         movie=movie,
-        show_date__gte=timezone.now().date(),
+        show_date=selected_date,
         is_active=True
-    ).select_related('screen__theatre').order_by('show_date', 'show_time')
+    ).select_related('screen__theatre').order_by('screen__theatre', 'show_time')
+    
+    # Group shows by theatre
+    from collections import defaultdict
+    theatres_with_shows = defaultdict(list)
+    for show in shows:
+        theatres_with_shows[show.screen.theatre].append(show)
     
     context = {
         'movie': movie,
-        'shows': shows,
+        'theatres_with_shows': dict(theatres_with_shows),
+        'selected_date': selected_date,
+        'date_options': date_options,
     }
     return render(request, 'movie_detail.html', context)
+
+
+def theatre_list(request):
+    """List all theatres with filtering options"""
+    city_id = request.GET.get('city')
+    search_query = request.GET.get('q', '')
+    
+    theatres = Theatre.objects.filter(is_active=True).select_related('city', 'owner')
+    
+    # Apply city filter
+    if city_id:
+        theatres = theatres.filter(city_id=city_id)
+    
+    # Apply search filter
+    if search_query:
+        theatres = theatres.filter(
+            Q(name__icontains=search_query) | 
+            Q(address__icontains=search_query)
+        )
+    
+    theatres = theatres.order_by('city__name', 'name')
+    
+    context = {
+        'theatres': theatres,
+        'cities': City.objects.filter(is_active=True),
+        'selected_city_id': city_id,
+        'search_query': search_query,
+    }
+    return render(request, 'theatre_list.html', context)
+
+
+def theatre_detail(request, theatre_id):
+    """Theatre detail page showing currently playing movies"""
+    theatre = get_object_or_404(Theatre, id=theatre_id, is_active=True)
+    
+    # Get selected date or default to today
+    from datetime import datetime, timedelta
+    selected_date_str = request.GET.get('date')
+    if selected_date_str:
+        try:
+            selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            selected_date = timezone.now().date()
+    else:
+        selected_date = timezone.now().date()
+    
+    # Generate date options (next 7 days)
+    date_options = []
+    for i in range(7):
+        date = timezone.now().date() + timedelta(days=i)
+        date_options.append(date)
+    
+    # Get all shows for this theatre on the selected date
+    shows = Show.objects.filter(
+        screen__theatre=theatre,
+        show_date=selected_date,
+        is_active=True
+    ).select_related('movie', 'screen').order_by('movie', 'show_time')
+    
+    # Group shows by movie
+    from collections import defaultdict
+    movies_with_shows = defaultdict(list)
+    for show in shows:
+        movies_with_shows[show.movie].append(show)
+    
+    context = {
+        'theatre': theatre,
+        'movies_with_shows': dict(movies_with_shows),
+        'selected_date': selected_date,
+        'date_options': date_options,
+    }
+    return render(request, 'theatre_detail.html', context)
+
+
+def venue_list(request):
+    """List all venues with filtering options"""
+    city_id = request.GET.get('city')
+    search_query = request.GET.get('q', '')
+    
+    venues = Venue.objects.filter(is_active=True).select_related('city', 'organizer')
+    
+    # Apply city filter
+    if city_id:
+        venues = venues.filter(city_id=city_id)
+    
+    # Apply search filter
+    if search_query:
+        venues = venues.filter(
+            Q(name__icontains=search_query) | 
+            Q(address__icontains=search_query)
+        )
+    
+    venues = venues.order_by('city__name', 'name')
+    
+    context = {
+        'venues': venues,
+        'cities': City.objects.filter(is_active=True),
+        'selected_city_id': city_id,
+        'search_query': search_query,
+    }
+    return render(request, 'venue_list.html', context)
+
+
+def venue_detail(request, venue_id):
+    """Venue detail page showing upcoming events"""
+    venue = get_object_or_404(Venue, id=venue_id, is_active=True)
+    
+    # Get selected date or default to today
+    from datetime import datetime, timedelta
+    selected_date_str = request.GET.get('date')
+    if selected_date_str:
+        try:
+            selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            selected_date = timezone.now().date()
+    else:
+        selected_date = timezone.now().date()
+    
+    # Generate date options (next 7 days)
+    date_options = []
+    for i in range(7):
+        date = timezone.now().date() + timedelta(days=i)
+        date_options.append(date)
+    
+    # Get all shows for this venue on the selected date
+    shows = Show.objects.filter(
+        venue=venue,
+        show_date=selected_date,
+        is_active=True
+    ).select_related('event').order_by('event', 'show_time')
+    
+    # Group shows by event
+    from collections import defaultdict
+    events_with_shows = defaultdict(list)
+    for show in shows:
+        events_with_shows[show.event].append(show)
+    
+    context = {
+        'venue': venue,
+        'events_with_shows': dict(events_with_shows),
+        'selected_date': selected_date,
+        'date_options': date_options,
+    }
+    return render(request, 'venue_detail.html', context)
 
 
 # ============= AUTHENTICATION =============
@@ -195,6 +389,39 @@ def user_login(request):
                 request.session['registration_user_id'] = user.id
                 messages.info(request, 'Your account is not verified. A new verification code has been sent.')
                 return redirect('booking:verify_registration_otp')
+            
+            # Check approval status for organizers and theatre owners
+            if user.role == 'organizer':
+                try:
+                    profile = user.organizer_profile
+                    if profile.status == 'pending':
+                        messages.warning(request, 'Your account is pending admin approval. Please wait for approval before logging in.')
+                        return redirect('booking:login')
+                    elif profile.status == 'rejected':
+                        messages.error(request, 'Your account application has been rejected. Please contact support for more information.')
+                        return redirect('booking:login')
+                    elif profile.status == 'suspended':
+                        messages.error(request, 'Your account has been suspended. Please contact support.')
+                        return redirect('booking:login')
+                except:
+                    messages.error(request, 'Organizer profile not found.')
+                    return redirect('booking:login')
+                    
+            elif user.role == 'theatre_owner':
+                try:
+                    profile = user.theatre_profile
+                    if profile.status == 'pending':
+                        messages.warning(request, 'Your account is pending admin approval. Please wait for approval before logging in.')
+                        return redirect('booking:login')
+                    elif profile.status == 'rejected':
+                        messages.error(request, 'Your account application has been rejected. Please contact support for more information.')
+                        return redirect('booking:login')
+                    elif profile.status == 'suspended':
+                        messages.error(request, 'Your account has been suspended. Please contact support.')
+                        return redirect('booking:login')
+                except:
+                    messages.error(request, 'Theatre owner profile not found.')
+                    return redirect('booking:login')
                 
             login(request, user)
             messages.success(request, f'Welcome back, {user.username}!')
@@ -253,8 +480,26 @@ def verify_registration_otp(request):
                 
                 del request.session['registration_user_id']
                 
-                # Log them in automatically? Or ask to login?
-                # Let's log them in for smoother experience
+                # Check if user needs approval before login
+                if user.role == 'organizer':
+                    try:
+                        profile = user.organizer_profile
+                        if profile.status != 'approved':
+                            messages.success(request, 'Email verified successfully! Your account is pending admin approval. You will be notified once approved.')
+                            return redirect('booking:login')
+                    except:
+                        pass
+                        
+                elif user.role == 'theatre_owner':
+                    try:
+                        profile = user.theatre_profile
+                        if profile.status != 'approved':
+                            messages.success(request, 'Email verified successfully! Your account is pending admin approval. You will be notified once approved.')
+                            return redirect('booking:login')
+                    except:
+                        pass
+                
+                # For customers or approved organizers/theatre owners, log them in
                 login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 messages.success(request, 'Account verified successfully!')
                 return _redirect_after_login(user)
@@ -274,7 +519,7 @@ def verify_registration_otp(request):
 def _redirect_after_login(user):
     """Helper to redirect based on role"""
     if user.role == 'customer':
-        return redirect('booking:customer_dashboard')
+        return redirect('booking:home')
     elif user.role == 'organizer':
         return redirect('booking:organizer_dashboard')
     elif user.role == 'theatre_owner':
@@ -336,6 +581,10 @@ def organizer_register(request):
             otp_code = generate_otp(user, 'registration')
             send_otp_email(user, otp_code, 'registration')
             
+            # Send pending approval email
+            from .utils import send_registration_pending_email
+            send_registration_pending_email(user, 'Event Organizer')
+            
             request.session['registration_user_id'] = user.id
             messages.success(request, 'Registration submitted! Please verify your email.')
             return redirect('booking:verify_registration_otp')
@@ -367,6 +616,10 @@ def theatre_register(request):
             # Generate & Send OTP
             otp_code = generate_otp(user, 'registration')
             send_otp_email(user, otp_code, 'registration')
+            
+            # Send pending approval email
+            from .utils import send_registration_pending_email
+            send_registration_pending_email(user, 'Theatre Owner')
             
             request.session['registration_user_id'] = user.id
             messages.success(request, 'Registration submitted! Please verify your email.')
@@ -776,33 +1029,123 @@ def delete_venue(request, venue_id):
 
 
 @approved_organizer_required
+def configure_venue_layout(request, venue_id):
+    """Configure seat layout for a venue"""
+    venue = get_object_or_404(Venue, id=venue_id, organizer=request.user.organizer_profile)
+    
+    if request.method == 'POST':
+        import json
+        
+        venue.rows = int(request.POST.get('rows', 8))
+        venue.seats_per_row = int(request.POST.get('seats_per_row', 20))
+        
+        # Parse seat layout from JSON
+        seat_layout_json = request.POST.get('seat_layout', '{}')
+        try:
+            venue.seat_layout = json.loads(seat_layout_json)
+        except:
+            venue.seat_layout = {}
+        
+        # Parse price tiers from JSON
+        price_tiers_json = request.POST.get('price_tiers', '{}')
+        try:
+            venue.price_tiers = json.loads(price_tiers_json)
+        except:
+            venue.price_tiers = {}
+        
+        # Calculate total seats from layout
+        total = 0
+        for row_data in venue.seat_layout.values():
+            if isinstance(row_data, dict) and 'seats' in row_data:
+                total += len(row_data['seats'])
+        venue.capacity = total if total > 0 else venue.rows * venue.seats_per_row
+        
+        venue.save()
+        messages.success(request, f'Seat layout configured! Total seats: {venue.capacity}')
+        return redirect('booking:manage_venues')
+    
+    context = {
+        'venue': venue,
+    }
+    return render(request, 'organizer/configure_venue_layout.html', context)
+
+
+@approved_organizer_required
 def schedule_event_show(request, event_id):
-    """Schedule show for event"""
-    event = get_object_or_404(Event, id=event_id, organizer=request.user.organizer_profile, status='approved')
+    """Bulk schedule shows for an event across multiple days"""
+    event = get_object_or_404(Event, id=event_id, organizer=request.user.organizer_profile)
     venues = Venue.objects.filter(organizer=request.user.organizer_profile, is_active=True)
     
     if request.method == 'POST':
-        form = ShowForm(request.POST)
-        venue_id = request.POST.get('venue')
+        import json
+        from datetime import datetime, timedelta
         
-        if form.is_valid() and venue_id:
-            venue = get_object_or_404(Venue, id=venue_id, organizer=request.user.organizer_profile)
-            show = form.save(commit=False)
-            show.show_type = 'event'
-            show.event = event
-            show.venue = venue
-            show.save()
-            messages.success(request, 'Show scheduled successfully!')
-            return redirect('booking:configure_event_seats', show_id=show.id)
-    else:
-        form = ShowForm()
+        # Get date range
+        start_date_str = request.POST.get('start_date')
+        end_date_str = request.POST.get('end_date')
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        
+        # Get selected venue
+        venue_id = request.POST.get('venue')
+        venue = get_object_or_404(Venue, id=venue_id, organizer=request.user.organizer_profile)
+        
+        # Get timing configurations
+        weekday_timings_json = request.POST.get('weekday_timings', '[]')
+        weekend_timings_json = request.POST.get('weekend_timings', '[]')
+        
+        try:
+            weekday_timings = json.loads(weekday_timings_json)
+            weekend_timings = json.loads(weekend_timings_json)
+        except:
+            weekday_timings = []
+            weekend_timings = []
+        
+        # Generate shows
+        shows_created = 0
+        current_date = start_date
+        
+        while current_date <= end_date:
+            # Determine if weekend
+            is_weekend = current_date.weekday() >= 5
+            timings = weekend_timings if is_weekend else weekday_timings
+            
+            # Create shows for each timing
+            for timing in timings:
+                try:
+                    show_time = datetime.strptime(timing, '%H:%M').time()
+                    
+                    # Check if show already exists
+                    existing = Show.objects.filter(
+                        show_type='event',
+                        event=event,
+                        venue=venue,
+                        show_date=current_date,
+                        show_time=show_time
+                    ).exists()
+                    
+                    if not existing:
+                        Show.objects.create(
+                            show_type='event',
+                            event=event,
+                            venue=venue,
+                            show_date=current_date,
+                            show_time=show_time
+                        )
+                        shows_created += 1
+                except Exception as e:
+                    continue
+            
+            current_date += timedelta(days=1)
+        
+        messages.success(request, f'Successfully created {shows_created} shows!')
+        return redirect('booking:manage_events')
     
     context = {
-        'form': form,
         'event': event,
         'venues': venues,
     }
-    return render(request, 'organizer/schedule_show.html', context)
+    return render(request, 'organizer/schedule_event_bulk.html', context)
 
 
 @approved_organizer_required
@@ -1064,33 +1407,133 @@ def edit_screen(request, screen_id):
 
 
 @approved_theatre_owner_required
-def schedule_movie_show(request, movie_id):
-    """Schedule show for movie"""
-    movie = get_object_or_404(Movie, id=movie_id, theatre_owner=request.user.theatre_profile, status='approved')
-    theatres = Theatre.objects.filter(owner=request.user.theatre_profile, is_active=True)
+def configure_screen_layout(request, screen_id):
+    """Configure seat layout for a screen"""
+    screen = get_object_or_404(Screen, id=screen_id, theatre__owner=request.user.theatre_profile)
     
     if request.method == 'POST':
-        form = ShowForm(request.POST)
-        screen_id = request.POST.get('screen')
+        import json
         
-        if form.is_valid() and screen_id:
-            screen = get_object_or_404(Screen, id=screen_id, theatre__owner=request.user.theatre_profile)
-            show = form.save(commit=False)
-            show.show_type = 'movie'
-            show.movie = movie
-            show.screen = screen
-            show.save()
-            messages.success(request, 'Show scheduled successfully!')
-            return redirect('booking:configure_movie_seats', show_id=show.id)
-    else:
-        form = ShowForm()
+        # Update screen format if changed
+        screen.screen_type = request.POST.get('screen_type', screen.screen_type)
+        screen.rows = int(request.POST.get('rows', 10))
+        screen.seats_per_row = int(request.POST.get('seats_per_row', 15))
+        
+        # Parse seat layout from JSON
+        seat_layout_json = request.POST.get('seat_layout', '{}')
+        try:
+            screen.seat_layout = json.loads(seat_layout_json)
+        except:
+            screen.seat_layout = {}
+        
+        # Parse price tiers from JSON
+        price_tiers_json = request.POST.get('price_tiers', '{}')
+        try:
+            screen.price_tiers = json.loads(price_tiers_json)
+        except:
+            screen.price_tiers = {}
+        
+        # Calculate total seats from layout
+        total = 0
+        for row_data in screen.seat_layout.values():
+            if isinstance(row_data, dict) and 'seats' in row_data:
+                total += len(row_data['seats'])
+        screen.total_seats = total if total > 0 else screen.rows * screen.seats_per_row
+        
+        screen.save()
+        messages.success(request, f'Seat layout configured! Total seats: {screen.total_seats}')
+        return redirect('booking:manage_screens', theatre_id=screen.theatre.id)
     
     context = {
-        'form': form,
+        'screen': screen,
+        'format_choices': Screen.SCREEN_FORMAT_CHOICES,
+    }
+    return render(request, 'theatre/configure_screen_layout.html', context)
+
+
+@approved_theatre_owner_required
+def schedule_movie_show(request, movie_id):
+    """Bulk schedule shows for a movie across multiple days and screens"""
+    movie = get_object_or_404(Movie, id=movie_id, theatre_owner=request.user.theatre_profile)
+    theatres = Theatre.objects.filter(owner=request.user.theatre_profile, is_active=True)
+    screens = Screen.objects.filter(theatre__owner=request.user.theatre_profile, is_active=True)
+    
+    if request.method == 'POST':
+        import json
+        from datetime import datetime, timedelta
+        
+        # Get date range
+        start_date_str = request.POST.get('start_date')
+        end_date_str = request.POST.get('end_date')
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        
+        # Get selected screens
+        selected_screen_ids = request.POST.getlist('screens')
+        selected_screens = Screen.objects.filter(id__in=selected_screen_ids)
+        
+        # Get show format
+        show_format = request.POST.get('show_format', '2D')
+        
+        # Get timing configurations
+        weekday_timings_json = request.POST.get('weekday_timings', '[]')
+        weekend_timings_json = request.POST.get('weekend_timings', '[]')
+        
+        try:
+            weekday_timings = json.loads(weekday_timings_json)
+            weekend_timings = json.loads(weekend_timings_json)
+        except:
+            weekday_timings = []
+            weekend_timings = []
+        
+        # Generate shows
+        shows_created = 0
+        current_date = start_date
+        
+        while current_date <= end_date:
+            # Determine if weekend (5=Saturday, 6=Sunday)
+            is_weekend = current_date.weekday() >= 5
+            timings = weekend_timings if is_weekend else weekday_timings
+            
+            # Create shows for each selected screen and timing
+            for screen in selected_screens:
+                for timing in timings:
+                    try:
+                        show_time = datetime.strptime(timing, '%H:%M').time()
+                        
+                        # Check if show already exists
+                        existing = Show.objects.filter(
+                            show_type='movie',
+                            movie=movie,
+                            screen=screen,
+                            show_date=current_date,
+                            show_time=show_time
+                        ).exists()
+                        
+                        if not existing:
+                            Show.objects.create(
+                                show_type='movie',
+                                movie=movie,
+                                screen=screen,
+                                show_date=current_date,
+                                show_time=show_time,
+                                show_format=show_format
+                            )
+                            shows_created += 1
+                    except Exception as e:
+                        continue
+            
+            current_date += timedelta(days=1)
+        
+        messages.success(request, f'Successfully created {shows_created} shows!')
+        return redirect('booking:manage_movies')
+    
+    context = {
         'movie': movie,
         'theatres': theatres,
+        'screens': screens,
     }
-    return render(request, 'theatre/schedule_show.html', context)
+    return render(request, 'theatre/schedule_movie_bulk.html', context)
 
 
 @approved_theatre_owner_required
@@ -1170,12 +1613,14 @@ def admin_dashboard(request):
     # Get QuerySets for tables
     pending_organizers_qs = OrganizerProfile.objects.filter(status='pending')
     pending_theatres_qs = TheatreOwnerProfile.objects.filter(status='pending')
+    pending_events_qs = Event.objects.filter(status='pending').select_related('organizer', 'category')
+    pending_movies_qs = Movie.objects.filter(status='pending').select_related('theatre_owner', 'language')
     
     # Get counts for statistics
     pending_organizers_count = pending_organizers_qs.count()
     pending_theatres_count = pending_theatres_qs.count()
-    pending_events_count = Event.objects.filter(status='pending').count()
-    pending_movies_count = Movie.objects.filter(status='pending').count()
+    pending_events_count = pending_events_qs.count()
+    pending_movies_count = pending_movies_qs.count()
     
     pending_approvals = pending_organizers_count + pending_theatres_count + pending_events_count + pending_movies_count
     
@@ -1191,8 +1636,8 @@ def admin_dashboard(request):
     context = {
         'pending_organizers': pending_organizers_qs,
         'pending_theatres': pending_theatres_qs,
-        'pending_events': pending_events_count,
-        'pending_movies': pending_movies_count,
+        'pending_events': pending_events_qs,
+        'pending_movies': pending_movies_qs,
         'pending_approvals': pending_approvals,
         'total_users': total_users,
         'total_bookings': total_bookings,
@@ -1215,13 +1660,8 @@ def admin_users(request):
 
 @admin_required
 def admin_organizers(request):
-    """Manage organizers"""
-    organizers = OrganizerProfile.objects.all().order_by('-created_at')
-    
-    context = {
-        'organizers': organizers,
-    }
-    return render(request, 'admin_panel/organizers.html', context)
+    """Manage organizers - redirects to dashboard with approvals section"""
+    return redirect('booking:admin_dashboard')
 
 
 @admin_required
@@ -1231,8 +1671,13 @@ def approve_organizer(request, profile_id):
     profile.status = 'approved'
     profile.approved_at = timezone.now()
     profile.save()
+    
+    # Send approval email
+    from .utils import send_approval_email
+    send_approval_email(profile.user, 'Event Organizer')
+    
     messages.success(request, f'{profile.organization_name} approved successfully!')
-    return redirect('booking:admin_organizers')
+    return redirect('booking:admin_dashboard')
 
 
 @admin_required
@@ -1241,19 +1686,14 @@ def reject_organizer(request, profile_id):
     profile = get_object_or_404(OrganizerProfile, id=profile_id)
     profile.status = 'rejected'
     profile.save()
-    messages.success(request, f'{profile.organization_name} rejected.')
-    return redirect('booking:admin_organizers')
+    messages.warning(request, f'{profile.organization_name} rejected.')
+    return redirect('booking:admin_dashboard')
 
 
 @admin_required
 def admin_theatre_owners(request):
-    """Manage theatre owners"""
-    theatre_owners = TheatreOwnerProfile.objects.all().order_by('-created_at')
-    
-    context = {
-        'theatre_owners': theatre_owners,
-    }
-    return render(request, 'admin_panel/theatre_owners.html', context)
+    """Manage theatre owners - redirects to dashboard with approvals section"""
+    return redirect('booking:admin_dashboard')
 
 
 @admin_required
@@ -1263,8 +1703,13 @@ def approve_theatre_owner(request, profile_id):
     profile.status = 'approved'
     profile.approved_at = timezone.now()
     profile.save()
+    
+    # Send approval email
+    from .utils import send_approval_email
+    send_approval_email(profile.user, 'Theatre Owner')
+    
     messages.success(request, f'{profile.theatre_chain_name} approved successfully!')
-    return redirect('booking:admin_theatre_owners')
+    return redirect('booking:admin_dashboard')
 
 
 @admin_required
@@ -1273,19 +1718,14 @@ def reject_theatre_owner(request, profile_id):
     profile = get_object_or_404(TheatreOwnerProfile, id=profile_id)
     profile.status = 'rejected'
     profile.save()
-    messages.success(request, f'{profile.theatre_chain_name} rejected.')
-    return redirect('booking:admin_theatre_owners')
+    messages.warning(request, f'{profile.theatre_chain_name} rejected.')
+    return redirect('booking:admin_dashboard')
 
 
 @admin_required
 def admin_events(request):
-    """Manage events"""
-    events = Event.objects.all().order_by('-created_at')
-    
-    context = {
-        'events': events,
-    }
-    return render(request, 'admin_panel/events.html', context)
+    """Manage events - redirects to dashboard with approvals section"""
+    return redirect('booking:admin_dashboard')
 
 
 @admin_required
@@ -1295,7 +1735,7 @@ def approve_event(request, event_id):
     event.status = 'approved'
     event.save()
     messages.success(request, f'{event.title} approved successfully!')
-    return redirect('booking:admin_events')
+    return redirect('booking:admin_dashboard')
 
 
 @admin_required
@@ -1304,19 +1744,14 @@ def reject_event(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     event.status = 'rejected'
     event.save()
-    messages.success(request, f'{event.title} rejected.')
-    return redirect('booking:admin_events')
+    messages.warning(request, f'{event.title} rejected.')
+    return redirect('booking:admin_dashboard')
 
 
 @admin_required
 def admin_movies(request):
-    """Manage movies"""
-    movies = Movie.objects.all().order_by('-created_at')
-    
-    context = {
-        'movies': movies,
-    }
-    return render(request, 'admin_panel/movies.html', context)
+    """Manage movies - redirects to dashboard with approvals section"""
+    return redirect('booking:admin_dashboard')
 
 
 @admin_required
@@ -1326,7 +1761,7 @@ def approve_movie(request, movie_id):
     movie.status = 'approved'
     movie.save()
     messages.success(request, f'{movie.title} approved successfully!')
-    return redirect('booking:admin_movies')
+    return redirect('booking:admin_dashboard')
 
 
 @admin_required
@@ -1335,8 +1770,8 @@ def reject_movie(request, movie_id):
     movie = get_object_or_404(Movie, id=movie_id)
     movie.status = 'rejected'
     movie.save()
-    messages.success(request, f'{movie.title} rejected.')
-    return redirect('booking:admin_movies')
+    messages.warning(request, f'{movie.title} rejected.')
+    return redirect('booking:admin_dashboard')
 
 
 @admin_required

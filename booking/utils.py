@@ -304,3 +304,325 @@ def send_otp_email(user, otp_code, purpose):
         fail_silently=False,
     )
 
+
+def send_registration_pending_email(user, role_name):
+    """Send email to organizer/theatre owner after registration - pending approval"""
+    from django.core.mail import EmailMultiAlternatives
+    
+    subject = f'Registration Received - ShowSphere {role_name}'
+    
+    # Plain text version
+    text_content = f"""
+    Hi {user.first_name or user.username},
+    
+    Thank you for registering with ShowSphere as a {role_name}!
+    
+    Your registration has been received and is currently under review by our admin team.
+    You will receive an email notification once your account has been approved.
+    
+    This process typically takes 24-48 hours.
+    
+    If you have any questions, please contact our support team.
+    
+    Thanks,
+    ShowSphere Team
+    """
+    
+    # HTML version with branding
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {{
+                margin: 0;
+                padding: 0;
+                font-family: 'Roboto', Arial, sans-serif;
+                background-color: #F9F7FF;
+            }}
+            .email-container {{
+                max-width: 600px;
+                margin: 20px auto;
+                background: white;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 4px 20px rgba(140, 82, 255, 0.15);
+            }}
+            .header {{
+                background: linear-gradient(135deg, #8C52FF 0%, #00BFB2 100%);
+                padding: 30px 20px;
+                text-align: center;
+            }}
+            .logo {{
+                font-size: 32px;
+                font-weight: 700;
+                color: white;
+                margin: 0;
+            }}
+            .content {{
+                padding: 40px 30px;
+                color: #2D2042;
+            }}
+            .content h2 {{
+                color: #8C52FF;
+                margin-top: 0;
+                margin-bottom: 20px;
+                font-size: 24px;
+            }}
+            .content p {{
+                line-height: 1.8;
+                color: #666;
+                margin: 15px 0;
+            }}
+            .highlight-box {{
+                background: #F9F7FF;
+                border-left: 4px solid #8C52FF;
+                padding: 15px 20px;
+                margin: 25px 0;
+                border-radius: 4px;
+            }}
+            .highlight-box p {{
+                margin: 0;
+                font-weight: 500;
+                color: #2D2042;
+            }}
+            .footer {{
+                background: #1f2533;
+                padding: 25px 30px;
+                text-align: center;
+                color: #abb2bf;
+                font-size: 14px;
+            }}
+            .footer p {{
+                margin: 5px 0;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="email-container">
+            <div class="header">
+                <h1 class="logo">Show<span style="color: #00BFB2;">Sphere</span></h1>
+            </div>
+            
+            <div class="content">
+                <h2>Registration Received!</h2>
+                
+                <p>Hi <strong>{user.first_name or user.username}</strong>,</p>
+                
+                <p>Thank you for registering with ShowSphere as a <strong>{role_name}</strong>!</p>
+                
+                <div class="highlight-box">
+                    <p>✅ Your registration has been received and is currently under review by our admin team.</p>
+                </div>
+                
+                <p>You will receive an email notification once your account has been approved. This process typically takes <strong>24-48 hours</strong>.</p>
+                
+                <p>Once approved, you'll be able to:</p>
+                <ul>
+                    <li>Access your dashboard</li>
+                    <li>Manage your listings</li>
+                    <li>Start selling tickets</li>
+                </ul>
+                
+                <p>If you have any questions, please don't hesitate to contact our support team.</p>
+                
+                <p style="margin-top: 30px;">Best regards,<br><strong>The ShowSphere Team</strong></p>
+            </div>
+            
+            <div class="footer">
+                <p>© {timezone.now().year} ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.</p>
+                <p>This is an automated email. Please do not reply to this message.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    email = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [user.email])
+    email.attach_alternative(html_content, "text/html")
+    email.send(fail_silently=True)
+
+
+def send_approval_email(user, role_name):
+    """Send email to organizer/theatre owner after admin approval"""
+    from django.core.mail import EmailMultiAlternatives
+    
+    subject = f'Account Approved - ShowSphere {role_name}'
+    
+    # Plain text version
+    text_content = f"""
+    Hi {user.first_name or user.username},
+    
+    Great news! Your ShowSphere {role_name} account has been approved!
+    
+    You can now log in to your account and start using all the features available to you.
+    
+    Login here: {settings.SITE_URL if hasattr(settings, 'SITE_URL') else 'https://showsphere.com'}/login/
+    
+    Username: {user.username}
+    
+    If you have any questions, our support team is here to help.
+    
+    Welcome to ShowSphere!
+    
+    Thanks,
+    ShowSphere Team
+    """
+    
+    # HTML version with branding
+    html_content = f"""
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body {{
+                margin: 0;
+                padding: 0;
+                font-family: 'Roboto', Arial, sans-serif;
+                background-color: #F9F7FF;
+            }}
+            .email-container {{
+                max-width: 600px;
+                margin: 20px auto;
+                background: white;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 4px 20px rgba(140, 82, 255, 0.15);
+            }}
+            .header {{
+                background: linear-gradient(135deg, #8C52FF 0%, #00BFB2 100%);
+                padding: 30px 20px;
+                text-align: center;
+            }}
+            .logo {{
+                font-size: 32px;
+                font-weight: 700;
+                color: white;
+                margin: 0;
+            }}
+            .content {{
+                padding: 40px 30px;
+                color: #2D2042;
+            }}
+            .content h2 {{
+                color: #8C52FF;
+                margin-top: 0;
+                margin-bottom: 20px;
+                font-size: 24px;
+            }}
+            .content p {{
+                line-height: 1.8;
+                color: #666;
+                margin: 15px 0;
+            }}
+            .success-box {{
+                background: linear-gradient(135deg, #8C52FF 0%, #00BFB2 100%);
+                color: white;
+                padding: 25px;
+                margin: 25px 0;
+                border-radius: 8px;
+                text-align: center;
+            }}
+            .success-box h3 {{
+                margin: 0 0 10px 0;
+                font-size: 28px;
+            }}
+            .success-box p {{
+                margin: 0;
+                color: white;
+                opacity: 0.95;
+            }}
+            .login-button {{
+                display: inline-block;
+                background: #8C52FF;
+                color: white;
+                padding: 12px 30px;
+                text-decoration: none;
+                border-radius: 8px;
+                font-weight: 600;
+                margin: 20px 0;
+            }}
+            .info-box {{
+                background: #F9F7FF;
+                padding: 15px 20px;
+                margin: 25px 0;
+                border-radius: 8px;
+                border-left: 4px solid #8C52FF;
+            }}
+            .info-box p {{
+                margin: 5px 0;
+                color: #2D2042;
+            }}
+            .footer {{
+                background: #1f2533;
+                padding: 25px 30px;
+                text-align: center;
+                color: #abb2bf;
+                font-size: 14px;
+            }}
+            .footer p {{
+                margin: 5px 0;
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="email-container">
+            <div class="header">
+                <h1 class="logo">Show<span style="color: #00BFB2;">Sphere</span></h1>
+            </div>
+            
+            <div class="content">
+                <div class="success-box">
+                    <h3>🎉 Congratulations!</h3>
+                    <p>Your account has been approved</p>
+                </div>
+                
+                <p>Hi <strong>{user.first_name or user.username}</strong>,</p>
+                
+                <p>Great news! Your ShowSphere <strong>{role_name}</strong> account has been approved by our admin team!</p>
+                
+                <p>You can now log in to your account and start using all the features available to you.</p>
+                
+                <div style="text-align: center;">
+                    <a href="{settings.SITE_URL if hasattr(settings, 'SITE_URL') else 'http://localhost:8000'}/login/" class="login-button">
+                        Login to Your Account
+                    </a>
+                </div>
+                
+                <div class="info-box">
+                    <p><strong>Username:</strong> {user.username}</p>
+                    <p><strong>Email:</strong> {user.email}</p>
+                </div>
+                
+                <p><strong>What you can do now:</strong></p>
+                <ul>
+                    <li>Access your personalized dashboard</li>
+                    <li>Create and manage your listings</li>
+                    <li>Start selling tickets to customers</li>
+                    <li>Track your sales and analytics</li>
+                </ul>
+                
+                <p>If you have any questions or need assistance getting started, our support team is here to help!</p>
+                
+                <p style="margin-top: 30px;">Welcome to the ShowSphere family!</p>
+                
+                <p>Best regards,<br><strong>The ShowSphere Team</strong></p>
+            </div>
+            
+            <div class="footer">
+                <p>© {timezone.now().year} ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.</p>
+                <p>This is an automated email. Please do not reply to this message.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    """
+    
+    email = EmailMultiAlternatives(subject, text_content, settings.DEFAULT_FROM_EMAIL, [user.email])
+    email.attach_alternative(html_content, "text/html")
+    email.send(fail_silently=True)
+

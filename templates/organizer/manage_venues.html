@@ -425,9 +425,12 @@
                         <p class="venue-location">{{ venue.address }}, {{ venue.city.name }}</p>
                         <span class="venue-details">Capacity: {{ venue.capacity }}</span>
                     </div>
-                    <div class="action-buttons">
-                        <a href="{% url 'booking:edit_venue' venue.id %}" class="btn-action btn-edit">Edit</a>
-                        <a href="{% url 'booking:delete_venue' venue.id %}" class="btn-action btn-delete">Delete</a>
+                    <div class="action-buttons" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <a href="{% url 'booking:configure_venue_layout' venue.id %}" class="btn-action" style="background: linear-gradient(135deg, #8C52FF, #00BFB2); color: white; border: none;">🪑 Configure Layout</a>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <a href="{% url 'booking:edit_venue' venue.id %}" class="btn-action btn-edit">Edit</a>
+                            <a href="{% url 'booking:delete_venue' venue.id %}" class="btn-action btn-delete">Delete</a>
+                        </div>
                     </div>
                 </div>
                 {% empty %}

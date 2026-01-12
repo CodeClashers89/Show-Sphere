@@ -1,0 +1,473 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theatres | ShowSphere</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary-color: #8C52FF;
+            --primary-hover: #7b40f2;
+            --text-color: #2D2042;
+            --text-light: #666;
+            --bg-color: #F9F7FF;
+            --white: #fff;
+            --radius: 20px;
+            --shadow: 0 10px 25px rgba(140, 82, 255, .15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* HEADER */
+        .header {
+            background: var(--white);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .05);
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .logo span {
+            color: var(--primary-color);
+        }
+
+        .search-bar form {
+            display: flex;
+        }
+
+        .search-bar input {
+            padding: .6rem 1rem;
+            width: 350px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .btn {
+            padding: .5rem 1.5rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #ddd;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* NAV */
+        .nav-bar {
+            background: linear-gradient(135deg, #8C52FF, #00BFB2);
+            padding: 1rem;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            opacity: 0.9;
+        }
+
+        .nav-links a:hover {
+            opacity: 1;
+        }
+
+        /* MAIN */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+        }
+
+        .page-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-header p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        /* FILTERS */
+        .filters {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        /* THEATRE GRID */
+        .theatre-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .theatre-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .theatre-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(140, 82, 255, .2);
+        }
+
+        .theatre-card h3 {
+            color: var(--text-color);
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .theatre-info {
+            color: var(--text-light);
+            font-size: 0.95rem;
+            margin: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theatre-info i {
+            color: var(--primary-color);
+            width: 18px;
+        }
+
+        .theatre-badge {
+            display: inline-block;
+            background: #f0edf7;
+            color: var(--primary-color);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-top: 1rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 5rem 2rem;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #ddd;
+            margin-bottom: 1.5rem;
+        }
+
+        .empty-state h3 {
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: var(--text-light);
+        }
+
+        /* FOOTER */
+        .footer {
+            background-color: #1f2533;
+            color: #abb2bf;
+            padding: 5rem 2rem 3rem;
+            margin-top: 5rem;
+        }
+
+        .footer-content {
+            max-width: 1240px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            justify-content: center;
+        }
+
+        .social-circle {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #2d3139;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .social-circle:hover {
+            background: var(--primary-color);
+            transform: translateY(-3px);
+            color: white;
+            box-shadow: 0 5px 15px rgba(140, 82, 255, 0.4);
+        }
+
+        .footer-text {
+            text-align: center;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            border-top: 1px solid #2d3139;
+            padding-top: 3rem;
+        }
+
+        @media(max-width:768px) {
+            .theatre-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters {
+                flex-direction: column;
+            }
+
+            .filter-group {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- HEADER -->
+    <header class="header">
+        <a href="{% url 'booking:home' %}" class="logo">Show<span>Sphere</span></a>
+
+        <div class="search-bar">
+            <form action="{% url 'booking:theatre_list' %}" method="get">
+                <input type="text" name="q" placeholder="Search theatres..." value="{{ search_query }}">
+            </form>
+        </div>
+
+        <div class="auth-buttons">
+            {% if user.is_authenticated %}
+            {% if user.role == 'customer' %}
+            <a href="{% url 'booking:customer_dashboard' %}" class="btn btn-outline">Profile</a>
+            {% elif user.role == 'organizer' %}
+            <a href="{% url 'booking:organizer_dashboard' %}" class="btn btn-outline">Dashboard</a>
+            {% elif user.role == 'theatre_owner' %}
+            <a href="{% url 'booking:theatre_dashboard' %}" class="btn btn-outline">Dashboard</a>
+            {% elif user.role == 'admin' %}
+            <a href="{% url 'booking:admin_dashboard' %}" class="btn btn-outline">Admin</a>
+            {% endif %}
+            <a href="{% url 'booking:logout' %}" class="btn btn-primary">Logout</a>
+            {% else %}
+            <a href="{% url 'booking:customer_register' %}" class="btn btn-outline">Sign Up</a>
+            <a href="{% url 'booking:login' %}" class="btn btn-primary">Sign In</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- NAV -->
+    <nav class="nav-bar">
+        <ul class="nav-links">
+            <li><a href="{% url 'booking:browse' %}">Movies</a></li>
+            <li><a href="{% url 'booking:browse' %}?category=events">Events</a></li>
+            <li><a href="{% url 'booking:browse' %}?category=sports">Sports</a></li>
+            <li><a href="{% url 'booking:theatre_list' %}" style="opacity: 1; font-weight: 700;">Theatres</a></li>
+            <li><a href="{% url 'booking:venue_list' %}">Venues</a></li>
+        </ul>
+    </nav>
+
+    <!-- MAIN -->
+    <main class="container">
+        <div class="page-header">
+            <h1>Browse Theatres</h1>
+            <p>Find theatres near you and see what's playing</p>
+        </div>
+
+        <!-- FILTERS -->
+        <div class="filters">
+            <div class="filter-group">
+                <label for="city">Filter by City</label>
+                <select id="city" onchange="this.form.submit()" form="filter-form">
+                    <option value="">All Cities</option>
+                    {% for city in cities %}
+                    <option value="{{ city.id }}" {% if selected_city_id == city.id|stringformat:"s" %}selected{% endif %}>
+                        {{ city.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <form id="filter-form" method="get" style="display: none;">
+            <input type="hidden" name="city" id="city-input">
+            <input type="hidden" name="q" value="{{ search_query }}">
+        </form>
+
+        <!-- THEATRE GRID -->
+        {% if theatres %}
+        <div class="theatre-grid">
+            {% for theatre in theatres %}
+            <a href="{% url 'booking:theatre_detail' theatre.id %}" class="theatre-card">
+                <h3>{{ theatre.name }}</h3>
+                <div class="theatre-info">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>{{ theatre.city.name }}</span>
+                </div>
+                <div class="theatre-info">
+                    <i class="fas fa-film"></i>
+                    <span>{{ theatre.total_screens }} Screen{{ theatre.total_screens|pluralize }}</span>
+                </div>
+                {% if theatre.facilities %}
+                <div class="theatre-info">
+                    <i class="fas fa-check-circle"></i>
+                    <span>{{ theatre.facilities|truncatewords:5 }}</span>
+                </div>
+                {% endif %}
+                <div class="theatre-badge">View Shows</div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-film"></i>
+            <h3>No Theatres Found</h3>
+            <p>Try adjusting your filters or search query</p>
+        </div>
+        {% endif %}
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="{% static 'css/showspere.png' %}" alt="ShowSphere Logo" width="50" height="50"
+                    fetchpriority="high" loading="eager">
+                ShowSphere
+            </div>
+
+            <div class="social-links">
+                <a href="https://www.facebook.com" target="_blank" class="social-circle"><i
+                        class="fab fa-facebook-f"></i></a>
+                <a href="https://www.linkedin.com" target="_blank" class="social-circle"><i
+                        class="fab fa-linkedin-in"></i></a>
+                <a href="https://www.twitter.com" target="_blank" class="social-circle"><i class="fab fa-twitter"></i></a>
+                <a href="https://www.instagram.com" target="_blank" class="social-circle"><i
+                        class="fab fa-instagram"></i></a>
+            </div>
+
+            <p class="footer-text">
+                Copyright {% now "Y" %} @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
+                <br><br>
+                The content and images used on this site are copyright protected and copyrights vests with the
+                respective owners. The usage of the content and images on this website is intended to promote the works
+                and endorsement of the artist shall be implied. Unauthorized use is prohibited and punishable by law.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Handle city filter
+        document.getElementById('city').addEventListener('change', function() {
+            document.getElementById('city-input').value = this.value;
+            document.getElementById('filter-form').submit();
+        });
+    </script>
+</body>
+</html>

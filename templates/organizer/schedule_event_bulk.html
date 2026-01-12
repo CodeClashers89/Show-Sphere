@@ -1,0 +1,593 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule {{ event.title }} | ShowSphere</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #8C52FF;
+            --success: #00BFB2;
+            --bg: #F9F7FF;
+            --white: #fff;
+            --text: #2D2042;
+            --text-light: #666;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background: var(--bg);
+        }
+
+        .header {
+            background: var(--white);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,.05);
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem 3rem;
+        }
+
+        .wizard-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .wizard-steps::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: #e0e0e0;
+            z-index: 0;
+        }
+
+        .wizard-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .step-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #e0e0e0;
+            margin: 0 auto 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .wizard-step.active .step-circle {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .wizard-step.completed .step-circle {
+            background: var(--success);
+            border-color: var(--success);
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .wizard-step.active .step-label {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(140,82,255,.1);
+            margin-bottom: 2rem;
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--text);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .screen-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .screen-checkbox {
+            position: relative;
+        }
+
+        .screen-checkbox input {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .screen-card {
+            padding: 1.5rem;
+            background: #f8f6ff;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .screen-checkbox input:checked + .screen-card {
+            background: linear-gradient(135deg, #8C52FF, #00BFB2);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        .screen-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .screen-card p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .timing-section {
+            background: #f8f6ff;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            border: 2px solid var(--primary);
+        }
+
+        .timing-section h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .time-slots {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .time-input-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .time-input {
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 120px;
+        }
+
+        .add-time-btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .time-pill {
+            padding: 0.75rem 1.5rem;
+            background: white;
+            border: 2px solid var(--success);
+            color: var(--success);
+            border-radius: 8px;
+            font-weight: 600;
+            position: relative;
+            padding-right: 2.5rem;
+        }
+
+        .remove-time {
+            position: absolute;
+            right: 0.5rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: #ff6b6b;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #8C52FF, #00BFB2);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .summary-item h4 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-item p {
+            opacity: 0.9;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(140,82,255,.3);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: var(--text);
+            margin-right: 1rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>Schedule Shows - {{ event.title }}</h1>
+        <p style="color: var(--text-light); margin-top: 0.5rem;">{{ event.category.name }} • {{ event.duration }} min</p>
+    </div>
+
+    <div class="container">
+        <div class="wizard-steps">
+            <div class="wizard-step active" id="step1-indicator">
+                <div class="step-circle">1</div>
+                <div class="step-label">Date Range</div>
+            </div>
+            <div class="wizard-step" id="step2-indicator">
+                <div class="step-circle">2</div>
+                <div class="step-label">Select Venue</div>
+            </div>
+            <div class="wizard-step" id="step3-indicator">
+                <div class="step-circle">3</div>
+                <div class="step-label">Set Timings</div>
+            </div>
+            <div class="wizard-step" id="step4-indicator">
+                <div class="step-circle">4</div>
+                <div class="step-label">Review</div>
+            </div>
+        </div>
+
+        <form method="POST" id="scheduleForm">
+            {% csrf_token %}
+            <input type="hidden" name="weekday_timings" id="weekdayTimingsInput">
+            <input type="hidden" name="weekend_timings" id="weekendTimingsInput">
+
+            <!-- Step 1: Date Range -->
+            <div class="card" id="step1">
+                <h2>Select Performance Period</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" name="start_date" id="startDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>End Date</label>
+                        <input type="date" name="end_date" id="endDate" required>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-primary" onclick="nextStep(2)">Next →</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Select Venue -->
+            <div class="card hidden" id="step2">
+                <h2>Select Venue</h2>
+                <div class="screen-grid">
+                    {% for venue in venues %}
+                    <label class="screen-checkbox">
+                        <input type="radio" name="venue" value="{{ venue.id }}" required>
+                        <div class="screen-card">
+                            <h3>{{ venue.name }}</h3>
+                            <p>{{ venue.city.name }}</p>
+                            <p>{{ venue.venue_type }} • {{ venue.capacity }} capacity</p>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(1)">← Back</button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep(3)">Next →</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Set Timings -->
+            <div class="card hidden" id="step3">
+                <h2>Configure Show Timings</h2>
+                
+                <div class="timing-section">
+                    <h3>Monday - Thursday</h3>
+                    <div class="time-input-group">
+                        <input type="time" class="time-input" id="weekdayTimeInput">
+                        <button type="button" class="add-time-btn" onclick="addTime('weekday')">+ Add Time</button>
+                    </div>
+                    <div class="time-slots" id="weekdaySlots" style="margin-top: 1rem;"></div>
+                </div>
+
+                <div class="timing-section">
+                    <h3>Friday - Sunday</h3>
+                    <div class="time-input-group">
+                        <input type="time" class="time-input" id="weekendTimeInput">
+                        <button type="button" class="add-time-btn" onclick="addTime('weekend')">+ Add Time</button>
+                    </div>
+                    <div class="time-slots" id="weekendSlots" style="margin-top: 1rem;"></div>
+                </div>
+
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(2)">← Back</button>
+                    <button type="button" class="btn btn-primary" onclick="nextStep(4)">Next →</button>
+                </div>
+            </div>
+
+            <!-- Step 4: Review -->
+            <div class="card hidden" id="step4">
+                <h2>Review & Confirm</h2>
+                
+                <div class="summary-card">
+                    <h3 style="margin-bottom: 1rem;">Schedule Summary</h3>
+                    <div class="summary-grid">
+                        <div class="summary-item">
+                            <h4 id="totalDays">0</h4>
+                            <p>Days</p>
+                        </div>
+                        <div class="summary-item">
+                            <h4 id="totalScreens">0</h4>
+                            <p>Screens</p>
+                        </div>
+                        <div class="summary-item">
+                            <h4 id="totalShows">0</h4>
+                            <p>Total Shows</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="scheduleBreakdown" style="background: #f8f6ff; padding: 1.5rem; border-radius: 12px;"></div>
+
+                <div class="action-buttons">
+                    <button type="button" class="btn btn-secondary" onclick="prevStep(3)">← Back</button>
+                    <button type="submit" class="btn btn-primary">Generate Shows</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let weekdayTimings = [];
+        let weekendTimings = [];
+
+        function nextStep(step) {
+            // Hide all steps
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`step${i}`).classList.add('hidden');
+                document.getElementById(`step${i}-indicator`).classList.remove('active');
+                if (i < step) {
+                    document.getElementById(`step${i}-indicator`).classList.add('completed');
+                }
+            }
+            
+            // Show current step
+            document.getElementById(`step${step}`).classList.remove('hidden');
+            document.getElementById(`step${step}-indicator`).classList.add('active');
+            
+            // Update summary if on review step
+            if (step === 4) {
+                updateSummary();
+            }
+        }
+
+        function prevStep(step) {
+            nextStep(step);
+        }
+
+        function addTime(type) {
+            const inputId = type === 'weekday' ? 'weekdayTimeInput' : 'weekendTimeInput';
+            const timeInput = document.getElementById(inputId);
+            const time = timeInput.value;
+            
+            if (!time) return;
+            
+            const timings = type === 'weekday' ? weekdayTimings : weekendTimings;
+            const slotsContainer = document.getElementById(type === 'weekday' ? 'weekdaySlots' : 'weekendSlots');
+            
+            if (!timings.includes(time)) {
+                timings.push(time);
+                timings.sort();
+                
+                const pill = document.createElement('div');
+                pill.className = 'time-pill';
+                pill.innerHTML = `
+                    ${formatTime(time)}
+                    <button type="button" class="remove-time" onclick="removeTime('${type}', '${time}')">×</button>
+                `;
+                slotsContainer.appendChild(pill);
+            }
+            
+            timeInput.value = '';
+        }
+
+        function removeTime(type, time) {
+            const timings = type === 'weekday' ? weekdayTimings : weekendTimings;
+            const index = timings.indexOf(time);
+            if (index > -1) {
+                timings.splice(index, 1);
+            }
+            
+            // Rebuild pills
+            const slotsContainer = document.getElementById(type === 'weekday' ? 'weekdaySlots' : 'weekendSlots');
+            slotsContainer.innerHTML = '';
+            timings.forEach(t => {
+                const pill = document.createElement('div');
+                pill.className = 'time-pill';
+                pill.innerHTML = `
+                    ${formatTime(t)}
+                    <button type="button" class="remove-time" onclick="removeTime('${type}', '${t}')">×</button>
+                `;
+                slotsContainer.appendChild(pill);
+            });
+        }
+
+        function formatTime(time) {
+            const [hour, minute] = time.split(':');
+            const h = parseInt(hour);
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            const displayHour = h % 12 || 12;
+            return `${displayHour}:${minute} ${ampm}`;
+        }
+
+        function updateSummary() {
+            const startDate = new Date(document.getElementById('startDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
+            const days = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+            
+            const selectedVenues = document.querySelectorAll('input[name="venue"]:checked').length;
+            
+            // Calculate weekdays and weekends
+            let weekdays = 0, weekends = 0;
+            let current = new Date(startDate);
+            while (current <= endDate) {
+                if (current.getDay() >= 5) {
+                    weekends++;
+                } else {
+                    weekdays++;
+                }
+                current.setDate(current.getDate() + 1);
+            }
+            
+            const weekdayShows = weekdays * selectedVenues * weekdayTimings.length;
+            const weekendShows = weekends * selectedVenues * weekendTimings.length;
+            const totalShows = weekdayShows + weekendShows;
+            
+            document.getElementById('totalDays').textContent = days;
+            document.getElementById('totalScreens').textContent = selectedVenues;
+            document.getElementById('totalShows').textContent = totalShows;
+            
+            // Show breakdown
+            const breakdown = `
+                <h3 style="margin-bottom: 1rem;">Breakdown:</h3>
+                <p><strong>Weekdays (Mon-Thu):</strong> ${weekdays} days × ${selectedVenues} venue × ${weekdayTimings.length} shows = ${weekdayShows} shows</p>
+                <p><strong>Weekends (Fri-Sun):</strong> ${weekends} days × ${selectedVenues} venue × ${weekendTimings.length} shows = ${weekendShows} shows</p>
+                <p style="margin-top: 1rem;"><strong>Weekday Timings:</strong> ${weekdayTimings.map(formatTime).join(', ') || 'None'}</p>
+                <p><strong>Weekend Timings:</strong> ${weekendTimings.map(formatTime).join(', ') || 'None'}</p>
+            `;
+            document.getElementById('scheduleBreakdown').innerHTML = breakdown;
+        }
+
+        document.getElementById('scheduleForm').onsubmit = function() {
+            document.getElementById('weekdayTimingsInput').value = JSON.stringify(weekdayTimings);
+            document.getElementById('weekendTimingsInput').value = JSON.stringify(weekendTimings);
+            return true;
+        };
+
+        // Set min date to today
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('startDate').min = today;
+        document.getElementById('endDate').min = today;
+        
+        // Update end date min when start date changes
+        document.getElementById('startDate').onchange = function() {
+            document.getElementById('endDate').min = this.value;
+        };
+    </script>
+</body>
+</html>

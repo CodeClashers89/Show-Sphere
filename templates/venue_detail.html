@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ event.title }} | ShowSphere</title>
+    <title>{{ venue.name }} | ShowSphere</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -72,6 +72,11 @@
             color: #fff;
         }
 
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #ddd;
+        }
+
         .auth-buttons {
             display: flex;
             gap: 1rem;
@@ -101,52 +106,34 @@
             padding: 0 1rem;
         }
 
-        .event-hero {
+        .venue-info-section {
             background: var(--white);
             padding: 2rem;
             border-radius: 12px;
             box-shadow: var(--shadow);
             margin-bottom: 2rem;
-            display: flex;
-            gap: 2rem;
         }
 
-        .event-poster {
-            width: 300px;
-            height: 450px;
-            border-radius: 8px;
-            object-fit: cover;
-            background: #e0e0e0;
-            flex-shrink: 0;
-        }
-
-        .event-info h1 {
+        .venue-info-section h1 {
             font-size: 2.5rem;
             margin-bottom: 1rem;
         }
 
-        .event-meta {
+        .venue-meta {
             display: flex;
-            gap: 1.5rem;
+            gap: 2rem;
             flex-wrap: wrap;
-            margin-bottom: 1rem;
+            color: var(--text-light);
         }
 
-        .meta-item {
+        .venue-meta-item {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            color: var(--text-light);
         }
 
-        .meta-item i {
+        .venue-meta-item i {
             color: var(--primary-color);
-        }
-
-        .event-description {
-            color: var(--text-light);
-            line-height: 1.6;
-            margin-top: 1rem;
         }
 
         .date-selector-wrapper {
@@ -204,12 +191,12 @@
             margin-top: 0.2rem;
         }
 
-        .venues-section h2 {
+        .events-section h2 {
             font-size: 2rem;
             margin-bottom: 1.5rem;
         }
 
-        .venue-card {
+        .event-card {
             background: var(--white);
             padding: 2rem;
             border-radius: 12px;
@@ -217,21 +204,43 @@
             margin-bottom: 2rem;
         }
 
-        .venue-header h3 {
-            font-size: 1.3rem;
+        .event-header {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            align-items: start;
+        }
+
+        .event-poster {
+            width: 120px;
+            height: 170px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #e0e0e0;
+            flex-shrink: 0;
+        }
+
+        .event-info h3 {
+            font-size: 1.8rem;
             margin-bottom: 0.5rem;
         }
 
-        .venue-location {
+        .event-meta {
             color: var(--text-light);
-            font-size: 0.9rem;
-            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .show-times-header {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
 
-        .venue-location i {
+        .show-times-header i {
             color: var(--primary-color);
         }
 
@@ -330,13 +339,13 @@
         }
 
         @media(max-width:768px) {
-            .event-hero {
+            .event-header {
                 flex-direction: column;
             }
 
             .event-poster {
                 width: 100%;
-                height: 400px;
+                height: 250px;
             }
         }
     </style>
@@ -358,54 +367,33 @@
         <ul class="nav-links">
             <li><a href="{% url 'booking:browse' %}">Movies</a></li>
             <li><a href="{% url 'booking:browse' %}?category=events">Events</a></li>
-            <li><a href="{% url 'booking:browse' %}?category=sports">Sports</a></li>
             <li><a href="{% url 'booking:theatre_list' %}">Theatres</a></li>
-            <li><a href="{% url 'booking:venue_list' %}">Venues</a></li>
+            <li><a href="{% url 'booking:venue_list' %}" style="opacity: 1; font-weight: 700;">Venues</a></li>
         </ul>
     </nav>
 
     <main class="container">
-        <div class="event-hero">
-            {% if event.poster %}
-            <img src="{{ event.poster.url }}" alt="{{ event.title }}" class="event-poster">
-            {% else %}
-            <div class="event-poster"></div>
-            {% endif %}
-            <div class="event-info">
-                <h1>{{ event.title }}</h1>
-                <div class="event-meta">
-                    <div class="meta-item">
-                        <i class="fas fa-tag"></i>
-                        <span>{{ event.category.name }}</span>
-                    </div>
-                    {% if event.genre %}
-                    <div class="meta-item">
-                        <i class="fas fa-film"></i>
-                        <span>{{ event.genre.name }}</span>
-                    </div>
-                    {% endif %}
-                    {% if event.language %}
-                    <div class="meta-item">
-                        <i class="fas fa-language"></i>
-                        <span>{{ event.language.name }}</span>
-                    </div>
-                    {% endif %}
-                    {% if event.duration %}
-                    <div class="meta-item">
-                        <i class="fas fa-clock"></i>
-                        <span>{{ event.duration }} min</span>
-                    </div>
-                    {% endif %}
-                    {% if event.artist_name %}
-                    <div class="meta-item">
-                        <i class="fas fa-user"></i>
-                        <span>{{ event.artist_name }}</span>
-                    </div>
-                    {% endif %}
+        <div class="venue-info-section">
+            <h1>{{ venue.name }}</h1>
+            <div class="venue-meta">
+                <div class="venue-meta-item">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>{{ venue.address }}, {{ venue.city.name }}</span>
                 </div>
-                {% if event.description %}
-                <div class="event-description">
-                    {{ event.description }}
+                <div class="venue-meta-item">
+                    <i class="fas fa-users"></i>
+                    <span>Capacity: {{ venue.capacity }}</span>
+                </div>
+                {% if venue.venue_type %}
+                <div class="venue-meta-item">
+                    <i class="fas fa-building"></i>
+                    <span>{{ venue.venue_type }}</span>
+                </div>
+                {% endif %}
+                {% if venue.facilities %}
+                <div class="venue-meta-item">
+                    <i class="fas fa-star"></i>
+                    <span>{{ venue.facilities }}</span>
                 </div>
                 {% endif %}
             </div>
@@ -431,34 +419,48 @@
             </div>
         </div>
 
-        <div class="venues-section">
-            <h2>Venues - {{ selected_date|date:"d M Y" }}</h2>
+        <div class="events-section">
+            <h2>Events - {{ selected_date|date:"d M Y" }}</h2>
 
-            {% if venues_with_shows %}
-            {% for venue, shows in venues_with_shows.items %}
-            <div class="venue-card">
-                <div class="venue-header">
-                    <h3>{{ venue.name }}</h3>
-                    <div class="venue-location">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span>{{ venue.address }}, {{ venue.city.name }}</span>
+            {% if events_with_shows %}
+                {% for event, shows in events_with_shows.items %}
+                <div class="event-card">
+                    <div class="event-header">
+                        {% if event.poster %}
+                        <img src="{{ event.poster.url }}" alt="{{ event.title }}" class="event-poster">
+                        {% else %}
+                        <div class="event-poster"></div>
+                        {% endif %}
+                        <div class="event-info">
+                            <h3>{{ event.title }}</h3>
+                            <div class="event-meta">
+                                {{ event.category.name }}
+                                {% if event.genre %} • {{ event.genre.name }}{% endif %}
+                                {% if event.language %} • {{ event.language.name }}{% endif %}
+                                • {{ event.duration }} min
+                                {% if event.artist_name %} • {{ event.artist_name }}{% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="show-times-header">
+                        <i class="fas fa-clock"></i>
+                        Show Times
+                    </div>
+                    <div class="show-times">
+                        {% for show in shows %}
+                        <a href="{% url 'booking:seat_selection' show.id %}" class="show-time-pill">
+                            {{ show.show_time|time:"g:i A" }}
+                        </a>
+                        {% endfor %}
                     </div>
                 </div>
-                
-                <div class="show-times">
-                    {% for show in shows %}
-                    <a href="{% url 'booking:seat_selection' show.id %}" class="show-time-pill">
-                        {{ show.show_time|time:"g:i A" }}
-                    </a>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endfor %}
+                {% endfor %}
             {% else %}
             <div class="empty-state">
                 <i class="fas fa-calendar-times"></i>
-                <h3>No Shows Available</h3>
-                <p>There are no shows for this event on this date. Try selecting a different date.</p>
+                <h3>No Events Scheduled</h3>
+                <p>There are no events at this venue on this date. Try selecting a different date.</p>
             </div>
             {% endif %}
         </div>

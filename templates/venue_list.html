@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ event.title }} | ShowSphere</title>
+    <title>Venues | ShowSphere</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -18,7 +18,6 @@
             --white: #fff;
             --radius: 20px;
             --shadow: 0 10px 25px rgba(140, 82, 255, .15);
-            --success-color: #00BFB2;
         }
 
         * {
@@ -59,17 +58,38 @@
             color: var(--primary-color);
         }
 
+        .search-bar form {
+            display: flex;
+        }
+
+        .search-bar input {
+            padding: .6rem 1rem;
+            width: 350px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
         .btn {
             padding: .5rem 1.5rem;
             border-radius: 4px;
             border: none;
             cursor: pointer;
             font-weight: 500;
+            transition: all 0.3s;
         }
 
         .btn-primary {
             background: var(--primary-color);
             color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #ddd;
         }
 
         .auth-buttons {
@@ -95,169 +115,118 @@
             opacity: 0.9;
         }
 
+        .nav-links a:hover {
+            opacity: 1;
+        }
+
         .container {
             max-width: 1200px;
             margin: 2rem auto;
             padding: 0 1rem;
         }
 
-        .event-hero {
-            background: var(--white);
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: var(--shadow);
+        .page-header {
             margin-bottom: 2rem;
-            display: flex;
-            gap: 2rem;
         }
 
-        .event-poster {
-            width: 300px;
-            height: 450px;
-            border-radius: 8px;
-            object-fit: cover;
-            background: #e0e0e0;
-            flex-shrink: 0;
-        }
-
-        .event-info h1 {
+        .page-header h1 {
             font-size: 2.5rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
         }
 
-        .event-meta {
-            display: flex;
-            gap: 1.5rem;
-            flex-wrap: wrap;
-            margin-bottom: 1rem;
-        }
-
-        .meta-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
+        .page-header p {
             color: var(--text-light);
+            font-size: 1.1rem;
         }
 
-        .meta-item i {
-            color: var(--primary-color);
-        }
-
-        .event-description {
-            color: var(--text-light);
-            line-height: 1.6;
-            margin-top: 1rem;
-        }
-
-        .date-selector-wrapper {
+        .filters {
             background: var(--white);
             padding: 1.5rem;
             border-radius: 12px;
             box-shadow: var(--shadow);
             margin-bottom: 2rem;
-        }
-
-        .date-selector-wrapper h3 {
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
-        }
-
-        .date-selector {
             display: flex;
             gap: 1rem;
-            overflow-x: auto;
-            padding: 0.5rem 0;
+            flex-wrap: wrap;
+            align-items: center;
         }
 
-        .date-pill {
-            background: #f0edf7;
-            padding: 1rem 1.5rem;
-            border-radius: 10px;
-            min-width: 120px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 2px solid transparent;
-            flex-shrink: 0;
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
         }
 
-        .date-pill:hover {
-            background: #e5dcf9;
+        .filter-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
         }
 
-        .date-pill.active {
-            background: var(--primary-color);
-            color: white;
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .filter-group select:focus,
+        .filter-group input:focus {
+            outline: none;
             border-color: var(--primary-color);
         }
 
-        .date-pill-day {
-            font-size: 0.85rem;
-            opacity: 0.8;
-            display: block;
-        }
-
-        .date-pill-date {
-            font-weight: 700;
-            font-size: 1.1rem;
-            display: block;
-            margin-top: 0.2rem;
-        }
-
-        .venues-section h2 {
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
+        .venue-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
         }
 
         .venue-card {
             background: var(--white);
-            padding: 2rem;
             border-radius: 12px;
+            padding: 1.5rem;
             box-shadow: var(--shadow);
-            margin-bottom: 2rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
         }
 
-        .venue-header h3 {
-            font-size: 1.3rem;
+        .venue-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(140, 82, 255, .2);
+        }
+
+        .venue-card h3 {
+            color: var(--text-color);
+            font-size: 1.4rem;
             margin-bottom: 0.5rem;
         }
 
-        .venue-location {
+        .venue-info {
             color: var(--text-light);
-            font-size: 0.9rem;
-            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            margin: 0.5rem 0;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
 
-        .venue-location i {
+        .venue-info i {
             color: var(--primary-color);
+            width: 18px;
         }
 
-        .show-times {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .show-time-pill {
-            padding: 0.8rem 1.5rem;
+        .venue-badge {
+            display: inline-block;
             background: #f0edf7;
-            border: 2px solid var(--success-color);
-            color: var(--success-color);
-            border-radius: 8px;
-            font-weight: 600;
-            transition: all 0.3s;
-            cursor: pointer;
-            font-size: 1.1rem;
-        }
-
-        .show-time-pill:hover {
-            background: var(--success-color);
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 191, 178, 0.3);
+            color: var(--primary-color);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-top: 1rem;
         }
 
         .empty-state {
@@ -272,6 +241,15 @@
             font-size: 4rem;
             color: #ddd;
             margin-bottom: 1.5rem;
+        }
+
+        .empty-state h3 {
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            color: var(--text-light);
         }
 
         .footer {
@@ -313,12 +291,15 @@
             align-items: center;
             justify-content: center;
             color: white;
+            text-decoration: none;
             transition: all 0.3s;
         }
 
         .social-circle:hover {
             background: var(--primary-color);
             transform: translateY(-3px);
+            color: white;
+            box-shadow: 0 5px 15px rgba(140, 82, 255, 0.4);
         }
 
         .footer-text {
@@ -330,13 +311,16 @@
         }
 
         @media(max-width:768px) {
-            .event-hero {
+            .venue-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .filters {
                 flex-direction: column;
             }
 
-            .event-poster {
+            .filter-group {
                 width: 100%;
-                height: 400px;
             }
         }
     </style>
@@ -345,10 +329,27 @@
 <body>
     <header class="header">
         <a href="{% url 'booking:home' %}" class="logo">Show<span>Sphere</span></a>
+
+        <div class="search-bar">
+            <form action="{% url 'booking:venue_list' %}" method="get">
+                <input type="text" name="q" placeholder="Search venues..." value="{{ search_query }}">
+            </form>
+        </div>
+
         <div class="auth-buttons">
             {% if user.is_authenticated %}
+            {% if user.role == 'customer' %}
+            <a href="{% url 'booking:customer_dashboard' %}" class="btn btn-outline">Profile</a>
+            {% elif user.role == 'organizer' %}
+            <a href="{% url 'booking:organizer_dashboard' %}" class="btn btn-outline">Dashboard</a>
+            {% elif user.role == 'theatre_owner' %}
+            <a href="{% url 'booking:theatre_dashboard' %}" class="btn btn-outline">Dashboard</a>
+            {% elif user.role == 'admin' %}
+            <a href="{% url 'booking:admin_dashboard' %}" class="btn btn-outline">Admin</a>
+            {% endif %}
             <a href="{% url 'booking:logout' %}" class="btn btn-primary">Logout</a>
             {% else %}
+            <a href="{% url 'booking:customer_register' %}" class="btn btn-outline">Sign Up</a>
             <a href="{% url 'booking:login' %}" class="btn btn-primary">Sign In</a>
             {% endif %}
         </div>
@@ -360,108 +361,71 @@
             <li><a href="{% url 'booking:browse' %}?category=events">Events</a></li>
             <li><a href="{% url 'booking:browse' %}?category=sports">Sports</a></li>
             <li><a href="{% url 'booking:theatre_list' %}">Theatres</a></li>
-            <li><a href="{% url 'booking:venue_list' %}">Venues</a></li>
+            <li><a href="{% url 'booking:venue_list' %}" style="opacity: 1; font-weight: 700;">Venues</a></li>
         </ul>
     </nav>
 
     <main class="container">
-        <div class="event-hero">
-            {% if event.poster %}
-            <img src="{{ event.poster.url }}" alt="{{ event.title }}" class="event-poster">
-            {% else %}
-            <div class="event-poster"></div>
-            {% endif %}
-            <div class="event-info">
-                <h1>{{ event.title }}</h1>
-                <div class="event-meta">
-                    <div class="meta-item">
-                        <i class="fas fa-tag"></i>
-                        <span>{{ event.category.name }}</span>
-                    </div>
-                    {% if event.genre %}
-                    <div class="meta-item">
-                        <i class="fas fa-film"></i>
-                        <span>{{ event.genre.name }}</span>
-                    </div>
-                    {% endif %}
-                    {% if event.language %}
-                    <div class="meta-item">
-                        <i class="fas fa-language"></i>
-                        <span>{{ event.language.name }}</span>
-                    </div>
-                    {% endif %}
-                    {% if event.duration %}
-                    <div class="meta-item">
-                        <i class="fas fa-clock"></i>
-                        <span>{{ event.duration }} min</span>
-                    </div>
-                    {% endif %}
-                    {% if event.artist_name %}
-                    <div class="meta-item">
-                        <i class="fas fa-user"></i>
-                        <span>{{ event.artist_name }}</span>
-                    </div>
-                    {% endif %}
+        <div class="page-header">
+            <h1>Browse Venues</h1>
+            <p>Find venues for events, concerts, and sports</p>
+        </div>
+
+        <div class="filters">
+            <div class="filter-group">
+                <label for="city">Filter by City</label>
+                <select id="city" onchange="this.form.submit()" form="filter-form">
+                    <option value="">All Cities</option>
+                    {% for city in cities %}
+                    <option value="{{ city.id }}" {% if selected_city_id == city.id|stringformat:"s" %}selected{% endif %}>
+                        {{ city.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <form id="filter-form" method="get" style="display: none;">
+            <input type="hidden" name="city" id="city-input">
+            <input type="hidden" name="q" value="{{ search_query }}">
+        </form>
+
+        {% if venues %}
+        <div class="venue-grid">
+            {% for venue in venues %}
+            <a href="{% url 'booking:venue_detail' venue.id %}" class="venue-card">
+                <h3>{{ venue.name }}</h3>
+                <div class="venue-info">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>{{ venue.city.name }}</span>
                 </div>
-                {% if event.description %}
-                <div class="event-description">
-                    {{ event.description }}
+                <div class="venue-info">
+                    <i class="fas fa-users"></i>
+                    <span>Capacity: {{ venue.capacity|default:"N/A" }}</span>
+                </div>
+                {% if venue.venue_type %}
+                <div class="venue-info">
+                    <i class="fas fa-building"></i>
+                    <span>{{ venue.venue_type }}</span>
                 </div>
                 {% endif %}
-            </div>
-        </div>
-
-        <div class="date-selector-wrapper">
-            <h3>Select Date</h3>
-            <div class="date-selector">
-                {% for date in date_options %}
-                <a href="?date={{ date|date:'Y-m-d' }}" class="date-pill {% if date == selected_date %}active{% endif %}">
-                    <span class="date-pill-day">
-                        {% if forloop.first %}
-                        Today
-                        {% elif forloop.counter == 2 %}
-                        Tomorrow
-                        {% else %}
-                        {{ date|date:"D" }}
-                        {% endif %}
-                    </span>
-                    <span class="date-pill-date">{{ date|date:"d M" }}</span>
-                </a>
-                {% endfor %}
-            </div>
-        </div>
-
-        <div class="venues-section">
-            <h2>Venues - {{ selected_date|date:"d M Y" }}</h2>
-
-            {% if venues_with_shows %}
-            {% for venue, shows in venues_with_shows.items %}
-            <div class="venue-card">
-                <div class="venue-header">
-                    <h3>{{ venue.name }}</h3>
-                    <div class="venue-location">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span>{{ venue.address }}, {{ venue.city.name }}</span>
-                    </div>
+                {% if venue.facilities %}
+                <div class="venue-info">
+                    <i class="fas fa-check-circle"></i>
+                    <span>{{ venue.facilities|truncatewords:5 }}</span>
                 </div>
-                
-                <div class="show-times">
-                    {% for show in shows %}
-                    <a href="{% url 'booking:seat_selection' show.id %}" class="show-time-pill">
-                        {{ show.show_time|time:"g:i A" }}
-                    </a>
-                    {% endfor %}
-                </div>
-            </div>
+                {% endif %}
+                <div class="venue-badge">View Events</div>
+            </a>
             {% endfor %}
-            {% else %}
-            <div class="empty-state">
-                <i class="fas fa-calendar-times"></i>
-                <h3>No Shows Available</h3>
-                <p>There are no shows for this event on this date. Try selecting a different date.</p>
-            </div>
-            {% endif %}
         </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-map-marked-alt"></i>
+            <h3>No Venues Found</h3>
+            <p>Try adjusting your filters or search query</p>
+        </div>
+        {% endif %}
     </main>
 
     <footer class="footer">
@@ -480,8 +444,19 @@
 
             <p class="footer-text">
                 Copyright {% now "Y" %} @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
+                <br><br>
+                The content and images used on this site are copyright protected and copyrights vests with the
+                respective owners. The usage of the content and images on this website is intended to promote the works
+                and endorsement of the artist shall be implied. Unauthorized use is prohibited and punishable by law.
             </p>
         </div>
     </footer>
+
+    <script>
+        document.getElementById('city').addEventListener('change', function() {
+            document.getElementById('city-input').value = this.value;
+            document.getElementById('filter-form').submit();
+        });
+    </script>
 </body>
 </html>
