@@ -63,6 +63,11 @@ def home(request):
     return render(request, 'home.html', context)
 
 
+def partner_selection(request):
+    """Page to select between Theatre Owner and Event Organizer registration"""
+    return render(request, 'partner_selection.html')
+
+
 def browse(request):
     """Browse all events and movies"""
     category_slug = request.GET.get('category')
@@ -137,6 +142,21 @@ def search(request):
         'movies': movies,
     }
     return render(request, 'search.html', context)
+
+
+def load_states(request):
+    """AJAX view to load states for a country"""
+    country_id = request.GET.get('country_id')
+    states = State.objects.filter(country_id=country_id).values('id', 'name').order_by('name')
+    return JsonResponse(list(states), safe=False)
+
+
+def load_cities(request):
+    """AJAX view to load cities for a state"""
+    state_id = request.GET.get('state_id')
+    cities = City.objects.filter(state_id=state_id, is_active=True).values('id', 'name').order_by('name')
+    return JsonResponse(list(cities), safe=False)
+
 
 
 def event_detail(request, event_id):

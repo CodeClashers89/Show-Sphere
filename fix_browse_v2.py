@@ -1,4 +1,4 @@
-{% load static %}
+content = r"""{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -494,7 +494,7 @@
 
                 <div class="filter-group active">
                     <div class="filter-header" onclick="this.parentElement.classList.toggle('active')">
-                        <span class="group-label">{% if request.GET.category == 'events' %}Categories{% else %}Genre{%endif %}</span>
+                        <span class="group-label">{% if request.GET.category == 'events' %}Categories{% else %}Genre{% endif %}</span>
                         <i class="fas fa-chevron-down"></i>
                     </div>
                     <div class="filter-options {% if request.GET.category == 'events' %}vertical-layout{% endif %}">
@@ -515,15 +515,15 @@
                     </div>
                     <div class="filter-options">
                         <label class="filter-option">
-                            <input type="checkbox" name="format" value="2D" {% if '2D' in request.GET.getlist.format%}checked{% endif %} onchange="this.form.submit()">
+                            <input type="checkbox" name="format" value="2D" {% if '2D' in request.GET.getlist.format %}checked{% endif %} onchange="this.form.submit()">
                             <span class="filter-box">2D</span>
                         </label>
                         <label class="filter-option">
-                            <input type="checkbox" name="format" value="3D" {% if '3D' in request.GET.getlist.format%}checked{% endif %} onchange="this.form.submit()">
+                            <input type="checkbox" name="format" value="3D" {% if '3D' in request.GET.getlist.format %}checked{% endif %} onchange="this.form.submit()">
                             <span class="filter-box">3D</span>
                         </label>
                         <label class="filter-option">
-                            <input type="checkbox" name="format" value="IMAX" {% if 'IMAX' in request.GET.getlist.format%}checked{% endif %} onchange="this.form.submit()">
+                            <input type="checkbox" name="format" value="IMAX" {% if 'IMAX' in request.GET.getlist.format %}checked{% endif %} onchange="this.form.submit()">
                             <span class="filter-box">IMAX</span>
                         </label>
                     </div>
@@ -538,19 +538,19 @@
                     </div>
                     <div class="filter-options vertical-layout">
                         <label class="filter-option">
-                            <input type="radio" name="price" value="free" {% if request.GET.price == 'free' %}checked{%endif %} onchange="this.form.submit()">
+                            <input type="radio" name="price" value="free" {% if request.GET.price == 'free' %}checked{% endif %} onchange="this.form.submit()">
                             <span class="filter-box">Free</span>
                         </label>
                         <label class="filter-option">
-                            <input type="radio" name="price" value="0-500" {% if request.GET.price == '0-500' %}checked{%endif %} onchange="this.form.submit()">
+                            <input type="radio" name="price" value="0-500" {% if request.GET.price == '0-500' %}checked{% endif %} onchange="this.form.submit()">
                             <span class="filter-box">0 - 500</span>
                         </label>
                         <label class="filter-option">
-                            <input type="radio" name="price" value="501-2000" {% if request.GET.price == '501-2000'%}checked{% endif %} onchange="this.form.submit()">
+                            <input type="radio" name="price" value="501-2000" {% if request.GET.price == '501-2000' %}checked{% endif %} onchange="this.form.submit()">
                             <span class="filter-box">501 - 2000</span>
                         </label>
                         <label class="filter-option">
-                            <input type="radio" name="price" value="above-2000" {% if request.GET.price == 'above-2000'%}checked{% endif %} onchange="this.form.submit()">
+                            <input type="radio" name="price" value="above-2000" {% if request.GET.price == 'above-2000' %}checked{% endif %} onchange="this.form.submit()">
                             <span class="filter-box">Above 2000</span>
                         </label>
                     </div>
@@ -587,8 +587,7 @@
                             <span>•</span>
                             <span>{{ event.language.name }}</span>
                         </div>
-                        <div class="result-price" style="font-weight: 700; color: var(--primary-color);">₹ {{
-                            event.price|default:"Free" }}</div>
+                        <div class="result-price" style="font-weight: 700; color: var(--primary-color);">₹ {{ event.price|default:"Free" }}</div>
                     </div>
                 </a>
                 {% empty %}
@@ -663,3 +662,8 @@
 </body>
 
 </html>
+"""
+
+with open('templates/browse.html', 'w', encoding='utf-8') as f:
+    f.write(content)
+print("File browse.html overwritten successfully with correct links and joined tags.")

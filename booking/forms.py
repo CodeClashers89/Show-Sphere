@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models import (
     CustomUser, OrganizerProfile, TheatreOwnerProfile,
-    Event, Movie, Venue, Theatre, Screen, Show, Seat, City
+    Event, Movie, Venue, Theatre, Screen, Show, Seat, City, Country, State
 )
 
 
@@ -69,18 +69,53 @@ class OrganizerRegistrationForm(forms.ModelForm):
         'placeholder': 'Confirm Password'
     }))
     
+    country = forms.ModelChoiceField(
+        queryset=Country.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        empty_label="Select Country"
+    )
+    state = forms.ModelChoiceField(
+        queryset=State.objects.none(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False
+    )
+    city = forms.ModelChoiceField(
+        queryset=City.objects.none(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False
+    )
+
     class Meta:
         model = OrganizerProfile
-        fields = ['organization_name', 'contact_person', 'contact_email', 'contact_phone', 'city', 'address']
+        fields = ['organization_name', 'contact_person', 'contact_email', 'contact_phone', 'country', 'state', 'city', 'address']
         widgets = {
             'organization_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Organization Name'}),
             'contact_person': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact Person Name'}),
             'contact_email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Contact Email'}),
             'contact_phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact Phone'}),
-            'city': forms.Select(attrs={'class': 'form-control'}),
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Full Address'}),
         }
     
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['country'].initial = Country.objects.filter(name='India').first()
+        
+        if 'country' in self.data:
+            try:
+                country_id = int(self.data.get('country'))
+                self.fields['state'].queryset = State.objects.filter(country_id=country_id).order_by('name')
+            except (ValueError, TypeError):
+                pass
+        elif self.instance.pk:
+            pass
+            
+        if 'state' in self.data:
+            try:
+                state_id = int(self.data.get('state'))
+                self.fields['city'].queryset = City.objects.filter(state_id=state_id).order_by('name')
+            except (ValueError, TypeError):
+                pass
+
     def clean(self):
         cleaned_data = super().clean()
         password1 = cleaned_data.get('password1')
@@ -111,18 +146,54 @@ class TheatreOwnerRegistrationForm(forms.ModelForm):
         'placeholder': 'Confirm Password'
     }))
     
+    country = forms.ModelChoiceField(
+        queryset=Country.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        empty_label="Select Country"
+    )
+    state = forms.ModelChoiceField(
+        queryset=State.objects.none(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False
+    )
+    city = forms.ModelChoiceField(
+        queryset=City.objects.none(),
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        required=False
+    )
+    
     class Meta:
         model = TheatreOwnerProfile
-        fields = ['theatre_chain_name', 'owner_name', 'contact_email', 'contact_phone', 'city', 'address']
+        fields = ['theatre_chain_name', 'owner_name', 'contact_email', 'contact_phone', 'country', 'state', 'city', 'address']
         widgets = {
             'theatre_chain_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Theatre Chain Name'}),
             'owner_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Owner Name'}),
             'contact_email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Contact Email'}),
             'contact_phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Contact Phone'}),
-            'city': forms.Select(attrs={'class': 'form-control'}),
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Head Office Address'}),
         }
     
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['country'].initial = Country.objects.filter(name='India').first()
+        
+        if 'country' in self.data:
+            try:
+                country_id = int(self.data.get('country'))
+                self.fields['state'].queryset = State.objects.filter(country_id=country_id).order_by('name')
+            except (ValueError, TypeError):
+                pass  # invalid input from the client; ignore and fallback to empty queryset
+        elif self.instance.pk:
+            # If editing an existing instance (not relevant for registration but good practice)
+            pass
+            
+        if 'state' in self.data:
+            try:
+                state_id = int(self.data.get('state'))
+                self.fields['city'].queryset = City.objects.filter(state_id=state_id).order_by('name')
+            except (ValueError, TypeError):
+                pass
+        
     def clean(self):
         cleaned_data = super().clean()
         password1 = cleaned_data.get('password1')

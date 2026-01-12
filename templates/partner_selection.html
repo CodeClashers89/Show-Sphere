@@ -1,0 +1,322 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Become a Partner | ShowSphere</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+
+        :root {
+            --primary-color: #8C52FF;
+            --primary-hover: #7b40f2;
+            --text-color: #2D2042;
+            --text-light: #666666;
+            --bg-color: #F9F7FF;
+            --white: #FFFFFF;
+            --pink-action: #F84464;
+            --border-radius: 12px;
+            --shadow: 0 10px 25px rgba(140, 82, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* Header Styles */
+        .header {
+            background-color: var(--white);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .logo span {
+            color: var(--primary-color);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1.1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #ddd;
+            color: var(--text-color);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .btn-red {
+            background-color: var(--pink-action);
+            color: white;
+            font-weight: 700;
+        }
+
+        /* Navigation Bar */
+        .nav-bar {
+            background: linear-gradient(135deg, #8C52FF 0%, #00BFB2 100%);
+            color: var(--white);
+            padding: 0.8rem 2rem;
+            box-shadow: 0 4px 15px rgba(140, 82, 255, 0.3);
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        .nav-links li a {
+            color: white;
+            opacity: 0.8;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* Main Content */
+        .main-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 1rem;
+            gap: 2rem;
+        }
+
+        .page-title {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .page-title h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-title p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .selection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 400px));
+            gap: 2rem;
+            width: 100%;
+            max-width: 900px;
+            justify-content: center;
+        }
+
+        .selection-card {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            padding: 3rem 2rem;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .selection-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary-color);
+            box-shadow: 0 15px 35px rgba(140, 82, 255, 0.2);
+        }
+
+        .icon-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(140, 82, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .selection-card:hover .icon-circle {
+            background: var(--primary-color);
+            color: white;
+            transform: scale(1.1);
+        }
+
+        .selection-card h2 {
+            font-size: 1.5rem;
+            color: var(--text-color);
+        }
+
+        .selection-card p {
+            color: var(--text-light);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .btn-select {
+            padding: 0.8rem 2rem;
+            background: transparent;
+            border: 2px solid var(--primary-color);
+            color: var(--primary-color);
+            font-weight: 700;
+            border-radius: 50px;
+            transition: all 0.3s;
+        }
+
+        .selection-card:hover .btn-select {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: #1f2533;
+            color: #abb2bf;
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-top: auto;
+        }
+
+        .footer-logo {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .footer p {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header Section -->
+    <header class="header">
+        <a href="{% url 'booking:home' %}" class="logo">
+            <img src="{% static 'css/showspere.png' %}" alt="Logo" width="40" height="40">
+            <span>ShowSphere</span>
+        </a>
+
+        <div class="auth-buttons">
+            <button class="btn btn-outline" onclick="window.location.href='{% url 'booking:home' %}';">Home</button>
+            <button class="btn btn-red" onclick="window.location.href='{% url 'booking:login' %}';">Sign In</button>
+        </div>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="nav-bar">
+        <ul class="nav-links">
+            <li><a href="{% url 'booking:home' %}">Movies</a></li>
+            <li><a href="{% url 'booking:home' %}">Theaters</a></li>
+            <li><a href="{% url 'booking:home' %}">Events</a></li>
+            <li><a href="{% url 'booking:home' %}">Sports</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-container">
+
+        <div class="page-title">
+            <h1>Partner with ShowSphere</h1>
+            <p>Choose your role to get started</p>
+        </div>
+
+        <div class="selection-grid">
+            <!-- Theatre Owner Card -->
+            <div class="selection-card" onclick="window.location.href='{% url 'booking:theatre_register' %}'">
+                <div class="icon-circle">
+                    <i class="fas fa-film"></i>
+                </div>
+                <h2>Theatre Owner</h2>
+                <p>List your cinema halls, manage movie schedules, and sell tickets to millions of movie buffs.</p>
+                <button class="btn-select">Register as Theatre</button>
+            </div>
+
+            <!-- Event Organizer Card -->
+            <div class="selection-card" onclick="window.location.href='{% url 'booking:organizer_register' %}'">
+                <div class="icon-circle">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <h2>Event Organizer</h2>
+                <p>Create standout events, manage venues, and reach a wider audience for your shows.</p>
+                <button class="btn-select">Register as Organizer</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-logo">
+            <span>ShowSphere</span>
+        </div>
+        <p>Copyright {% now "Y" %} @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.</p>
+    </footer>
+
+</body>
+
+</html>

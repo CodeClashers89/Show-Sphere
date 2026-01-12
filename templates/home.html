@@ -477,7 +477,7 @@
         </form>
 
         <div class="auth-buttons">
-            <a href="{% url 'booking:organizer_register' %}" class="btn-partner">New Partner</a>
+            <a href="{% url 'booking:partner_selection' %}" class="btn-partner">New Partner</a>
             {% if user.is_authenticated %}
             <a href="{% url 'booking:logout' %}" class="btn btn-outline">Logout</a>
             {% else %}

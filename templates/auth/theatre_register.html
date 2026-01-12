@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -496,6 +497,93 @@
         </div>
     </footer>
 
+    <!-- AJAX for Cascading Dropdowns -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Function to load states
+            function loadStates(countryId) {
+                var url = "{% url 'booking:ajax_load_states' %}";
+                $.ajax({
+                    url: url,
+                    data: {
+                        'country_id': countryId
+                    },
+                    success: function (data) {
+                        var $stateSelect = $("#id_state");
+                        var oldState = $stateSelect.val(); // Keep selected if any (e.g. on validation error)
+                        $stateSelect.html('<option value="">---------</option>');
+                        $.each(data, function (key, value) {
+                            $stateSelect.append('<option value="' + value.id + '">' + value.name + '</option>');
+                        });
+                        if (oldState) {
+                            $stateSelect.val(oldState);
+                        }
+                    }
+                });
+            }
+
+            // Function to load cities
+            function loadCities(stateId) {
+                var url = "{% url 'booking:ajax_load_cities' %}";
+                $.ajax({
+                    url: url,
+                    data: {
+                        'state_id': stateId
+                    },
+                    success: function (data) {
+                        var $citySelect = $("#id_city");
+                        var oldCity = $citySelect.val();
+                        $citySelect.html('<option value="">---------</option>');
+                        $.each(data, function (key, value) {
+                            $citySelect.append('<option value="' + value.id + '">' + value.name + '</option>');
+                        });
+                        if (oldCity) {
+                            $citySelect.val(oldCity);
+                        }
+                    }
+                });
+            }
+
+            // On Country Change
+            $("#id_country").change(function () {
+                var countryId = $(this).val();
+                if (countryId) {
+                    loadStates(countryId);
+                } else {
+                    $("#id_state").html('<option value="">---------</option>');
+                    $("#id_city").html('<option value="">---------</option>');
+                }
+            });
+
+            // On State Change
+            $("#id_state").change(function () {
+                var stateId = $(this).val();
+                if (stateId) {
+                    loadCities(stateId);
+                } else {
+                    $("#id_city").html('<option value="">---------</option>');
+                }
+            });
+
+            // Trigger change on load if value exists (for edit or validation error re-display)
+            var initialCountry = $("#id_country").val();
+            if (initialCountry) {
+                // If there are no options in state (except empty), load them
+                // But form might have pre-filled options from python side if bound.
+                // However, python side only fills queryset, not HTML options if widget renders it.
+                // Actually, if form is bound, widget renders options.
+                // If not bound (initial load), country is India. State is empty queryset in field def.
+                // BUT we set country initial. We didn't populate state queryset in __init__ for unbound forms.
+
+                // Let's trigger loadStates to be sure, or better:
+                // Only trigger if state is empty.
+                if ($("#id_state option").length <= 1) {
+                    loadStates(initialCountry);
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>

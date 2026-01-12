@@ -23,6 +23,7 @@ urlpatterns = [
     path('register/verify/', views.verify_registration_otp, name='verify_registration_otp'),
     path('logout/', views.user_logout, name='logout'),
     path('register/', views.customer_register, name='customer_register'),
+    path('register/partner-selection/', views.partner_selection, name='partner_selection'),
     path('register/organizer/', views.organizer_register, name='organizer_register'),
     path('register/theatre/', views.theatre_register, name='theatre_register'),
     path('verify-email/<str:token>/', views.verify_email, name='verify_email'),
@@ -92,6 +93,8 @@ urlpatterns = [
     path('api/check-seat-availability/<int:show_id>/', views.check_seat_availability, name='check_seat_availability'),
     path('api/lock-seats/<int:show_id>/', views.lock_seats_api, name='lock_seats_api'),
     path('api/verify-ticket/', views.api_verify_ticket, name='api_verify_ticket'),
+    path('ajax/load-states/', views.load_states, name='ajax_load_states'),
+    path('ajax/load-cities/', views.load_cities, name='ajax_load_cities'),
     
     # Common
     path('ticket/scan/', views.scan_ticket_page, name='scan_ticket'),

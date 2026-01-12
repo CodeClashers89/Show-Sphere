@@ -87,10 +87,36 @@ class TheatreOwnerProfile(models.Model):
         verbose_name_plural = 'Theatre Owner Profiles'
 
 
+class Country(models.Model):
+    """Countries for address selection"""
+    name = models.CharField(max_length=100, unique=True, default='India')
+    
+    class Meta:
+        verbose_name_plural = 'Countries'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
+class State(models.Model):
+    """States belonging to a country"""
+    name = models.CharField(max_length=100)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name='states')
+    
+    class Meta:
+        verbose_name_plural = 'States'
+        ordering = ['name']
+        unique_together = ['country', 'name']
+
+    def __str__(self):
+        return self.name
+
+
 class City(models.Model):
     """Cities where events/movies are available"""
     name = models.CharField(max_length=100, unique=True)
-    state = models.CharField(max_length=100)
+    state = models.ForeignKey(State, on_delete=models.CASCADE, related_name='cities')
     is_active = models.BooleanField(default=True)
     
     class Meta:

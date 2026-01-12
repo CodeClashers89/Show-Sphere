@@ -470,6 +470,84 @@
         </div>
     </footer>
 
+    <!-- AJAX for Cascading Dropdowns -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Function to load states
+            function loadStates(countryId) {
+                var url = "{% url 'booking:ajax_load_states' %}";
+                $.ajax({
+                    url: url,
+                    data: {
+                        'country_id': countryId
+                    },
+                    success: function (data) {
+                        var $stateSelect = $("#id_state");
+                        var oldState = $stateSelect.val(); // Keep selected if any
+                        $stateSelect.html('<option value="">---------</option>');
+                        $.each(data, function (key, value) {
+                            $stateSelect.append('<option value="' + value.id + '">' + value.name + '</option>');
+                        });
+                        if (oldState) {
+                            $stateSelect.val(oldState);
+                        }
+                    }
+                });
+            }
+
+            // Function to load cities
+            function loadCities(stateId) {
+                var url = "{% url 'booking:ajax_load_cities' %}";
+                $.ajax({
+                    url: url,
+                    data: {
+                        'state_id': stateId
+                    },
+                    success: function (data) {
+                        var $citySelect = $("#id_city");
+                        var oldCity = $citySelect.val();
+                        $citySelect.html('<option value="">---------</option>');
+                        $.each(data, function (key, value) {
+                            $citySelect.append('<option value="' + value.id + '">' + value.name + '</option>');
+                        });
+                        if (oldCity) {
+                            $citySelect.val(oldCity);
+                        }
+                    }
+                });
+            }
+
+            // On Country Change
+            $("#id_country").change(function () {
+                var countryId = $(this).val();
+                if (countryId) {
+                    loadStates(countryId);
+                } else {
+                    $("#id_state").html('<option value="">---------</option>');
+                    $("#id_city").html('<option value="">---------</option>');
+                }
+            });
+
+            // On State Change
+            $("#id_state").change(function () {
+                var stateId = $(this).val();
+                if (stateId) {
+                    loadCities(stateId);
+                } else {
+                    $("#id_city").html('<option value="">---------</option>');
+                }
+            });
+
+            // Trigger change on load if value exists
+            var initialCountry = $("#id_country").val();
+            if (initialCountry) {
+                if ($("#id_state option").length <= 1) {
+                    loadStates(initialCountry);
+                }
+            }
+        });
+    </script>
 </body>
 
 </html>
