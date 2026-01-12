@@ -245,6 +245,49 @@ def movie_detail(request, movie_id):
     return render(request, 'movie_detail.html', context)
 
 
+def movie_shows(request, movie_id):
+    """Whole new page to display available shows for a movie grouped by theatre with date selection"""
+    movie = get_object_or_404(Movie, id=movie_id, status='approved')
+    
+    # Get selected date or default to today
+    from datetime import datetime, timedelta
+    selected_date_str = request.GET.get('date')
+    if selected_date_str:
+        try:
+            selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+        except ValueError:
+            selected_date = timezone.now().date()
+    else:
+        selected_date = timezone.now().date()
+    
+    # Generate date options (next 7 days)
+    date_options = []
+    for i in range(7):
+        date = timezone.now().date() + timedelta(days=i)
+        date_options.append(date)
+    
+    # Get shows for this movie on the selected date
+    shows = Show.objects.filter(
+        movie=movie,
+        show_date=selected_date,
+        is_active=True
+    ).select_related('screen__theatre').order_by('screen__theatre', 'show_time')
+    
+    # Group shows by theatre
+    from collections import defaultdict
+    theatres_with_shows = defaultdict(list)
+    for show in shows:
+        theatres_with_shows[show.screen.theatre].append(show)
+    
+    context = {
+        'movie': movie,
+        'theatres_with_shows': dict(theatres_with_shows),
+        'selected_date': selected_date,
+        'date_options': date_options,
+    }
+    return render(request, 'movie_shows.html', context)
+
+
 def theatre_list(request):
     """List all theatres with filtering options"""
     city_id = request.GET.get('city')

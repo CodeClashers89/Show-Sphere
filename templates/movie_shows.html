@@ -1,0 +1,497 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Shows for {{ movie.title }} | ShowSphere</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #F84464;
+            /* BM Red for selection */
+            --brand-primary: #8C52FF;
+            --brand-secondary: #00BFB2;
+            --text-color: #2D2042;
+            --text-light: #666;
+            --bg-color: #F2F5F9;
+            --white: #fff;
+            --radius: 8px;
+            --border-color: #e5e5e5;
+            --success-color: #4ABD5D;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            background: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* HEADER */
+        .header {
+            background: #333545;
+            padding: 0.8rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .logo span {
+            color: var(--brand-primary);
+        }
+
+        .search-bar input {
+            padding: .6rem 1rem;
+            width: 400px;
+            border: none;
+            border-radius: 4px;
+            background: #fff;
+            font-size: 0.9rem;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: .5rem 1.2rem;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary {
+            background: var(--brand-primary);
+            color: #fff;
+        }
+
+        /* MOVIE HEADER */
+        .movie-header {
+            background: #333545;
+            padding: 2rem;
+            color: white;
+            border-top: 1px solid #444;
+        }
+
+        .movie-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .movie-meta {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .certification {
+            border: 1px solid white;
+            padding: 2px 6px;
+            border-radius: 50%;
+            font-size: 0.7rem;
+        }
+
+        /* DATE SELECTOR */
+        .date-selector-container {
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.5rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            overflow-x: auto;
+            position: sticky;
+            top: 60px;
+            z-index: 90;
+        }
+
+        .date-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 60px;
+            height: 70px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .date-item.active {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .date-item .day {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .date-item .date-num {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .date-item .month {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        /* FILTERS BAR */
+        .filters-bar {
+            background: white;
+            padding: 0.8rem 2rem;
+            display: flex;
+            gap: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .filter-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            max-width: 1200px;
+            margin: 1.5rem auto;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .theatre-card {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 2rem;
+        }
+
+        .theatre-info {
+            flex: 0 0 350px;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .theatre-info i.heart {
+            color: #ccc;
+            cursor: pointer;
+            margin-top: 0.4rem;
+        }
+
+        .theatre-details h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .theatre-details .location {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .theatre-amenities {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .amenity {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.75rem;
+            color: #F8AD1D;
+        }
+
+        .amenity.m-ticket {
+            color: #4ABD5D;
+        }
+
+        .shows-grid {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .show-box {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+            min-width: 120px;
+        }
+
+        .show-time {
+            padding: 0.8rem;
+            border: 1px solid var(--success-color);
+            border-radius: 4px;
+            text-align: center;
+            color: var(--success-color);
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .show-time:hover {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .show-format {
+            font-size: 0.65rem;
+            margin-top: 2px;
+            opacity: 0.8;
+        }
+
+        .cancellation-label {
+            font-size: 0.75rem;
+            color: var(--text-light);
+            text-align: center;
+        }
+
+        /* FOOTER */
+        .footer {
+            background-color: #333545;
+            color: #abb2bf;
+            padding: 5rem 2rem 3rem;
+            margin-top: 5rem;
+        }
+
+        .footer-content {
+            max-width: 1240px;
+            margin: 0 auto;
+        }
+
+        .footer-logo {
+            color: white;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+            justify-content: center;
+        }
+
+        .social-circle {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: #2d3139;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .social-circle:hover {
+            background: var(--brand-primary);
+            transform: translateY(-3px);
+            color: white;
+        }
+
+        .footer-text {
+            text-align: center;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            border-top: 1px solid #2d3139;
+            padding-top: 3rem;
+        }
+
+        @media(max-width: 900px) {
+            .theatre-card {
+                flex-direction: column;
+            }
+
+            .theatre-info {
+                flex: none;
+                width: 100%;
+            }
+
+            .search-bar input {
+                width: 250px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <a href="{% url 'booking:home' %}" class="logo">Show<span>Sphere</span></a>
+
+        <div class="search-bar">
+            <form action="{% url 'booking:search' %}" method="get">
+                <input type="text" name="q" placeholder="Search for Movies, Events, Plays, Sports and Activities"
+                    value="{{ request.GET.q }}">
+            </form>
+        </div>
+
+        <div class="auth-buttons">
+            {% if user.is_authenticated %}
+            <a href="{% url 'booking:logout' %}" style="color:white; font-size: 0.9rem;">Sign Out</a>
+            {% else %}
+            <a href="{% url 'booking:login' %}" class="btn btn-primary">Sign In</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- MOVIE HEADER -->
+    <section class="movie-header">
+        <h1>{{ movie.title }}</h1>
+        <div class="movie-meta">
+            <span class="certification">{{ movie.certification }}</span>
+            <span><i class="fas fa-tag"></i> {{ movie.genre.name }}</span>
+            <span><i class="far fa-calendar-alt"></i> {{ movie.release_date|date:"d M, Y" }}</span>
+            <span><i class="far fa-clock"></i> {{ movie.duration }} mins</span>
+        </div>
+    </section>
+
+    <!-- DATE SELECTOR -->
+    <section class="date-selector-container">
+        {% for date in date_options %}
+        <a href="?date={{ date|date:'Y-m-d' }}" class="date-item {% if date == selected_date %}active{% endif %}">
+            <span class="day">{{ date|date:"D" }}</span>
+            <span class="date-num">{{ date|date:"d" }}</span>
+            <span class="month">{{ date|date:"M" }}</span>
+        </a>
+        {% endfor %}
+    </section>
+
+    <!-- FILTERS BAR -->
+
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <div
+            style="padding: 1rem 2rem; border-bottom: 1px solid var(--border-color); display: flex; justify-content: flex-end; align-items: center; gap: 1rem; font-size: 0.8rem;">
+            <div style="display: flex; align-items: center; gap: 5px;"><span
+                    style="width: 10px; height: 10px; border-radius: 50%; background: #4ABD5D;"></span> AVAILABLE</div>
+            <div style="display: flex; align-items: center; gap: 5px;"><span
+                    style="width: 10px; height: 10px; border-radius: 50%; background: #F84464;"></span> FAST FILLING
+            </div>
+        </div>
+
+        {% if theatres_with_shows %}
+        {% for theatre, shows in theatres_with_shows.items %}
+        <div class="theatre-card">
+            <div class="theatre-info">
+                <i class="far fa-heart heart"></i>
+                <div class="theatre-details">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <h3>{{ theatre.name }}</h3>
+                        <i class="fas fa-info-circle" style="color: #ccc; font-size: 0.9rem;"></i>
+                    </div>
+                    <div class="location">
+                        <i class="fas fa-map-marker-alt" style="font-size: 0.7rem;"></i>
+                        {{ theatre.address }}, {{ theatre.city.name }}
+                    </div>
+                    <div class="theatre-amenities">
+                        <div class="amenity"><i class="fas fa-hamburger"></i> Food & Beverage</div>
+                        <div class="amenity m-ticket"><i class="fas fa-mobile-alt"></i> M-Ticket</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="shows-grid">
+                {% for show in shows %}
+                <div class="show-box">
+                    <a href="{% url 'booking:seat_selection' show.id %}" class="show-time">
+                        {{ show.show_time|time:"g:i A" }}
+                        <span class="show-format">{{ show.show_format }}</span>
+                    </a>
+                    <div class="cancellation-label">
+                        <i class="fas fa-circle" style="font-size: 0.4rem; color: #4ABD5D;"></i> Cancellation available
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div style="padding: 5rem; text-align: center; color: var(--text-light);">
+            <i class="fas fa-calendar-times" style="font-size: 4rem; margin-bottom: 1rem; opacity: 0.2;"></i>
+            <p>No shows available for this date. Please try another date.</p>
+        </div>
+        {% endif %}
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-logo">
+                <img src="{% static 'css/showspere.png' %}" alt="ShowSphere Logo" width="50" height="50"
+                    fetchpriority="high" loading="eager">
+                ShowSphere
+            </div>
+
+            <div class="social-links">
+                <a href="https://www.facebook.com" target="_blank" class="social-circle"><i
+                        class="fab fa-facebook-f"></i></a>
+                <a href="https://www.linkedin.com" target="_blank" class="social-circle"><i
+                        class="fab fa-linkedin-in"></i></a>
+                <a href="https://www.twitter.com" target="_blank" class="social-circle"><i
+                        class="fab fa-twitter"></i></a>
+                <a href="https://www.instagram.com" target="_blank" class="social-circle"><i
+                        class="fab fa-instagram"></i></a>
+            </div>
+
+            <p class="footer-text">
+                Copyright {% now "Y" %} @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
+            </p>
+        </div>
+    </footer>
+
+</body>
+
+</html>

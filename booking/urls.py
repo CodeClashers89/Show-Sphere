@@ -10,6 +10,7 @@ urlpatterns = [
     path('search/', views.search, name='search'),
     path('event/<int:event_id>/', views.event_detail, name='event_detail'),
     path('movie/<int:movie_id>/', views.movie_detail, name='movie_detail'),
+    path('movie/<int:movie_id>/shows/', views.movie_shows, name='movie_shows'),
     
     # Theatre and Venue browsing
     path('theatres/', views.theatre_list, name='theatre_list'),

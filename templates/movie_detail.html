@@ -369,9 +369,9 @@
                 </a>
                 {% endif %}
 
-                <button class="book-btn"
-                    onclick="document.querySelector('.shows').scrollIntoView({behavior: 'smooth'})">Book
-                    Tickets</button>
+                <a href="{% url 'booking:movie_shows' movie.id %}" class="book-btn"
+                    style="display: block; text-align: center; margin-bottom: 10px;">Book Tickets</a>
+                <a href="{% url 'booking:movie_detail' movie.id %}" style="display: none;">Test Link</a>
             </div>
         </section>
 
@@ -382,63 +382,6 @@
         </section>
 
 
-
-        <!-- DATE SELECTOR -->
-        <section class="section">
-            <h2>Select Date</h2>
-            <div style="display: flex; gap: 1rem; overflow-x: auto; padding: 1rem 0;">
-                {% for date in date_options %}
-                <a href="?date={{ date|date:'Y-m-d' }}" style="background: {% if date == selected_date %}var(--primary-color){% else %}#f0edf7{% endif %}; 
-                   color: {% if date == selected_date %}white{% else %}var(--text-color){% endif %};
-                   padding: 1rem 1.5rem; border-radius: 10px; min-width: 120px; text-align: center; 
-                   transition: all 0.3s; border: 2px solid {% if date == selected_date %}var(--primary-color){% else %}transparent{% endif %}; 
-                   flex-shrink: 0; text-decoration: none;">
-                    <span style="font-size: 0.85rem; opacity: 0.8; display: block;">
-                        {% if forloop.first %}Today
-                        {% elif forloop.counter == 2 %}Tomorrow
-                        {% else %}{{ date|date:"D" }}
-                        {% endif %}
-                    </span>
-                    <span style="font-weight: 700; font-size: 1.1rem; display: block; margin-top: 0.2rem;">
-                        {{ date|date:"d M" }}
-                    </span>
-                </a>
-                {% endfor %}
-            </div>
-        </section>
-
-        <!-- SHOWS BY THEATRE -->
-        <section class="section shows">
-            <h2>Shows - {{ selected_date|date:"d M Y" }}</h2>
-
-            {% if theatres_with_shows %}
-            {% for theatre, shows in theatres_with_shows.items %}
-            <div style="background: #f9f9f9; padding: 1.5rem; border-radius: 12px; margin-bottom: 1.5rem;">
-                <h3 style="font-size: 1.3rem; margin-bottom: 0.5rem;">{{ theatre.name }}</h3>
-                <p style="color: var(--text-light); font-size: 0.9rem; margin-bottom: 1rem;">
-                    <i class="fas fa-map-marker-alt"></i> {{ theatre.address }}, {{ theatre.city.name }}
-                </p>
-                
-                <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
-                    {% for show in shows %}
-                    <a href="{% url 'booking:seat_selection' show.id %}" 
-                       style="padding: 0.8rem 1.5rem; background: #f0edf7; border: 2px solid #00BFB2; 
-                       color: #00BFB2; border-radius: 8px; font-weight: 600; transition: all 0.3s; 
-                       cursor: pointer; text-decoration: none; display: flex; flex-direction: column; 
-                       align-items: center;"
-                       onmouseover="this.style.background='#00BFB2'; this.style.color='white';"
-                       onmouseout="this.style.background='#f0edf7'; this.style.color='#00BFB2';">
-                        <span style="font-size: 1.1rem;">{{ show.show_time|time:"g:i A" }}</span>
-                        <span style="font-size: 0.75rem; opacity: 0.8; margin-top: 0.2rem;">{{ show.screen.name }}</span>
-                    </a>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endfor %}
-            {% else %}
-            <p>No shows available on this date.</p>
-            {% endif %}
-        </section>
 
     </main>
 
