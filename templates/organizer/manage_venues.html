@@ -60,7 +60,8 @@
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 5px;
+            text-decoration: none !important;
         }
 
         .logo span {
@@ -361,12 +362,7 @@
     <!-- Header Section -->
     <header class="header">
         <a href="{% url 'booking:home' %}" class="logo">
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
-                <path
-                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
-                    fill="#8C52FF" />
-            </svg>
+            <img src="{% static 'css/showspere.png' %}" alt="Logo" width="40" height="40">
             <span>ShowSphere</span>
         </a>
 
@@ -380,10 +376,10 @@
                     style="background: #f0f0f5; padding: 0.4rem 1rem; border-radius: 6px; display: flex; align-items: center; gap: 8px; color: var(--text-color); font-weight: 600; cursor: pointer;">
                     {% if user.is_authenticated %}
                     <div style="background: #f0f0f5; padding: 0.4rem 1rem; border-radius: 6px; display: flex; align-items: center; gap: 8px; color: var(--text-color); font-weight: 600; cursor: pointer;"
-                    onclick="window.location.href='{% url 'booking:logout' %}'">
-                    👤 {{ user.username }} <span
-                        style="font-size: 0.8rem; opacity: 0.6; margin-left:5px;">(Logout)</span>
-                </div>
+                        onclick="window.location.href='{% url 'booking:logout' %}';">
+                        👤 {{ user.username }} <span
+                            style="font-size: 0.8rem; opacity: 0.6; margin-left:5px;">(Logout)</span>
+                    </div>
                     {% else %}
                     👤 Guest
                     {% endif %}
@@ -426,7 +422,9 @@
                         <span class="venue-details">Capacity: {{ venue.capacity }}</span>
                     </div>
                     <div class="action-buttons" style="display: flex; flex-direction: column; gap: 0.5rem;">
-                        <a href="{% url 'booking:configure_venue_layout' venue.id %}" class="btn-action" style="background: linear-gradient(135deg, #8C52FF, #00BFB2); color: white; border: none;">🪑 Configure Layout</a>
+                        <a href="{% url 'booking:configure_venue_layout' venue.id %}" class="btn-action"
+                            style="background: linear-gradient(135deg, #8C52FF, #00BFB2); color: white; border: none;">🪑
+                            Configure Layout</a>
                         <div style="display: flex; gap: 0.5rem;">
                             <a href="{% url 'booking:edit_venue' venue.id %}" class="btn-action btn-edit">Edit</a>
                             <a href="{% url 'booking:delete_venue' venue.id %}" class="btn-action btn-delete">Delete</a>

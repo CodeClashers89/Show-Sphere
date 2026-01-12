@@ -118,7 +118,7 @@
             font-size: 1.5rem;
             font-weight: 700;
             display: flex;
-            gap: .5rem;
+            gap: 5px;
             align-items: center;
         }
 
@@ -299,6 +299,167 @@
             text-align: center;
             padding: 3rem 1rem;
         }
+
+        /* CAROUSEL STYLES */
+        .hero-carousel {
+            position: relative;
+            height: 500px;
+            /* Taller hero section */
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .hero-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            /* Flex to center content */
+            align-items: center;
+            /* Vertical center */
+            padding-left: 5rem;
+            /* Left align text with padding */
+            opacity: 0;
+            transition: opacity 1.5s ease-in-out;
+            z-index: 1;
+        }
+
+        .hero-slide.active {
+            opacity: 1;
+            z-index: 2;
+        }
+
+        /* Override previous hero content centering if needed */
+        .hero-content {
+            z-index: 3;
+            max-width: 650px;
+            color: white;
+            position: relative;
+            animation: slideUp 1s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+            text-transform: uppercase;
+            font-weight: 800;
+            /* Bolder title */
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            max-width: 90%;
+            font-weight: 400;
+        }
+
+        /* Navigation Arrows */
+        .arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 2rem;
+            padding: 1rem;
+            cursor: pointer;
+            z-index: 10;
+            border-radius: 50%;
+            transition: background 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            backdrop-filter: blur(5px);
+        }
+
+        .arrow:hover {
+            background: rgba(255, 255, 255, 0.5);
+            color: var(--primary-color);
+        }
+
+        .arrow-left {
+            left: 20px;
+        }
+
+        .arrow-right {
+            right: 20px;
+        }
+
+        /* Indicators */
+        .carousel-indicators {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .dot.active,
+        .dot:hover {
+            background-color: var(--primary-color);
+            transform: scale(1.2);
+        }
+
+        @media (max-width: 768px) {
+            .hero-carousel {
+                height: 400px;
+            }
+
+            .hero-content h1 {
+                font-size: 2.2rem;
+            }
+
+            .hero-slide {
+                padding-left: 2rem;
+                padding-right: 2rem;
+                justify-content: center;
+                text-align: center;
+            }
+
+            /* Center on mobile */
+            .hero-content {
+                align-items: center;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .arrow {
+                width: 40px;
+                height: 40px;
+                font-size: 1.5rem;
+            }
+        }
     </style>
 </head>
 
@@ -335,20 +496,273 @@
     </nav>
 
     <!-- HERO CAROUSEL (FULL BACKEND PRESERVED) -->
-    <section class="hero">
-        {% if trending_movies %}
-        {% for movie in trending_movies %}
-        <div class="hero-slide"
-            style="background-image: linear-gradient(rgba(0,0,0,.65),rgba(0,0,0,.65)), url('{{ movie.poster.url }}');">
-            <div class="hero-content">
-                <h1>{{ movie.title }}</h1>
-                <p>{{ movie.description|truncatewords:20 }}</p>
-                <a href="{% url 'booking:movie_detail' movie.id %}" class="btn btn-primary">Book Tickets</a>
+    <!-- HERO CAROUSEL -->
+    <section class="hero-carousel" id="heroCarousel">
+        <div class="carousel-container" id="carouselContainer">
+            <!-- Slides will be injected or hardcoded here -->
+
+            <!-- SLIDE 1: Cinema -->
+            <div class="hero-slide active"
+                style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{% static 'images/hero/hero_cinema.png' %}');">
+                <div class="hero-content">
+                    <h1>Experience the Magic of Cinema</h1>
+                    <p>Immerse yourself in upcoming blockbusters with state-of-the-art visuals and sound.</p>
+                    <a href="{% url 'booking:browse' %}" class="btn btn-primary">Book Movies</a>
+                </div>
+            </div>
+
+            <!-- SLIDE 2: Concert -->
+            <div class="hero-slide"
+                style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{% static 'images/hero/hero_concert.png' %}');">
+                <div class="hero-content">
+                    <h1>Live Concerts & Gigs</h1>
+                    <p>Catch your favorite artists live. Feel the energy and rhythm like never before.</p>
+                    <a href="{% url 'booking:browse' %}?category=events" class="btn btn-primary">Find Concerts</a>
+                </div>
+            </div>
+
+            <!-- SLIDE 3: Sports -->
+            <div class="hero-slide"
+                style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{% static 'images/hero/hero_sports.png' %}');">
+                <div class="hero-content">
+                    <h1>Feel the Adrenaline of Sports</h1>
+                    <p>From stadiums to arenas, secure your seats for the biggest matches of the season.</p>
+                    <a href="{% url 'booking:browse' %}?category=sports" class="btn btn-primary">Get Sports Tickets</a>
+                </div>
+            </div>
+
+            <!-- SLIDE 4: Entertainment -->
+            <div class="hero-slide"
+                style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{% static 'images/hero/hero_entertainment.png' %}');">
+                <div class="hero-content">
+                    <h1>Unforgettable Entertainment</h1>
+                    <p>Comedy shows, plays, festivals, and more. Discover events that spark joy.</p>
+                    <a href="{% url 'booking:browse' %}?category=events" class="btn btn-primary">Explore Events</a>
+                </div>
             </div>
         </div>
-        {% endfor %}
-        {% endif %}
+
+        <!-- Navigation Buttons -->
+        <button class="arrow arrow-left" id="prevBtn">&#10094;</button>
+        <button class="arrow arrow-right" id="nextBtn">&#10095;</button>
+
+        <!-- Indicators -->
+        <div class="carousel-indicators">
+            <span class="dot active" onclick="currentSlide(0)"></span>
+            <span class="dot" onclick="currentSlide(1)"></span>
+            <span class="dot" onclick="currentSlide(2)"></span>
+            <span class="dot" onclick="currentSlide(3)"></span>
+        </div>
     </section>
+
+
+    <!-- LOADER CSS -->
+    <style>
+        /* LOADER STYLES */
+        .loader {
+            position: fixed;
+            inset: 0;
+            background: #F9F7FF;
+            /* App Background Color */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Ambient Glow */
+        .loader::before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, rgba(140, 82, 255, 0.1), transparent 70%);
+            z-index: -1;
+        }
+
+        .loader-brand {
+            text-align: center;
+            color: #2D2042;
+            /* Primary Text Color */
+            position: relative;
+            z-index: 10000;
+        }
+
+        .loader-mask {
+            overflow: hidden;
+        }
+
+        .loader-brand h1 {
+            font-size: 48px;
+            letter-spacing: 4px;
+            font-weight: 800;
+            /* Bolder font for modern look */
+            color: transparent;
+            background: linear-gradient(135deg, #8C52FF, #00BFB2);
+            /* Brand Gradient */
+            -webkit-background-clip: text;
+            background-clip: text;
+            transform: translateY(120%);
+            animation: titleUp 1.2s cubic-bezier(0.77, 0, 0.175, 1) forwards;
+            margin: 0;
+        }
+
+        @keyframes titleUp {
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .loader-brand p {
+            margin-top: 10px;
+            font-size: 14px;
+            letter-spacing: 3px;
+            color: #666;
+            /* Secondary Text Color */
+            opacity: 0;
+            animation: fadeIn 1s ease forwards;
+            animation-delay: 1s;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .spotlight {
+            width: 0;
+            height: 3px;
+            /* Slightly thicker line */
+            margin: 15px auto 0;
+            background: linear-gradient(90deg, transparent, #8C52FF, transparent);
+            /* Purple spotlight */
+            animation: grow 1.2s ease forwards;
+            animation-delay: 0.8s;
+            border-radius: 2px;
+        }
+
+        @keyframes grow {
+            to {
+                width: 120px;
+            }
+        }
+
+        .loader.exit {
+            opacity: 0;
+            /* Fade out instead of curtain lift for cleaner light theme exit */
+            pointer-events: none;
+            transition: opacity 0.8s ease-in-out;
+        }
+    </style>
+
+    <!-- LOADER HTML -->
+    <div class="loader" id="loader">
+        <div class="loader-brand">
+            <div class="loader-mask">
+                <h1>SHOWSPHERE</h1>
+            </div>
+            <div class="spotlight"></div>
+            <p>BOOK · WATCH · EXPERIENCE</p>
+        </div>
+    </div>
+
+    <script>
+        // Cinematic Loader Logic
+        window.addEventListener("load", () => {
+            const loader = document.getElementById("loader");
+
+            // Lock scroll initially
+            document.body.style.overflow = "hidden";
+
+            setTimeout(() => {
+                loader.classList.add("exit");
+                // Unlock scroll when animation starts exiting to allow user interaction sooner if needed, 
+                // or wait until fully gone. User code waited 6200ms total.
+                // 4200ms start exit + 1800ms transition = 6000ms.
+            }, 4200);
+
+            setTimeout(() => {
+                loader.remove();
+                document.body.style.overflow = "auto";
+            }, 6200);
+        });
+
+        // Carousel Logic (Existing)
+        let slideIndex = 0;
+        const slides = document.querySelectorAll('.hero-slide');
+        const dots = document.querySelectorAll('.dot');
+        const totalSlides = slides.length;
+        let slideInterval;
+
+        // Function to show a specific slide
+        function showSlide(n) {
+            // Wrap around index
+            if (n >= totalSlides) slideIndex = 0;
+            if (n < 0) slideIndex = totalSlides - 1;
+
+            // Remove active class from all
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+
+            // Add active class to current
+            slides[slideIndex].classList.add('active');
+            dots[slideIndex].classList.add('active');
+        }
+
+        // Next/Prev controls
+        function nextSlide() {
+            slideIndex++;
+            showSlide(slideIndex);
+        }
+
+        function prevSlide() {
+            slideIndex--;
+            showSlide(slideIndex);
+        }
+
+        // Auto play logic
+        function startAutoPlay() {
+            slideInterval = setInterval(nextSlide, 8000); // Change every 8 seconds
+        }
+
+        function stopAutoPlay() {
+            clearInterval(slideInterval);
+        }
+
+        // Event Listeners
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            stopAutoPlay();
+            nextSlide();
+            startAutoPlay();
+        });
+
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            stopAutoPlay();
+            prevSlide();
+            startAutoPlay();
+        });
+
+        // Initialize
+        showSlide(slideIndex);
+        startAutoPlay();
+
+        // Pause on hover
+        const carousel = document.getElementById('heroCarousel');
+        carousel.addEventListener('mouseenter', stopAutoPlay);
+        carousel.addEventListener('mouseleave', startAutoPlay);
+
+        // Allow direct dot clicking
+        window.currentSlide = function (n) {
+            stopAutoPlay();
+            slideIndex = n;
+            showSlide(slideIndex);
+            startAutoPlay();
+        }
+    </script>
 
     <!-- RECOMMENDED MOVIES -->
     <div class="container">

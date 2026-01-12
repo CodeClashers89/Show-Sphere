@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -61,7 +62,8 @@
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 5px;
+            text-decoration: none !important;
         }
 
         .logo span {
@@ -485,12 +487,7 @@
     <!-- Header Section -->
     <header class="header">
         <a href="{% url 'booking:home' %}" class="logo">
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
-                <path
-                    d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"
-                    fill="#8C52FF" />
-            </svg>
+            <img src="{% static 'css/showspere.png' %}" alt="Logo" width="40" height="40">
             <span>ShowSphere</span>
         </a>
 
@@ -652,10 +649,8 @@
                                 <td>{{ event.category.name }}</td>
                                 <td>{{ event.created_at|date:"d M Y" }}</td>
                                 <td>
-                                    <a href="{% url 'booking:approve_event' event.id %}"
-                                        class="btn-approve">Approve</a>
-                                    <a href="{% url 'booking:reject_event' event.id %}"
-                                        class="btn-reject">Reject</a>
+                                    <a href="{% url 'booking:approve_event' event.id %}" class="btn-approve">Approve</a>
+                                    <a href="{% url 'booking:reject_event' event.id %}" class="btn-reject">Reject</a>
                                 </td>
                             </tr>
                             {% empty %}
@@ -687,10 +682,8 @@
                                 <td>{{ movie.language.name }}</td>
                                 <td>{{ movie.release_date|date:"d M Y" }}</td>
                                 <td>
-                                    <a href="{% url 'booking:approve_movie' movie.id %}"
-                                        class="btn-approve">Approve</a>
-                                    <a href="{% url 'booking:reject_movie' movie.id %}"
-                                        class="btn-reject">Reject</a>
+                                    <a href="{% url 'booking:approve_movie' movie.id %}" class="btn-approve">Approve</a>
+                                    <a href="{% url 'booking:reject_movie' movie.id %}" class="btn-reject">Reject</a>
                                 </td>
                             </tr>
                             {% empty %}
