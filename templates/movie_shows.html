@@ -19,7 +19,7 @@
             --brand-secondary: #00BFB2;
             --text-color: #2D2042;
             --text-light: #666;
-            --bg-color: #F2F5F9;
+            --bg-color: #F9F7FF;
             --white: #fff;
             --radius: 8px;
             --border-color: #e5e5e5;
@@ -45,33 +45,38 @@
 
         /* HEADER */
         .header {
-            background: #333545;
-            padding: 0.8rem 2rem;
+            background: var(--white);
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .05);
             z-index: 100;
         }
 
         .logo {
             font-size: 1.5rem;
             font-weight: 700;
-            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .logo span {
             color: var(--brand-primary);
         }
 
+        .search-bar form {
+            display: flex;
+        }
+
         .search-bar input {
             padding: .6rem 1rem;
             width: 400px;
-            border: none;
+            border: 1px solid #ddd;
             border-radius: 4px;
-            background: #fff;
-            font-size: 0.9rem;
         }
 
         .auth-buttons {
@@ -80,7 +85,7 @@
         }
 
         .btn {
-            padding: .5rem 1.2rem;
+            padding: .5rem 1.5rem;
             border-radius: 4px;
             border: none;
             cursor: pointer;
@@ -93,32 +98,63 @@
             color: #fff;
         }
 
+        .btn-primary:hover {
+            background: #7b40f2;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #ddd;
+        }
+
+        /* NAV */
+        .nav-bar {
+            background: linear-gradient(135deg, #8C52FF, #00BFB2);
+            padding: 1rem;
+            color: white;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            list-style: none;
+        }
+
+        .nav-links li a {
+            color: white;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
         /* MOVIE HEADER */
         .movie-header {
-            background: #333545;
+            background: var(--white);
             padding: 2rem;
-            color: white;
-            border-top: 1px solid #444;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .movie-header h1 {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             margin-bottom: 0.5rem;
+            color: var(--text-color);
         }
 
         .movie-meta {
             display: flex;
-            gap: 1rem;
+            gap: 1.5rem;
             align-items: center;
             font-size: 0.9rem;
-            opacity: 0.8;
+            color: var(--text-light);
         }
 
         .certification {
-            border: 1px solid white;
-            padding: 2px 6px;
+            border: 1.5px solid var(--brand-primary);
+            padding: 3px 8px;
             border-radius: 50%;
-            font-size: 0.7rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--brand-primary);
         }
 
         /* DATE SELECTOR */
@@ -168,29 +204,12 @@
             text-transform: uppercase;
         }
 
-        /* FILTERS BAR */
-        .filters-bar {
-            background: white;
-            padding: 0.8rem 2rem;
-            display: flex;
-            gap: 2rem;
-            border-bottom: 1px solid var(--border-color);
-            font-size: 0.9rem;
-            color: var(--text-light);
-        }
-
-        .filter-item {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-
         /* MAIN CONTENT */
         .main-content {
             max-width: 1200px;
             margin: 1.5rem auto;
             background: white;
-            border-radius: 4px;
+            border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
         }
 
@@ -291,7 +310,7 @@
 
         /* FOOTER */
         .footer {
-            background-color: #333545;
+            background-color: #1f2533;
             color: #abb2bf;
             padding: 5rem 2rem 3rem;
             margin-top: 5rem;
@@ -368,7 +387,10 @@
 
     <!-- HEADER -->
     <header class="header">
-        <a href="{% url 'booking:home' %}" class="logo">Show<span>Sphere</span></a>
+        <a href="{% url 'booking:home' %}" class="logo">
+            <img src="{% static 'css/showspere.png' %}" alt="Logo" width="40" height="40">
+            <span>ShowSphere</span>
+        </a>
 
         <div class="search-bar">
             <form action="{% url 'booking:search' %}" method="get">
@@ -379,12 +401,31 @@
 
         <div class="auth-buttons">
             {% if user.is_authenticated %}
-            <a href="{% url 'booking:logout' %}" style="color:white; font-size: 0.9rem;">Sign Out</a>
+            {% if user.role == 'customer' %}
+            <a href="{% url 'booking:customer_dashboard' %}" class="btn btn-outline">Profile</a>
+            {% elif user.role == 'organizer' %}
+            <a href="{% url 'booking:organizer_dashboard' %}" class="btn btn-outline">Dashboard</a>
+            {% elif user.role == 'theatre_owner' %}
+            <a href="{% url 'booking:theatre_dashboard' %}" class="btn btn-outline">Dashboard</a>
+            {% elif user.role == 'admin' %}
+            <a href="{% url 'booking:admin_dashboard' %}" class="btn btn-outline">Admin</a>
+            {% endif %}
+            <a href="{% url 'booking:logout' %}" class="btn btn-primary">Logout</a>
             {% else %}
+            <a href="{% url 'booking:customer_register' %}" class="btn btn-outline">Sign Up</a>
             <a href="{% url 'booking:login' %}" class="btn btn-primary">Sign In</a>
             {% endif %}
         </div>
     </header>
+
+    <!-- NAV -->
+    <nav class="nav-bar">
+        <ul class="nav-links">
+            <li><a href="{% url 'booking:browse' %}">Movies</a></li>
+            <li><a href="{% url 'booking:browse' %}?category=events">Events</a></li>
+            <li><a href="{% url 'booking:browse' %}?category=sports">Sports</a></li>
+        </ul>
+    </nav>
 
     <!-- MOVIE HEADER -->
     <section class="movie-header">
@@ -407,9 +448,6 @@
         </a>
         {% endfor %}
     </section>
-
-    <!-- FILTERS BAR -->
-
 
     <!-- MAIN CONTENT -->
     <main class="main-content">
@@ -488,6 +526,10 @@
 
             <p class="footer-text">
                 Copyright {% now "Y" %} @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
+                <br><br>
+                The content and images used on this site are copyright protected and copyrights vests with the
+                respective owners. The usage of the content and images on this website is intended to promote the works
+                and endorsement of the artist shall be implied. Unauthorized use is prohibited and punishable by law.
             </p>
         </div>
     </footer>

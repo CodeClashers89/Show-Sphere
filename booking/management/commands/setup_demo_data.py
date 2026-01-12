@@ -55,8 +55,14 @@ class Command(BaseCommand):
             }
         )
         
-        city_mumbai, _ = City.objects.get_or_create(name='Mumbai', state='Maharashtra')
-        city_delhi, _ = City.objects.get_or_create(name='Delhi', state='Delhi')
+        
+        # Create locations
+        country_india, _ = Country.objects.get_or_create(name='India')
+        state_maharashtra, _ = State.objects.get_or_create(name='Maharashtra', country=country_india)
+        state_delhi, _ = State.objects.get_or_create(name='Delhi', country=country_india)
+        
+        city_mumbai, _ = City.objects.get_or_create(name='Mumbai', state=state_maharashtra)
+        city_delhi, _ = City.objects.get_or_create(name='Delhi', state=state_delhi)
 
         if created:
             organizer_user.set_password('org123')

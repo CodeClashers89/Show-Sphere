@@ -268,7 +268,7 @@ class Event(models.Model):
     artist_name = models.CharField(max_length=200, blank=True, help_text='Main artist/performer/team')
     poster = models.ImageField(upload_to='event_posters/')
     trailer_url = models.URLField(blank=True, help_text='YouTube promo/trailer URL')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='approved')
     is_trending = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -309,7 +309,7 @@ class Movie(models.Model):
     trailer_url = models.URLField(blank=True, help_text='YouTube trailer URL')
     rating = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True,
                                  validators=[MinValueValidator(0), MaxValueValidator(10)])
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='approved')
     is_trending = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
