@@ -1,48 +1,240 @@
-{% extends 'base.html' %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block content %}
-<div class="row justify-content-center my-5">
-    <div class="col-md-6">
-        <div class="card shadow">
-            <div class="card-body p-5">
-                <h3 class="text-center mb-4">Create Account</h3>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | ShowSphere</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #8C52FF;
+            --primary-hover: #7A41E6;
+            --secondary-color: #222539;
+            --white: #ffffff;
+            --text-light: #666666;
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --border-radius: 12px;
+        }
 
-                <form method="post">
-                    {% csrf_token %}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+        }
 
-                    {% for field in form %}
-                    <div class="mb-3">
-                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.help_text %}
-                        <div class="form-text text-muted">{{ field.help_text }}</div>
-                        {% endif %}
-                        {% if field.errors %}
-                        <div class="text-danger small">{{ field.errors.0 }}</div>
-                        {% endif %}
-                    </div>
-                    {% endfor %}
+        body {
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
 
-                    <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn btn-primary btn-lg">Sign Up</button>
-                    </div>
-                </form>
+        .auth-container {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
 
-                <div class="text-center mt-3">
-                    <p>Already have an account? <a href="{% url 'booking:login' %}" class="text-decoration-none">Sign
-                            In</a></p>
-                </div>
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--secondary-color);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 1.5rem;
+        }
 
-                <hr>
-                <div class="text-center small">
-                    <p class="text-muted">Parteners:</p>
-                    <a href="{% url 'booking:organizer_register' %}" class="btn btn-sm btn-outline-dark me-2">Event
-                        Organizer</a>
-                    <a href="{% url 'booking:theatre_register' %}" class="btn btn-sm btn-outline-dark">Theatre Owner</a>
-                </div>
+        .logo span {
+            color: var(--primary-color);
+        }
+
+        .form-group {
+            margin-bottom: 1.2rem;
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(248, 68, 100, 0.1);
+        }
+
+        .btn-auth {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 0.85rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 1rem;
+            width: 100%;
+            margin-top: 1rem;
+            margin-bottom: 1.5rem;
+            transition: 0.3s;
+        }
+
+        .btn-auth:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        .auth-footer {
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .auth-footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .error-text {
+            color: #f44336;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        .alert-error,
+        .alert-danger {
+            background-color: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+
+        .alert-success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+
+        .partners-section {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
+
+        .partner-btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #555;
+            text-decoration: none;
+            margin: 0.25rem;
+            transition: 0.2s;
+        }
+
+        .partner-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background-color: #fff5f7;
+        }
+
+        /* Django Form Control styling override */
+        input:not([type="checkbox"]):not([type="radio"]) {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        input:not([type="checkbox"]):not([type="radio"]):focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(248, 68, 100, 0.1);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="auth-container">
+        <a href="{% url 'booking:home' %}" class="logo">
+            <span>Show</span>Sphere
+        </a>
+
+        <h2 style="margin-bottom: 1.5rem; font-weight: 500;">Create Account</h2>
+
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+
+            {% for field in form %}
+            <div class="form-group">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}
+                <p style="font-size: 0.75rem; color: #888; margin-top: 0.25rem;">{{ field.help_text }}</p>
+                {% endif %}
+                {% if field.errors %}
+                {% for error in field.errors %}
+                <p class="error-text">{{ error }}</p>
+                {% endfor %}
+                {% endif %}
             </div>
+            {% endfor %}
+
+            <button type="submit" class="btn-auth">Sign Up</button>
+        </form>
+
+        <p class="auth-footer">
+            Already have an account? <a href="{% url 'booking:login' %}">Sign In</a>
+        </p>
+
+        <div class="partners-section">
+            <p style="font-size: 0.8rem; color: #888; margin-bottom: 0.75rem;">Partners:</p>
+            <a href="{% url 'booking:organizer_register' %}" class="partner-btn">Event Organizer</a>
+            <a href="{% url 'booking:theatre_register' %}" class="partner-btn">Theatre Owner</a>
         </div>
     </div>
-</div>
-{% endblock %}
+
+</body>
+
+</html>

@@ -1,11 +1,10 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Set New Password | ShowSphere</title>
+    <title>Verify Registration | ShowSphere</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
 
@@ -60,7 +59,6 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            text-decoration: none !important;
         }
 
         .logo span {
@@ -110,7 +108,6 @@
             background-color: transparent;
             border: 1px solid #ddd;
             color: var(--text-color);
-            text-decoration: none;
         }
 
         .btn-outline:hover {
@@ -122,7 +119,6 @@
             background-color: #8C52FF;
             color: white;
             font-weight: 700;
-            text-decoration: none;
         }
 
         /* Navigation Bar */
@@ -156,7 +152,7 @@
             padding: 4rem 1rem;
         }
 
-        .password-card {
+        .verify-card {
             width: 100%;
             max-width: 550px;
             background: var(--white);
@@ -182,44 +178,33 @@
             padding: 0 1rem;
         }
 
-        .form-group {
-            text-align: left;
-            margin-bottom: 1.5rem;
+        .code-input-container {
+            margin-bottom: 2rem;
             display: flex;
-            flex-direction: column;
-            gap: 8px;
+            justify-content: center;
         }
 
-        .form-group label {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #444;
-        }
-
-        .form-group input {
-            padding: 0.8rem 1rem;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            outline: none;
-            font-size: 1rem;
+        .code-input {
             width: 100%;
-            background: #fafafa;
-            transition: all 0.3s;
+            max-width: 320px;
+            padding: 1.2rem;
+            font-size: 1.8rem;
+            letter-spacing: 0.8rem;
+            text-align: center;
+            border: 2px solid #D0E1FD;
+            border-radius: 12px;
+            background-color: #F5F9FF;
+            color: var(--text-color);
+            font-weight: 700;
+            outline: none;
+            transition: border-color 0.3s;
         }
 
-        .form-group input:focus {
+        .code-input:focus {
             border-color: var(--primary-color);
-            background-color: #fff;
-            box-shadow: 0 0 0 3px rgba(140, 82, 255, 0.1);
         }
 
-        .error-text {
-            color: #f44336;
-            font-size: 0.85rem;
-            margin-top: 4px;
-        }
-
-        .btn-submit {
+        .btn-verify {
             background-color: #8C52FF;
             color: white;
             width: 100%;
@@ -230,12 +215,11 @@
             border: none;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 6px 20px rgba(140, 82, 255, 0.25);
-            margin-top: 1rem;
+            box-shadow: 0 6px 20px rgba(248, 68, 100, 0.25);
             margin-bottom: 1.5rem;
         }
 
-        .btn-submit:hover {
+        .btn-verify:hover {
             opacity: 0.95;
             transform: translateY(-2px);
         }
@@ -245,34 +229,12 @@
             font-weight: 500;
             color: #007bff;
             cursor: pointer;
-            text-decoration: none;
             transition: color 0.3s;
         }
 
         .back-link:hover {
             color: #0056b3;
             text-decoration: underline;
-        }
-
-        .alert {
-            padding: 1rem;
-            border-radius: 8px;
-            margin-bottom: 1.5rem;
-            font-size: 0.9rem;
-            text-align: left;
-        }
-
-        .alert-error,
-        .alert-danger {
-            background-color: #ffebee;
-            color: #c62828;
-            border: 1px solid #ffcdd2;
-        }
-
-        .alert-success {
-            background-color: #e8f5e9;
-            color: #2e7d32;
-            border: 1px solid #c8e6c9;
         }
 
         /* Footer */
@@ -318,12 +280,6 @@
             color: white;
             font-weight: 700;
             transition: all 0.3s;
-            text-decoration: none;
-        }
-
-        .social-circle:hover {
-            background: var(--primary-color);
-            transform: translateY(-3px);
         }
 
         .footer-text {
@@ -343,8 +299,13 @@
                 display: none;
             }
 
-            .password-card {
+            .verify-card {
                 padding: 2.5rem 1.5rem;
+            }
+
+            .code-input {
+                font-size: 1.5rem;
+                letter-spacing: 0.5rem;
             }
         }
     </style>
@@ -354,7 +315,7 @@
 
     <!-- Header Section -->
     <header class="header">
-        <a href="{% url 'booking:home' %}" class="logo">
+        <a href="index.html" class="logo">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="12" cy="12" r="10" fill="#8C52FF" fill-opacity="0.2" />
                 <path
@@ -364,60 +325,45 @@
             <span>ShowSphere</span>
         </a>
 
-        <form class="search-bar" action="{% url 'booking:search' %}" method="get">
+        <div class="search-bar">
             <span class="search-icon">🔍</span>
-            <input type="text" name="q" placeholder="Search for Movies, Events, Plays, Sports and Activities">
-        </form>
+            <input type="text" placeholder="Search for Movies, Events, Plays, Sports and Activities">
+        </div>
 
         <div class="auth-buttons">
-            <a href="{% url 'booking:login' %}" class="btn btn-red">Sign In</a>
-            <a href="{% url 'booking:customer_register' %}" class="btn btn-outline">Sign Up</a>
+            <button class="btn btn-outline" style="border-radius: 4px; padding: 0.4rem 1rem;">Search</button>
+            <button class="btn btn-red" onclick="window.location.href='login.html'">Sign In</button>
+            <button class="btn btn-outline">Sign Up</button>
         </div>
     </header>
 
     <!-- Navigation Bar -->
     <nav class="nav-bar">
         <ul class="nav-links">
-            <li><a href="{% url 'booking:browse' %}">Movies</a></li>
-            <li><a href="{% url 'booking:browse' %}">Theaters</a></li>
-            <li><a href="{% url 'booking:browse' %}?category=events">Events</a></li>
-            <li><a href="{% url 'booking:browse' %}?category=sports">Sports</a></li>
+            <li><a href="movies.html">Movies</a></li>
+            <li><a href="theaters.html">Theaters</a></li>
+            <li><a href="events.html">Events</a></li>
+            <li><a href="#">Sports</a></li>
         </ul>
     </nav>
 
     <!-- Main Content -->
     <main class="main-container">
-        <section class="password-card">
-            <h1 class="card-title">Set New Password</h1>
+        <section class="verify-card">
+            <h1 class="card-title">Verify Registration</h1>
             <p class="card-instructions">
-                Please create a strong password for your account.
+                Please enter the 6-digit code sent to <strong>kamanipoojan@gmail.com</strong> to verify your account.
             </p>
 
-            {% if messages %}
-            {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">
-                {{ message }}
-            </div>
-            {% endfor %}
-            {% endif %}
-
-            <form method="post">
-                {% csrf_token %}
-
-                {% for field in form %}
-                <div class="form-group">
-                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                    {{ field }}
-                    {% if field.errors %}
-                    <div class="error-text">{{ field.errors.0 }}</div>
-                    {% endif %}
+            <form>
+                <div class="code-input-container">
+                    <input type="text" class="code-input" maxlength="6" value="1 9 7 6 4 4" placeholder="0 0 0 0 0 0">
                 </div>
-                {% endfor %}
 
-                <button type="submit" class="btn-submit">Set Password</button>
+                <button type="submit" class="btn-verify">Verify</button>
 
                 <div>
-                    <a href="{% url 'booking:login' %}" class="back-link">Back to Login</a>
+                    <a href="login.html" class="back-link">Back to Login</a>
                 </div>
             </form>
         </section>
@@ -437,20 +383,35 @@
             </div>
 
             <div class="social-links">
-                <a href="https://www.facebook.com" target="_blank" class="social-circle">fb</a>
-                <a href="https://www.linkedin.com" target="_blank" class="social-circle">in</a>
-                <a href="https://www.twitter.com" target="_blank" class="social-circle">tw</a>
-                <a href="https://www.instagram.com" target="_blank" class="social-circle">ig</a>
+                <div class="social-circle">fb</div>
+                <div class="social-circle">in</div>
+                <div class="social-circle">tw</div>
+                <div class="social-circle">ig</div>
             </div>
 
             <p class="footer-text">
-                Copyright {% now "Y" %} @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
+                Copyright 2026 @ ShowSphere Entertainment Pvt. Ltd. All Rights Reserved.
                 <br><br>
                 The content and images used on this site are copyright protected and copyrights vests with the
                 respective owners. Unauthorized use is prohibited and punishable by law.
             </p>
         </div>
     </footer>
+
+    <script>
+        document.querySelector('form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Your account has been successfully verified!');
+        });
+
+        // Simple input formatting to keep spaces between numbers if desired
+        const codeInput = document.querySelector('.code-input');
+        codeInput.addEventListener('input', (e) => {
+            let val = e.target.value.replace(/\s/g, '');
+            if (val.length > 6) val = val.substring(0, 6);
+            e.target.value = val.split('').join(' ');
+        });
+    </script>
 </body>
 
 </html>

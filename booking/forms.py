@@ -60,11 +60,11 @@ class OrganizerRegistrationForm(forms.ModelForm):
         'class': 'form-control',
         'placeholder': 'Email Address'
     }))
-    password1 = forms.CharField(widget=forms.PasswordInput(attrs={
+    password1 = forms.CharField(label="Password", widget=forms.PasswordInput(attrs={
         'class': 'form-control',
         'placeholder': 'Password'
     }))
-    password2 = forms.CharField(widget=forms.PasswordInput(attrs={
+    password2 = forms.CharField(label="Confirm Password", widget=forms.PasswordInput(attrs={
         'class': 'form-control',
         'placeholder': 'Confirm Password'
     }))
@@ -137,11 +137,11 @@ class TheatreOwnerRegistrationForm(forms.ModelForm):
         'class': 'form-control',
         'placeholder': 'Email Address'
     }))
-    password1 = forms.CharField(widget=forms.PasswordInput(attrs={
+    password1 = forms.CharField(label="Password", widget=forms.PasswordInput(attrs={
         'class': 'form-control',
         'placeholder': 'Password'
     }))
-    password2 = forms.CharField(widget=forms.PasswordInput(attrs={
+    password2 = forms.CharField(label="Confirm Password", widget=forms.PasswordInput(attrs={
         'class': 'form-control',
         'placeholder': 'Confirm Password'
     }))
@@ -227,11 +227,11 @@ class PasswordResetRequestForm(forms.Form):
 
 class PasswordResetConfirmForm(forms.Form):
     """Password reset confirmation form"""
-    password1 = forms.CharField(widget=forms.PasswordInput(attrs={
+    password1 = forms.CharField(label="New Password", widget=forms.PasswordInput(attrs={
         'class': 'form-control',
         'placeholder': 'New Password'
     }))
-    password2 = forms.CharField(widget=forms.PasswordInput(attrs={
+    password2 = forms.CharField(label="Confirm New Password", widget=forms.PasswordInput(attrs={
         'class': 'form-control',
         'placeholder': 'Confirm New Password'
     }))
@@ -366,11 +366,11 @@ class OTPVerifyForm(forms.Form):
 
 class SetNewPasswordForm(forms.Form):
     """Set New Password Form"""
-    password1 = forms.CharField(widget=forms.PasswordInput(attrs={
+    password1 = forms.CharField(label="New Password", widget=forms.PasswordInput(attrs={
         'class': 'form-control',
         'placeholder': 'New Password'
     }))
-    password2 = forms.CharField(widget=forms.PasswordInput(attrs={
+    password2 = forms.CharField(label="Confirm New Password", widget=forms.PasswordInput(attrs={
         'class': 'form-control',
         'placeholder': 'Confirm New Password'
     }))
