@@ -808,35 +808,123 @@ def customer_dashboard(request):
 
 @customer_required
 def seat_selection(request, show_id):
-    """Seat selection page"""
+    """Seat selection page with dynamic layout from screen/venue"""
     show = get_object_or_404(Show, id=show_id, is_active=True)
     
     # Release expired locks
     release_expired_locks()
     
-    # Get all seats for this show
-    seats = show.seats.all().order_by('row', 'seat_number')
+    # Get seat layout and pricing from screen/venue
+    seat_layout = show.get_seat_layout()
+    price_tiers = show.get_pricing()
     
-    # Get seat bookings
-    seat_bookings = SeatBooking.objects.filter(show=show).select_related('seat')
+    # If no seat layout configured, show error
+    if not seat_layout:
+        messages.error(request, 'Seat layout has not been configured for this show.')
+        return redirect('booking:home')
     
-    # Create seat status map
+    # Get seat bookings for this show (using row + seat_number)
+    seat_bookings = SeatBooking.objects.filter(show=show).values(
+        'row', 'seat_number', 'status', 'user_id', 'lock_expires_at'
+    )
+    
+    # Create seat status map: key = "row-seatnum", value = status
     seat_status = {}
     for booking in seat_bookings:
-        if booking.status == 'booked':
-            seat_status[booking.seat.id] = 'booked'
-        elif booking.status == 'locked' and not booking.is_lock_expired():
-            if booking.user == request.user:
-                seat_status[booking.seat.id] = 'my_lock'
+        key = f"{booking['row']}-{booking['seat_number']}"
+        if booking['status'] == 'booked':
+            seat_status[key] = 'booked'
+        elif booking['status'] == 'locked':
+            # Check if it's current user's lock
+            if booking['user_id'] == request.user.id:
+                # Check if lock is still valid
+                if booking['lock_expires_at'] and timezone.now() < booking['lock_expires_at']:
+                    seat_status[key] = 'my_lock'
+                else:
+                    seat_status[key] = 'available'
             else:
-                seat_status[booking.seat.id] = 'locked'
+                # Someone else's lock - check if expired
+                if booking['lock_expires_at'] and timezone.now() < booking['lock_expires_at']:
+                    seat_status[key] = 'locked'
+                else:
+                    seat_status[key] = 'available'
+    
+    # Process seat layout to add pricing information AND seat status
+    processed_layout = {}
+    for row_label, row_data in seat_layout.items():
+        if not isinstance(row_data, dict):
+            continue
+            
+        category_name = row_data.get('category', '')
+        
+        # Find matching price tier
+        price_info = None
+        for tier_key, tier_data in price_tiers.items():
+            if isinstance(tier_data, dict) and tier_data.get('name', '').lower() == category_name.lower():
+                price_info = tier_data
+                break
+        
+        # Default price if not found
+        if not price_info:
+            price_info = {'price': show.base_price, 'color': '#8C52FF', 'name': category_name}
+        
+        # Process seats - combine active seats and removed seats to maintain layout holes
+        active_seats = row_data.get('seats', [])
+        removed_seats = row_data.get('removed', [])
+        blocked_seats = row_data.get('blocked', [])
+        
+        # Convert all to integers for sorting if they are numbers
+        try:
+            active_seats = [int(s) for s in active_seats]
+            removed_seats = [int(s) for s in removed_seats]
+            blocked_seats = [int(s) for s in blocked_seats]
+        except (ValueError, TypeError):
+            pass # Keep as is if mixed types
+            
+        # Combine and sort unique seat numbers to iterate in order
+        all_seat_nums = sorted(list(set(active_seats) | set(removed_seats)))
+        
+        seats_data = []
+        display_counter = 1
+        for seat_num in all_seat_nums:
+            seat_key = f"{row_label}-{seat_num}"
+            status = seat_status.get(seat_key, 'available')
+            
+            is_removed = seat_num in removed_seats
+            current_display_num = None
+            
+            if not is_removed:
+                current_display_num = str(display_counter)
+                display_counter += 1
+            
+            seats_data.append({
+                'number': seat_num,
+                'display_number': current_display_num,
+                'key': seat_key,
+                'status': status,
+                'removed': is_removed,
+                'blocked': seat_num in blocked_seats,
+            })
+        
+        processed_layout[row_label] = {
+            'seats_data': seats_data, # Now includes removed seats
+            'category': category_name,
+            'price': price_info.get('price', show.base_price),
+            'color': price_info.get('color', '#8C52FF'),
+        }
     
     context = {
         'show': show,
-        'seats': seats,
-        'seat_status': seat_status,
+        'seat_layout':processed_layout,
+        'price_tiers': price_tiers,
     }
     return render(request, 'customer/seat_selection.html', context)
+
+
+
+
+
+
 
 
 @customer_required
@@ -845,60 +933,94 @@ def payment(request, show_id):
     show = get_object_or_404(Show, id=show_id)
     
     if request.method == 'POST':
-        seat_ids = request.POST.getlist('seats')
+        seat_positions = request.POST.getlist('seats')  # Now receives "row-seatnumber" format
         payment_method = request.POST.get('payment_method')
         
-        if not seat_ids:
+        if not seat_positions:
             messages.error(request, 'Please select at least one seat.')
             return redirect('booking:seat_selection', show_id=show_id)
         
-        seats = Seat.objects.filter(id__in=seat_ids, show=show)
-        total_amount = sum(seat.price for seat in seats)
-        convenience_fee = total_amount * Decimal('0.02')  # 2% convenience fee
-        
-        # Create booking
+        # 1. Create a pending booking first
         booking = Booking.objects.create(
             user=request.user,
             show=show,
-            total_amount=total_amount,
-            convenience_fee=convenience_fee,
+            total_amount=Decimal('0.00'),
+            convenience_fee=Decimal('0.00'),
             payment_method=payment_method,
             payment_status='pending'
         )
-        booking.seats.set(seats)
         
-        # Simulate payment
+        # 2. Confirm the bookings and link to this booking
+        from .utils import confirm_seat_bookings
+        confirmed_seats = confirm_seat_bookings(seat_positions, request.user, show, booking=booking)
+        
+        if not confirmed_seats:
+            booking.delete()
+            messages.error(request, 'Could not confirm your seat selection. Please try again.')
+            return redirect('booking:seat_selection', show_id=show_id)
+        
+        # 3. Calculate and update totals
+        total_amount = sum(Decimal(str(sb.price)) for sb in confirmed_seats)
+        convenience_fee = total_amount * Decimal('0.02')
+        
+        booking.total_amount = total_amount
+        booking.convenience_fee = convenience_fee
+        booking.save()
+        
+        # 4. Simulate payment
+        from .utils import simulate_payment
         success, message = simulate_payment(booking, payment_method)
         
         if success:
             messages.success(request, message)
             return redirect('booking:booking_success', booking_id=booking.id)
         else:
+            # Revert bookings to locked if payment failed
+            for seat_booking in confirmed_seats:
+                seat_booking.status = 'locked'
+                seat_booking.save()
             messages.error(request, message)
             return redirect('booking:seat_selection', show_id=show_id)
     
     # GET request - show payment form
-    seat_ids = request.GET.getlist('seats')
-    if not seat_ids:
+    seat_positions = request.GET.getlist('seats')  # Now receives "row-seatnumber" format
+    if not seat_positions:
         messages.error(request, 'Please select seats first.')
         return redirect('booking:seat_selection', show_id=show_id)
     
-    seats = Seat.objects.filter(id__in=seat_ids, show=show)
-    total_amount = sum(seat.price for seat in seats)
+    # Prepare positions with display numbers
+    positions_with_display = []
+    for pos in seat_positions:
+        display_num = request.GET.get(f'display_num_{pos}')
+        positions_with_display.append({
+            'position': pos,
+            'display_number': display_num
+        })
+    
+    # Lock seats for this user
+    from .utils import lock_seats_by_position
+    locked_seats = lock_seats_by_position(positions_with_display, request.user, show)
+    
+    if not locked_seats:
+        messages.error(request, 'Could not lock the selected seats. They may be unavailable.')
+        return redirect('booking:seat_selection', show_id=show_id)
+    
+    # Calculate totals
+    total_amount = sum(Decimal(str(seat['price'])) for seat in locked_seats)
     convenience_fee = total_amount * Decimal('0.02')
     grand_total = total_amount + convenience_fee
     
-    # Lock seats for this user
-    lock_seats(seats, request.user, show)
-    
     context = {
         'show': show,
-        'seats': seats,
+        'seats': locked_seats,  # List of dicts with seat info
         'total_amount': total_amount,
         'convenience_fee': convenience_fee,
         'grand_total': grand_total,
+        'seat_positions': seat_positions,  # Pass to form
     }
     return render(request, 'customer/payment.html', context)
+
+
 
 
 @customer_required
@@ -1990,13 +2112,29 @@ def api_verify_ticket(request):
             print("DEBUG: Authorization Failed")
             return JsonResponse({'valid': False, 'error': f'You are not authorized to verify this ticket. (User: {request.user.username})'})
             
+        # Aggregate all seats in this booking
+        seat_bookings = booking.seat_bookings.all()
+        if seat_bookings.exists():
+            seat_names = [f"{sb.row}{sb.display_seat_number or sb.seat_number}" for sb in seat_bookings]
+            seat_info = ", ".join(seat_names)
+        elif ticket.seat:
+            seat_info = str(ticket.seat)
+        else:
+            seat_info = "Not specified"
+
+        # Explicit show info
+        if show.show_type == 'movie':
+            show_display = f"{show.movie.title} at {show.screen.theatre.name} ({show.show_date.strftime('%d %b %Y')} {show.show_time.strftime('%I:%M %p')})"
+        else:
+            show_display = f"{show.event.title} at {show.venue.name} ({show.show_date.strftime('%d %b %Y')} {show.show_time.strftime('%I:%M %p')})"
+
         data = {
             'valid': True,
             'ticket_id': ticket.ticket_id,
             'booking_id': booking.booking_id,
             'user': booking.user.username,
-            'seat': str(ticket.seat),
-            'show': str(show),
+            'seat': seat_info,
+            'show': show_display,
             'is_used': ticket.is_used,
             'used_at': ticket.used_at.strftime('%Y-%m-%d %H:%M') if ticket.used_at else None
         }

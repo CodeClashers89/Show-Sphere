@@ -374,6 +374,16 @@
                     {% endif %}
                 </p>
             </div>
+            <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 2px dashed #f0edf7;">
+                <span class="info-label">Seats Booked</span>
+                <div style="margin-top: 0.5rem; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                    {% for sb in booking.seat_bookings.all %}
+                    <span style="background: var(--primary-color); color: white; padding: 0.4rem 1rem; border-radius: 8px; font-weight: 800; font-size: 0.9rem;">
+                        {{ sb.row }}{{ sb.display_seat_number|default:sb.seat_number }}
+                    </span>
+                    {% endfor %}
+                </div>
+            </div>
         </div>
 
         <div class="action-group">

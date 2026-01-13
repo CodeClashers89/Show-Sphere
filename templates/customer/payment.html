@@ -409,8 +409,8 @@
                     <tbody>
                         {% for seat in seats %}
                         <tr>
-                            <td>{{ seat.row }}{{ seat.seat_number }}</td>
-                            <td>{{ seat.get_seat_type_display }}</td>
+                            <td>{{ seat.row }}{{ seat.display_number }}</td>
+                            <td>{{ seat.category }}</td>
                             <td style="text-align: right;">₹{{ seat.price }}</td>
                         </tr>
                         {% endfor %}
@@ -444,7 +444,7 @@
                 <form method="post">
                     {% csrf_token %}
                     {% for seat in seats %}
-                    <input type="hidden" name="seats" value="{{ seat.id }}">
+                    <input type="hidden" name="seats" value="{{ seat.position }}">
                     {% endfor %}
 
                     <div class="method-list">

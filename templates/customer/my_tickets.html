@@ -439,11 +439,17 @@
                 <div class="ticket-header">
                     <span class="ticket-badge">E-Ticket</span>
                     <div class="seat-display">
-                        <span class="seat-num">{{ ticket.seat.row }}{{ ticket.seat.seat_number }}</span>
-                        <span class="seat-lab">Seat</span>
+                        <span class="seat-num">{{ ticket.booking.seat_bookings.count }}</span>
+                        <span class="seat-lab">Seats</span>
                     </div>
                 </div>
                 <div class="ticket-body">
+                    <div style="float: right; font-size: 0.8rem; color: var(--primary-color); font-weight: 700;">
+                        {% for sb in ticket.booking.seat_bookings.all|slice:":3" %}
+                            {{ sb.row }}{{ sb.display_seat_number|default:sb.seat_number }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                        {% if ticket.booking.seat_bookings.count > 3 %}...{% endif %}
+                    </div>
                     <h2 class="movie-title">
                         {% if ticket.booking.show.show_type == 'movie' %}
                         {{ ticket.booking.show.movie.title }}

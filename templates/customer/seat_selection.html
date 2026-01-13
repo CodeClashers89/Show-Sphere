@@ -433,22 +433,33 @@
 
     <form id="bookingForm" action="{% url 'booking:payment' show.id %}" method="get">
         <div class="grid-container">
-            {% regroup seats by row as row_list %}
-            {% for row in row_list %}
+            {% for row_label, row_data in seat_layout.items %}
             <div class="seat-row">
-                <div class="row-label">{{ row.grouper }}</div>
+                <div class="row-label">{{ row_label }}</div>
                 <div class="seats-bundle">
-                    {% for seat in row.list %}
-                    {% with status=seat_status|get_item:seat.id %}
-                    <div class="seat {% if status == 'booked' or status == 'locked' or status == 'sold' %}booked{% elif status == 'my_lock' %}selected{% endif %}"
-                        data-seat-id="{{ seat.id }}" data-price="{{ seat.price }}"
-                        title="{{ seat.row }}{{ seat.seat_number }} - ₹{{ seat.price }}">
-                        {{ seat.seat_number }}
+                    {% for seat_data in row_data.seats_data %}
+                    {% if seat_data.removed %}
+                    <!-- Removed seats shown as empty space to maintain layout -->
+                    <div class="seat removed" style="visibility: hidden;">{{ seat_data.number }}</div>
+                    {% elif seat_data.blocked %}
+                    <!-- Blocked seats appear as booked (offline only) -->
+                    <div class="seat booked" title="{{ row_label }}{{ seat_data.number }} - Unavailable">
+                        {{ seat_data.number }}
                     </div>
-                    {% if status == 'my_lock' %}
-                    <input type="hidden" name="seats" value="{{ seat.id }}">
+                    {% else %}
+                    <!-- Regular seats -->
+                    <div class="seat {% if seat_data.status == 'booked' or seat_data.status == 'locked' %}booked{% elif seat_data.status == 'my_lock' %}selected{% endif %}"
+                        data-row="{{ row_label }}" data-seat-number="{{ seat_data.number }}" data-price="{{ row_data.price|floatformat:0 }}"
+                        data-category="{{ row_data.category }}"
+                        title="{{ row_label }}{{ seat_data.display_number }} - {{ row_data.category }} - ₹{{ row_data.price|floatformat:0 }}"
+                        style="{% if seat_data.status != 'booked' and seat_data.status != 'locked' and seat_data.status != 'my_lock' %}background-color: {{ row_data.color }}; border-color: {{ row_data.color }};{% endif %}">
+                        {{ seat_data.display_number }}
+                    </div>
                     {% endif %}
-                    {% endwith %}
+                    {% if seat_data.status == 'my_lock' %}
+                    <input type="hidden" name="seats" value="{{ seat_data.key }}">
+                    <input type="hidden" name="display_num_{{ seat_data.key }}" value="{{ seat_data.display_number }}">
+                    {% endif %}
                     {% endfor %}
                 </div>
             </div>
@@ -494,11 +505,13 @@
         let selectedSeats = new Set();
         let totalAmount = 0;
 
-        // Initialize already selected
+        // Initialize already selected (my_lock seats)
         document.querySelectorAll('.seat.selected').forEach(seat => {
-            const id = seat.dataset.seatId;
+            const row = seat.dataset.row;
+            const seatNumber = seat.dataset.seatNumber;
             const price = parseFloat(seat.dataset.price);
-            selectedSeats.add(id);
+            const key = row + '-' + seatNumber;
+            selectedSeats.add(key);
             totalAmount += price;
         });
         updateUI();
@@ -507,16 +520,18 @@
             seat.addEventListener('click', function () {
                 if (this.classList.contains('booked')) return;
 
-                const id = this.dataset.seatId;
+                const row = this.dataset.row;
+                const seatNumber = this.dataset.seatNumber;
                 const price = parseFloat(this.dataset.price);
+                const key = row + '-' + seatNumber;
 
                 this.classList.toggle('selected');
 
                 if (this.classList.contains('selected')) {
-                    selectedSeats.add(id);
+                    selectedSeats.add(key);
                     totalAmount += price;
                 } else {
-                    selectedSeats.delete(id);
+                    selectedSeats.delete(key);
                     totalAmount -= price;
                 }
 
@@ -532,11 +547,11 @@
 
         function updateFormInputs() {
             form.querySelectorAll('input[name="seats"]').forEach(el => el.remove());
-            selectedSeats.forEach(id => {
+            selectedSeats.forEach(key => {
                 const input = document.createElement('input');
                 input.type = 'hidden';
                 input.name = 'seats';
-                input.value = id;
+                input.value = key;  // Value is now "row-seatnumber"
                 form.appendChild(input);
             });
         }

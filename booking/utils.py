@@ -90,7 +90,11 @@ def send_booking_confirmation_email(booking):
         title = show.movie.title
         location = f"{show.screen.theatre.name} - {show.screen.name}"
     
-    seats_list = ', '.join([f"{seat.row}{seat.seat_number}" for seat in booking.seats.all()])
+    # Get seats from either dynamic seat_bookings or legacy seats M2M
+    if booking.seat_bookings.exists():
+        seats_list = ', '.join([f"{sb.row}{sb.display_seat_number or sb.seat_number}" for sb in booking.seat_bookings.all()])
+    else:
+        seats_list = ', '.join([f"{seat.row}{seat.seat_number}" for seat in booking.seats.all()])
     
     subject = f'Booking Confirmed - {title}'
     message = f"""
@@ -226,16 +230,17 @@ def simulate_payment(booking, payment_method):
         booking.payment_method = payment_method
         booking.save()
         
-        # Confirm seat bookings
-        confirm_seat_bookings(booking.seats.all(), booking.show)
+        # Confirm seat bookings (these are already confirmed and linked in the view,
+        # but we use the linked records for ticket generation)
         
         # Generate tickets
         from .models import Ticket
-        for seat in booking.seats.all():
-            Ticket.objects.create(
-                booking=booking,
-                seat=seat
-            )
+        
+        # Use SeatBooking records instead of legacy Seat records
+        # Create a single ticket for the entire booking
+        Ticket.objects.create(
+            booking=booking
+        )
         
         # Send confirmation email
         send_booking_confirmation_email(booking)
@@ -626,3 +631,119 @@ def send_approval_email(user, role_name):
     email.attach_alternative(html_content, "text/html")
     email.send(fail_silently=True)
 
+
+
+def lock_seats_by_position(seat_positions_with_display, user, show, duration_minutes=10):
+    """Lock seats by position (row-seatnumber) with optional display number for a user"""
+    from .models import SeatBooking
+    from datetime import timedelta
+    from django.utils import timezone
+    
+    lock_expires_at = timezone.now() + timedelta(minutes=duration_minutes)
+    seat_layout = show.get_seat_layout()
+    price_tiers = show.get_pricing()
+    
+    locked_seats = []
+    
+    for item in seat_positions_with_display:
+        try:
+            # Handle both list of strings or list of dicts/tuples
+            if isinstance(item, dict):
+                seat_pos = item['position']
+                display_num = item.get('display_number')
+            elif isinstance(item, (list, tuple)) and len(item) == 2:
+                seat_pos, display_num = item
+            else:
+                seat_pos = item
+                display_num = None
+
+            row, seat_num = seat_pos.split('-')
+            
+            # Get row data from layout
+            row_data = seat_layout.get(row, {})
+            if not row_data or int(seat_num) not in row_data.get('seats', []):
+                continue
+            
+            # Get price from category
+            category_name = row_data.get('category', '')
+            price = show.base_price
+            
+            for tier_key, tier_data in price_tiers.items():
+                if isinstance(tier_data, dict) and tier_data.get('name', '').lower() == category_name.lower():
+                    price = tier_data.get('price', show.base_price)
+                    break
+            
+            # Create or update seat booking
+            seat_booking, created = SeatBooking.objects.get_or_create(
+                show=show,
+                row=row,
+                seat_number=str(seat_num),
+                defaults={
+                    'user': user,
+                    'status': 'locked',
+                    'locked_at': timezone.now(),
+                    'lock_expires_at': lock_expires_at,
+                    'seat_category': category_name,
+                    'price': price,
+                    'display_seat_number': display_num
+                }
+            )
+            
+            if not created:
+                # Update existing booking
+                seat_booking.user = user
+                seat_booking.status = 'locked'
+                seat_booking.locked_at = timezone.now()
+                seat_booking.lock_expires_at = lock_expires_at
+                seat_booking.seat_category = category_name
+                seat_booking.price = price
+                if display_num:
+                    seat_booking.display_seat_number = display_num
+                seat_booking.save()
+            
+            locked_seats.append({
+                'row': row,
+                'seat_number': seat_num,
+                'display_number': display_num or seat_booking.display_seat_number,
+                'category': category_name,
+                'price': price,
+                'position': seat_pos
+            })
+            
+        except (ValueError, AttributeError):
+            continue
+    
+    return locked_seats
+
+
+def confirm_seat_bookings(seat_positions, user, show, booking=None):
+    """Mark seat bookings as booked (confirmed) and link to booking"""
+    from .models import SeatBooking
+    from django.utils import timezone
+    
+    confirmed_seats = []
+    
+    for seat_pos in seat_positions:
+        try:
+            row, seat_num = seat_pos.split('-')
+            
+            seat_booking = SeatBooking.objects.filter(
+                show=show,
+                row=row,
+                seat_number=str(seat_num),
+                user=user,
+                status='locked'
+            ).first()
+            
+            if seat_booking:
+                seat_booking.status = 'booked'
+                seat_booking.booked_at = timezone.now()
+                if booking:
+                    seat_booking.booking = booking
+                seat_booking.save()
+                confirmed_seats.append(seat_booking)
+                
+        except (ValueError, AttributeError):
+            continue
+    
+    return confirmed_seats

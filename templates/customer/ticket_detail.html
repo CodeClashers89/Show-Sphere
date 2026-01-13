@@ -399,9 +399,17 @@
                     <span>Main Arena</span>
                     {% endif %}
                 </div>
-                <div class="info-unit">
-                    <label>Seat</label>
-                    <span class="seat-highlight">{{ ticket.seat.row }}{{ ticket.seat.seat_number }}</span>
+                <div class="info-unit" style="grid-column: 1 / -1;">
+                    <label>Seats</label>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+                        {% for sb in ticket.booking.seat_bookings.all %}
+                        <span class="seat-badge" style="background: var(--primary-color); color: white; padding: 0.4rem 1rem; border-radius: 8px; font-weight: 800; font-size: 0.9rem;">
+                            {{ sb.row }}{{ sb.display_seat_number|default:sb.seat_number }}
+                        </span>
+                        {% empty %}
+                        <span class="seat-highlight">{{ ticket.seat.row }}{{ ticket.seat.seat_number }}</span>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
 

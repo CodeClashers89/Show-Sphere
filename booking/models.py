@@ -453,19 +453,53 @@ class SeatBooking(models.Model):
         ('booked', 'Booked'),
     ]
     
-    seat = models.ForeignKey(Seat, on_delete=models.CASCADE, related_name='locks')
+    # Legacy: FK to Seat (when individual Seat records exist)
+    seat = models.ForeignKey(Seat, on_delete=models.CASCADE, related_name='locks', null=True, blank=True)
+    
+    # New: Dynamic seat position (row + seat number from screen/venue layout)
+    row = models.CharField(max_length=5, null=True, blank=True, help_text='Seat row (e.g., A, B, C)')
+    seat_number = models.CharField(max_length=5, null=True, blank=True, help_text='Seat number within row')
+    display_seat_number = models.CharField(max_length=5, null=True, blank=True, help_text='Continuous visual seat number')
+    seat_category = models.CharField(max_length=50, null=True, blank=True, help_text='Category from price tiers')
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text='Price at booking time')
+    
     show = models.ForeignKey(Show, on_delete=models.CASCADE, related_name='seat_bookings')
     user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True)
+    booking = models.ForeignKey('Booking', on_delete=models.SET_NULL, null=True, blank=True, related_name='seat_bookings')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
     locked_at = models.DateTimeField(null=True, blank=True)
     booked_at = models.DateTimeField(null=True, blank=True)
     lock_expires_at = models.DateTimeField(null=True, blank=True)
     
     class Meta:
-        unique_together = ['seat', 'show']
+        # Support both legacy (seat FK) and new (row + seat_number) approaches
+        constraints = [
+            models.UniqueConstraint(
+                fields=['show', 'row', 'seat_number'],
+                condition=models.Q(row__isnull=False, seat_number__isnull=False),
+                name='unique_show_row_seat'
+            ),
+            models.UniqueConstraint(
+                fields=['seat', 'show'],
+                condition=models.Q(seat__isnull=False),
+                name='unique_seat_show'
+            ),
+        ]
     
     def __str__(self):
-        return f"{self.seat} - {self.get_status_display()}"
+        if self.row and self.seat_number:
+            return f"{self.row}{self.seat_number} - {self.get_status_display()}"
+        elif self.seat:
+            return f"{self.seat} - {self.get_status_display()}"
+        return f"Booking {self.id}"
+    
+    def get_seat_display(self):
+        """Get human-readable seat identifier"""
+        if self.row and self.seat_number:
+            return f"{self.row}{self.seat_number}"
+        elif self.seat:
+            return f"{self.seat.row}{self.seat.seat_number}"
+        return "Unknown"
     
     def is_lock_expired(self):
         """Check if seat lock has expired (typically 10 minutes)"""
@@ -521,7 +555,11 @@ class Ticket(models.Model):
     """E-tickets with QR codes"""
     ticket_id = models.CharField(max_length=20, unique=True, editable=False)
     booking = models.ForeignKey(Booking, on_delete=models.CASCADE, related_name='tickets')
-    seat = models.ForeignKey(Seat, on_delete=models.CASCADE)
+    # Legacy
+    seat = models.ForeignKey(Seat, on_delete=models.CASCADE, null=True, blank=True)
+    # New
+    seat_booking = models.ForeignKey(SeatBooking, on_delete=models.CASCADE, null=True, blank=True, related_name='tickets')
+    
     qr_code = models.ImageField(upload_to='qr_codes/', blank=True)
     is_used = models.BooleanField(default=False)
     used_at = models.DateTimeField(null=True, blank=True)
@@ -534,7 +572,35 @@ class Ticket(models.Model):
         # Generate QR code
         if not self.qr_code and qrcode:
             qr = qrcode.QRCode(version=1, box_size=10, border=5)
-            qr_data = f"ShowSphere Ticket\nTicket ID: {self.ticket_id}\nBooking ID: {self.booking.booking_id}\nSeat: {self.seat}\nShow: {self.booking.show}"
+            
+            # Aggregate all seats in this booking
+            seat_bookings = self.booking.seat_bookings.all()
+            if seat_bookings.exists():
+                seat_names = [f"{sb.row}{sb.display_seat_number or sb.seat_number}" for sb in seat_bookings]
+                seat_info = ", ".join(seat_names)
+            elif self.seat:
+                seat_info = str(self.seat)
+            else:
+                seat_info = "Not specified"
+                
+            # Explicit show info
+            show = self.booking.show
+            if show.show_type == 'movie':
+                title = show.movie.title
+                venue = show.screen.theatre.name
+            else:
+                title = show.event.title
+                venue = show.venue.name
+                
+            qr_data = (
+                f"ShowSphere E-Ticket\n"
+                f"Ticket ID: {self.ticket_id}\n"
+                f"Title: {title}\n"
+                f"Venue: {venue}\n"
+                f"Date: {show.show_date.strftime('%d %b %Y')}\n"
+                f"Time: {show.show_time.strftime('%I:%M %p')}\n"
+                f"Seats: {seat_info}"
+            )
             qr.add_data(qr_data)
             qr.make(fit=True)
             
@@ -548,7 +614,7 @@ class Ticket(models.Model):
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"{self.ticket_id} - {self.seat}"
+        return f"{self.ticket_id} - {self.booking.booking_id}"
 
 
 class OTP(models.Model):
