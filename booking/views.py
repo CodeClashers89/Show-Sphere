@@ -1294,6 +1294,15 @@ def theatre_dashboard(request):
     movies = Movie.objects.filter(theatre_owner=profile).order_by('-created_at')[:5]
     theatres = Theatre.objects.filter(owner=profile)[:5]
     
+    # Get statistics
+    total_movies = Movie.objects.filter(theatre_owner=profile).count()
+    active_shows = Show.objects.filter(
+        show_type='movie',
+        movie__theatre_owner=profile,
+        show_date__gte=timezone.now().date(),
+        is_active=True
+    ).count()
+    
     # Get total bookings
     total_bookings = Booking.objects.filter(
         show__movie__theatre_owner=profile,
@@ -1304,6 +1313,8 @@ def theatre_dashboard(request):
         'profile': profile,
         'movies': movies,
         'theatres': theatres,
+        'total_movies': total_movies,
+        'active_shows': active_shows,
         'total_bookings': total_bookings,
     }
     return render(request, 'theatre/dashboard.html', context)
@@ -1574,13 +1585,24 @@ def schedule_movie_show(request, movie_id):
                         ).exists()
                         
                         if not existing:
+                            # Calculate end time based on movie duration
+                            from datetime import datetime, timedelta
+                            show_datetime = datetime.combine(current_date, show_time)
+                            end_datetime = show_datetime + timedelta(minutes=movie.duration + 15)  # Add 15 min buffer
+                            
+                            # Get base price from POST or use default
+                            base_price = request.POST.get('base_price', '300.00')
+                            
                             Show.objects.create(
                                 show_type='movie',
                                 movie=movie,
                                 screen=screen,
                                 show_date=current_date,
                                 show_time=show_time,
-                                show_format=show_format
+                                end_time=end_datetime.time(),
+                                base_price=base_price,
+                                show_format=show_format,
+                                is_active=True
                             )
                             shows_created += 1
                     except Exception as e:

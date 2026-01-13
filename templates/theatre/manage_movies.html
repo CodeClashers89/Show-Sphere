@@ -519,8 +519,7 @@
                 <li class="sidebar-item active"><a href="{% url 'booking:manage_movies' %}">Manage Movies</a></li>
                 <li class="sidebar-item"><a href="{% url 'booking:manage_theatres' %}">Manage Theatres</a></li>
                 <li class="sidebar-item"><a href="{% url 'booking:theatre_analytics' %}">Analytics</a></li>
-                <li class="sidebar-item"><a href="{% url 'booking:scan_ticket' %}" style="color: #dc3545;">Scan
-                        Ticket</a></li>
+                <li class="sidebar-item"><a href="{% url 'booking:scan_ticket' %}" style="color: #dc3545;">Scan Ticket</a></li>
             </ul>
         </aside>
 
@@ -555,11 +554,6 @@
                         <h2 class="movie-title" title="{{ movie.title }}">{{ movie.title }}</h2>
                         <p class="movie-meta">{{ movie.language.name }} | {{ movie.genre.name }}</p>
 
-                        {% if movie.is_approved %}
-                        <span class="status-badge status-approved">Approved</span>
-                        {% else %}
-                        <span class="status-badge status-pending">Pending Approval</span>
-                        {% endif %}
 
                         <div class="action-buttons">
                             <a href="{% url 'booking:edit_movie' movie.id %}" class="btn-card btn-edit">Edit</a>
